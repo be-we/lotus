@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -29,6 +30,7 @@ fun WelcomePage(
 ) {
     Box(
         modifier = modifier
+            .padding(28.dp)
     ) {
         val context = LocalContext.current
 
@@ -36,30 +38,35 @@ fun WelcomePage(
             modifier = Modifier.align(Alignment.TopCenter),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(200.dp))
+            Spacer(modifier = Modifier.height(150.dp))
 
             Box(
                 modifier = Modifier
                     .size(200.dp)
-                    .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                    .clip(CircleShape),
+                    .clip(CircleShape)
+                    .background(color = MaterialTheme.colorScheme.primary),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Star,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.size(100.dp)
+                    tint = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(150.dp)
                 )
             }
 
-            Text(
-                text = context.resources.getString(R.string.app_name),
-                style = MaterialTheme.typography.headlineMedium
-            )
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = context.getAppVersionName()
+                text = context.resources.getString(R.string.app_name),
+                style = MaterialTheme.typography.displayMedium
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = context.getAppVersionName(),
+                color = MaterialTheme.colorScheme.outline
             )
         }
 

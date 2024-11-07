@@ -1,8 +1,15 @@
 package com.dn0ne.player.setup.presentation
 
-enum class SetupPage {
-    Welcome,
-    AudioPermission,
-    LyricsProvider,
-    MetadataProvider
+import kotlinx.serialization.Serializable
+
+@Serializable
+sealed interface SetupPage {
+    @Serializable
+    data object Welcome : SetupPage
+    @Serializable
+    data object AudioPermission : SetupPage
+    @Serializable
+    data object LyricsProvider : SetupPage
+    @Serializable
+    data object MetadataProvider : SetupPage
 }

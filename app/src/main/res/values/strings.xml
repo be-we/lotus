@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">MusicPlayer</string>
     <string name="get_started">Get started</string>
-    <string name="audio_permission">Audio permission</string>
-    <string name="explain_audio_permission_requirement">"To be able to play your wonderful music MusicPlayer needs permission to access the audio on your device "</string>
+    <string name="permissions">Permissions</string>
+    <string name="explain_audio_permission_requirement">MusicPlayer needs it to play your wonderful music"</string>
+    <string name="audio">Audio</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="next">Next</string>
+    <string name="grant_permission_in_settings">Please, grant permission in Settings</string>
+    <string name="metadata_source">Metadata source</string>
+    <string name="explain_metadata">If your track is missing some information (like cover art), we\'ll try to find and complete it using the preferred API:</string>
 </resources>

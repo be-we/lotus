@@ -1,89 +1,173 @@
 package com.dn0ne.player.setup.presentation.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.LibraryMusic
 import androidx.compose.material.icons.rounded.Security
-import androidx.compose.material.icons.rounded.Shield
-import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.dn0ne.player.R
-import com.dn0ne.player.core.util.getAppVersionName
 
 @Composable
 fun AudioPermissionPage(
     onGrantAudioPermissionClick: () -> Unit,
+    onNextClick: () -> Unit,
+    isAudioPermissionGrantedState: State<Boolean>,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
+    Box(
+        modifier = modifier.padding(28.dp)
     ) {
-        Spacer(modifier = Modifier.height(200.dp))
-
-        Box(
-            modifier = Modifier
-                .size(200.dp)
-                .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                .clip(CircleShape),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Rounded.Security,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.size(100.dp)
-            )
+        val context = LocalContext.current
+        val isAudioPermissionGranted by remember {
+            isAudioPermissionGrantedState
         }
-
-        Text(
-            text = context.resources.getString(R.string.audio_permission),
-            style = MaterialTheme.typography.headlineMedium
-        )
-
-        OutlinedCard(
-            onClick = onGrantAudioPermissionClick,
-            modifier = Modifier.fillMaxSize()
+        Column(
+            modifier = Modifier.align(alignment = Alignment.TopCenter),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(175.dp))
+
             Box(
                 modifier = Modifier
-                    .size(100.dp)
-                    .background(color = MaterialTheme.colorScheme.tertiaryContainer)
-                    .clip(CircleShape),
+                    .size(150.dp)
+                    .clip(CircleShape)
+                    .background(color = MaterialTheme.colorScheme.secondary),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Rounded.LibraryMusic,
+                    imageVector = Icons.Rounded.Security,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.size(50.dp)
+                    tint = MaterialTheme.colorScheme.onSecondary,
+                    modifier = Modifier.size(75.dp)
                 )
             }
 
-            Text(text = context.resources.getString(R.string.explain_audio_permission_requirement))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Grant permission",
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                text = context.resources.getString(R.string.permissions),
+                style = MaterialTheme.typography.headlineLarge
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape = ShapeDefaults.ExtraLarge)
+                    .background(color = MaterialTheme.colorScheme.surfaceContainer)
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        shape = ShapeDefaults.ExtraLarge
+                    )
+                    .clickable {
+                        if (!isAudioPermissionGranted) {
+                            onGrantAudioPermissionClick()
+                        }
+                    }
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(
+                            color = if (isAudioPermissionGranted) {
+                                MaterialTheme.colorScheme.primary
+                            } else MaterialTheme.colorScheme.tertiary
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AnimatedContent(
+                        targetState = isAudioPermissionGranted,
+                        label = "permission-icon"
+                    ) { isGranted ->
+                        if (isGranted) {
+                            Icon(
+                                imageVector = Icons.Rounded.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(25.dp)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Rounded.LibraryMusic,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onTertiary,
+                                modifier = Modifier.size(25.dp)
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column {
+                    Text(
+                        text = context.resources.getString(R.string.audio),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Text(
+                        text = context.resources.getString(R.string.explain_audio_permission_requirement),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+
+        AnimatedContent(
+            targetState = isAudioPermissionGranted,
+            label = "permission-button-content",
+            modifier = Modifier.align(Alignment.BottomEnd)
+        ) { isGranted ->
+            if (isGranted) {
+                Button(
+                    onClick = onNextClick,
+                ) {
+                    Text(
+                        text = context.resources.getString(R.string.next)
+                    )
+                }
+            } else {
+                Button(
+                    onClick = onGrantAudioPermissionClick,
+                ) {
+                    Text(
+                        text = context.resources.getString(R.string.grant_permission)
+                    )
+                }
+            }
         }
     }
 }
