@@ -7,6 +7,7 @@ class Settings(context: Context) {
 
     private val themeKey = "theme"
     private val lyricsProviderKey = "lyrics-provider"
+    private val metadataProviderKey = "metadata-provider"
 
     var theme: Theme
         get() = Theme.entries[sharedPreferences.getInt(themeKey, 0)]
@@ -25,6 +26,15 @@ class Settings(context: Context) {
                 apply()
             }
         }
+
+    var metadataProvider: MetadataProvider
+        get() = MetadataProvider.entries[sharedPreferences.getInt(metadataProviderKey, 0)]
+        set(value) {
+            with(sharedPreferences.edit()) {
+                putInt(metadataProviderKey, value.ordinal)
+                apply()
+            }
+        }
 }
 
 enum class Theme {
@@ -36,4 +46,9 @@ enum class Theme {
 enum class LyricsProvider {
     Musixmatch,
     LastFm
+}
+
+enum class MetadataProvider {
+    LastFm,
+    Deezer
 }
