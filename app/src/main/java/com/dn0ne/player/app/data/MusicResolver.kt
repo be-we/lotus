@@ -91,8 +91,4 @@ class MusicResolver(
 
         return tracks
     }
-
-    fun getDetailedTrackInfo(uri: Uri) {
-
-    }
 }
