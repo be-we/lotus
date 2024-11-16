@@ -17,7 +17,8 @@ import com.dn0ne.player.setup.presentation.components.WelcomePage
 fun SetupScreen(
     viewModel: SetupViewModel,
     requestAudioPermission: () -> Unit,
-    onFinishSetupClick: () -> Unit
+    onFinishSetupClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val startDestination = viewModel.startDestination
 
@@ -45,7 +46,7 @@ fun SetupScreen(
                 onGetStartedClick = {
                     navController.navigate(SetupPage.AudioPermission)
                 },
-                modifier = Modifier.fillMaxSize()
+                modifier = modifier.fillMaxSize()
             )
         }
 
@@ -58,7 +59,7 @@ fun SetupScreen(
                     onFinishSetupClick()
                 },
                 isAudioPermissionGrantedState = isAudioPermissionGranted,
-                modifier = Modifier.fillMaxSize()
+                modifier = modifier.fillMaxSize()
             )
         }
 
@@ -67,7 +68,7 @@ fun SetupScreen(
             MetadataPage(
                 selectedMetadataProviderState = selectedMetadataProviderState,
                 onEvent = viewModel::onEvent,
-                modifier = Modifier.fillMaxSize()
+                modifier = modifier.fillMaxSize()
             )
         }
     }
