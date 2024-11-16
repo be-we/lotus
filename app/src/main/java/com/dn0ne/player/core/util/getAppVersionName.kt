@@ -9,5 +9,5 @@ fun Context.getAppVersionName(): String {
         packageManager.getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0)).versionName
     } else {
         packageManager.getPackageInfo(packageName, 0).versionName
-    }
+    } ?: ""
 }
