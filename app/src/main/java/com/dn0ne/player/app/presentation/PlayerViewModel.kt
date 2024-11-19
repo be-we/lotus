@@ -4,11 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
-import com.dn0ne.player.app.data.MusicResolver
 import com.dn0ne.player.app.data.SavedPlayerState
+import com.dn0ne.player.app.data.TrackResolver
 import com.dn0ne.player.app.domain.playback.PlaybackMode
 import com.dn0ne.player.app.domain.playback.PlaybackState
 import com.dn0ne.player.app.domain.track.Track
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +19,7 @@ import kotlinx.coroutines.launch
 
 class PlayerViewModel(
     private val savedPlayerState: SavedPlayerState,
-    private val musicResolver: MusicResolver
+    private val trackResolver: TrackResolver
 ) : ViewModel() {
     var player: Player? = null
 
@@ -38,9 +39,9 @@ class PlayerViewModel(
         )
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             while (true) {
-                val tracks = musicResolver.getTracks()
+                val tracks = trackResolver.getTracks()
                 if (_trackList.value != tracks) {
                     _trackList.update {
                         tracks
@@ -251,15 +252,17 @@ class PlayerViewModel(
     }
 
     private fun setPlayerPlaybackMode(playbackMode: PlaybackMode) {
-        when(playbackMode) {
+        when (playbackMode) {
             PlaybackMode.Repeat -> {
                 player?.repeatMode = Player.REPEAT_MODE_ALL
                 player?.shuffleModeEnabled = false
             }
+
             PlaybackMode.RepeatOne -> {
                 player?.repeatMode = Player.REPEAT_MODE_ONE
                 player?.shuffleModeEnabled = false
             }
+
             PlaybackMode.Shuffle -> {
                 player?.repeatMode = Player.REPEAT_MODE_ALL
                 player?.shuffleModeEnabled = true
