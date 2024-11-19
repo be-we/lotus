@@ -24,7 +24,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
-import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
 import coil3.request.transitionFactory
 import coil3.transition.CrossfadeTransition
@@ -36,7 +35,6 @@ import com.dn0ne.player.setup.presentation.SetupScreen
 import com.dn0ne.player.setup.presentation.SetupViewModel
 import com.dn0ne.player.ui.theme.MusicPlayerTheme
 import com.google.common.util.concurrent.MoreExecutors
-import okio.Path.Companion.toPath
 import org.koin.android.ext.android.get
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 
