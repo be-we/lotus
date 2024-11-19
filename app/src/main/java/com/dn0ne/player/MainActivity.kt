@@ -123,6 +123,16 @@ class MainActivity : ComponentActivity() {
 
                         composable<Routes.Player> {
                             val viewModel = getViewModel<PlayerViewModel>()
+                            val mediaSessionToken =
+                                SessionToken(application, ComponentName(application, PlaybackService::class.java))
+
+                            val controllerFuture = MediaController.Builder(application, mediaSessionToken).buildAsync()
+                            controllerFuture.addListener(
+                                {
+                                    viewModel.player = controllerFuture.get()
+                                },
+                                MoreExecutors.directExecutor()
+                            )
                             PlayerScreen(
                                 viewModel = viewModel,
                                 modifier = Modifier.fillMaxSize()
@@ -132,22 +142,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        val viewModel = getViewModel<PlayerViewModel>()
-        val mediaSessionToken =
-            SessionToken(application, ComponentName(application, PlaybackService::class.java))
-
-        val controllerFuture = MediaController.Builder(application, mediaSessionToken).buildAsync()
-        controllerFuture.addListener(
-            {
-                viewModel.player = controllerFuture.get()
-            },
-            MoreExecutors.directExecutor()
-        )
     }
 
     private fun checkAudioPermission(): Boolean =
