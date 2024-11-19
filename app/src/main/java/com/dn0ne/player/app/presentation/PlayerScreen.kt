@@ -176,6 +176,7 @@ fun TrackList(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
+                        .animateItem()
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
