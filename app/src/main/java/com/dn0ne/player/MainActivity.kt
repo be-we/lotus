@@ -54,12 +54,6 @@ class MainActivity : ComponentActivity() {
                         .maxSizePercent(applicationContext, 0.25)
                         .build()
                 }
-                .diskCache {
-                    DiskCache.Builder()
-                        .directory(applicationContext.cacheDir.resolve("image_cache").path.toPath())
-                        .maxSizePercent(0.02)
-                        .build()
-                }
                 .build()
         }
 
