@@ -9,8 +9,18 @@ import kotlinx.serialization.Serializable
 data class Track(
     val uri: Uri,
     val mediaItem: MediaItem,
-    val title: String,
-    val artist: String,
     val coverArtUri: Uri,
     val duration: Int,
+    val size: Long,
+    val dateModified: String,
+    val data: String,
+
+    val title: String? = null,
+    val artist: String? = null,
+    val album: String? = null,
+    val albumArtist: String? = null,
+    val genre: String? = null,
+    val year: String? = null,
+    val trackNumber: String? = null,
+    val bitrate: String? = null
 )
