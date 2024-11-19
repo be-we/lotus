@@ -61,12 +61,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.dn0ne.player.app.domain.playback.PlaybackMode
 import com.dn0ne.player.app.domain.playback.PlaybackState
+import com.dn0ne.player.R
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
@@ -283,14 +285,15 @@ fun BottomPlayer(
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Column {
+                    val context = LocalContext.current
                     Text(
-                        text = currentTrack.title,
+                        text = currentTrack.title ?: context.resources.getString(R.string.unknown_title),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.basicMarquee()
                     )
                     Text(
-                        text = currentTrack.artist,
+                        text = currentTrack.artist  ?: context.resources.getString(R.string.unknown_artist),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.basicMarquee()
@@ -445,8 +448,9 @@ fun ExpandedPlayer(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    val context = LocalContext.current
                     Text(
-                        text = track.title,
+                        text = track.title ?: context.resources.getString(R.string.unknown_title),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.primary,
@@ -454,7 +458,7 @@ fun ExpandedPlayer(
                     )
 
                     Text(
-                        text = track.artist,
+                        text = track.artist ?: context.resources.getString(R.string.unknown_artist),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.basicMarquee()
