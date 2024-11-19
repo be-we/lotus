@@ -9,4 +9,6 @@
     <string name="grant_permission_in_settings">Please, grant permission in Settings</string>
     <string name="metadata_source">Metadata source</string>
     <string name="explain_metadata">If your track is missing some information (like cover art), we\'ll try to find and complete it using the preferred API:</string>
+    <string name="unknown_title">Unknown Title</string>
+    <string name="unknown_artist">Unknown Artist</string>
 </resources>
