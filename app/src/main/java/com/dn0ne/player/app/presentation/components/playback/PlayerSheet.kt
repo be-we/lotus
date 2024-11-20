@@ -67,8 +67,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.dn0ne.player.app.domain.playback.PlaybackMode
-import com.dn0ne.player.app.domain.playback.PlaybackState
 import com.dn0ne.player.R
+import com.dn0ne.player.app.presentation.components.CoverArt
+import com.dn0ne.player.app.presentation.components.WavingSeekBar
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
@@ -238,7 +239,6 @@ fun BottomPlayer(
             .clickable {
                 onClick()
             }
-            .navigationBarsPadding()
     ) {
         val playbackState by playbackStateFlow.collectAsState()
         val currentTrack by remember {
@@ -260,7 +260,7 @@ fun BottomPlayer(
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .fillMaxSize(
+                .fillMaxWidth(
                     animateFloatAsState(
                         targetValue = position.toFloat() / currentTrack.duration,
                         animationSpec = tween(durationMillis = 1000, easing = LinearEasing),
@@ -273,6 +273,7 @@ fun BottomPlayer(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .navigationBarsPadding()
                 .padding(28.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
