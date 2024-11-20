@@ -30,16 +30,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import com.dn0ne.player.app.domain.track.Track
-import com.dn0ne.player.app.presentation.components.PlayerSheet
 import com.dn0ne.player.app.presentation.components.TrackListItem
+import com.dn0ne.player.app.presentation.components.playback.PlayerSheet
 import com.kmpalette.rememberDominantColorState
 import com.materialkolor.DynamicMaterialTheme
 
@@ -99,7 +99,7 @@ fun PlayerScreen(
                     modifier = Modifier
                         .align(alignment = Alignment.BottomCenter)
                 ) {
-                    LaunchedEffect(currentTrack) {
+                    LaunchedEffect(coverArtBitmap) {
                         coverArtBitmap?.let {
                             dominantColorState.updateFrom(it)
                         }
