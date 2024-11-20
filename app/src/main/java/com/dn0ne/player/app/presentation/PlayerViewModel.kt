@@ -7,7 +7,7 @@ import androidx.media3.common.Player
 import com.dn0ne.player.app.data.SavedPlayerState
 import com.dn0ne.player.app.data.TrackResolver
 import com.dn0ne.player.app.domain.playback.PlaybackMode
-import com.dn0ne.player.app.domain.playback.PlaybackState
+import com.dn0ne.player.app.presentation.components.playback.PlaybackState
 import com.dn0ne.player.app.domain.track.Track
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
