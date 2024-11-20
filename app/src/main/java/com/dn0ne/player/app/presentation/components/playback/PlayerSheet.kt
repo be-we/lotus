@@ -1,4 +1,4 @@
-package com.dn0ne.player.app.presentation.components
+package com.dn0ne.player.app.presentation.components.playback
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent

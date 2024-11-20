@@ -1,5 +1,6 @@
-package com.dn0ne.player.app.domain.playback
+package com.dn0ne.player.app.presentation.components.playback
 
+import com.dn0ne.player.app.domain.playback.PlaybackMode
 import com.dn0ne.player.app.domain.track.Track
 
 data class PlaybackState(
