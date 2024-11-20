@@ -181,6 +181,10 @@ fun PlayerSheet(
                     playbackStateFlow = playbackStateFlow,
                     onClick = {
                         isExpanded = true
+                        translationY.updateBounds(
+                            lowerBound = 0f,
+                            upperBound = thresholdY
+                        )
                     },
                     onPlayClick = onPlayClick,
                     onPauseClick = onPauseClick,
@@ -199,6 +203,10 @@ fun PlayerSheet(
                     onSeekToPreviousClick = onSeekToPreviousClick,
                     onHideClick = {
                         isExpanded = false
+                        translationY.updateBounds(
+                            lowerBound = -thresholdY,
+                            upperBound = 0f
+                        )
                     },
                     onPlaybackModeClick = onPlaybackModeClick,
                     onCoverArtLoaded = onCoverArtLoaded,
