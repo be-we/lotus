@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 class PlayerViewModel(
     private val savedPlayerState: SavedPlayerState,
-    private val trackResolver: TrackRepository
+    private val trackRepository: TrackRepository
 ) : ViewModel() {
     var player: Player? = null
 
@@ -52,7 +52,7 @@ class PlayerViewModel(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
-                val tracks = trackResolver.getTracks()
+                val tracks = trackRepository.getTracks()
                 if (_trackList.value != tracks) {
                     _trackList.update {
                         tracks
