@@ -128,6 +128,15 @@ fun PlayerScreen(
                         onCoverArtLoaded = {
                             coverArtBitmap = it
                         },
+                        onPlayNextClick = {
+                            viewModel.onEvent(PlayerScreenEvent.OnPlayNextClick(currentTrack!!))
+                        },
+                        onAddToQueueClick = {
+                            viewModel.onEvent(PlayerScreenEvent.OnAddToQueueClick(currentTrack!!))
+                        },
+                        onViewTrackInfoClick = {
+                            viewModel.onEvent(PlayerScreenEvent.OnViewTrackInfoClick(currentTrack!!))
+                        },
                         modifier = Modifier
                             .align(alignment = Alignment.BottomCenter)
                             .fillMaxWidth()

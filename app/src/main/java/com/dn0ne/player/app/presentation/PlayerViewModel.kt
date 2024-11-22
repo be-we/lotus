@@ -9,7 +9,9 @@ import com.dn0ne.player.app.data.TrackResolver
 import com.dn0ne.player.app.domain.playback.PlaybackMode
 import com.dn0ne.player.app.presentation.components.playback.PlaybackState
 import com.dn0ne.player.app.domain.track.Track
+import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheetState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -37,6 +39,15 @@ class PlayerViewModel(
             started = SharingStarted.WhileSubscribed(5000L),
             initialValue = PlaybackState()
         )
+
+    private var positionUpdateJob: Job? = null
+
+    private val _trackInfoSheetState = MutableStateFlow(TrackInfoSheetState())
+    val trackInfoSheetState = _trackInfoSheetState.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = TrackInfoSheetState()
+    )
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -67,7 +78,7 @@ class PlayerViewModel(
                     }
 
                     if (player!!.isPlaying) {
-                        startPositionUpdate()
+                        positionUpdateJob = startPositionUpdate()
                     }
                 }
             }
@@ -91,8 +102,9 @@ class PlayerViewModel(
                             )
                         }
 
+                        positionUpdateJob?.cancel()
                         if (isPlaying) {
-                            startPositionUpdate()
+                            positionUpdateJob = startPositionUpdate()
                         }
                     }
 
@@ -111,7 +123,9 @@ class PlayerViewModel(
                                 position = 0L
                             )
                         }
-                        startPositionUpdate()
+
+                        positionUpdateJob?.cancel()
+                        positionUpdateJob = startPositionUpdate()
                     }
                 }
             )
@@ -151,7 +165,6 @@ class PlayerViewModel(
                             position = 0L
                         )
                     }
-
                 }
             }
 
@@ -209,8 +222,6 @@ class PlayerViewModel(
                             position = event.position
                         )
                     }
-
-                    startPositionUpdate()
                 }
             }
 
@@ -226,25 +237,98 @@ class PlayerViewModel(
                         )
                     }
                     savedPlayerState.playbackMode = mode
+                }
+            }
 
-                    if (_playbackState.value.isPlaying)
-                        startPositionUpdate()
+            is PlayerScreenEvent.OnPlayNextClick -> {
+                if (_playbackState.value.playlist == null || _playbackState.value.playlist?.isEmpty() == true) {
+                    _playbackState.update {
+                        it.copy(
+                            playlist = listOf(event.track),
+                            currentTrack = event.track
+                        )
+                    }
+
+                    player?.run {
+                        addMediaItem(event.track.mediaItem)
+                        prepare()
+                        play()
+                    }
+                } else {
+                    _playbackState.value.playlist?.let { playlist ->
+                        if (!playlist.contains(event.track)){
+                            _playbackState.update {
+                                it.copy(
+                                    playlist = playlist.toMutableList() + event.track
+                                )
+                            }
+                        }
+                    }
+
+                    player?.run {
+                        addMediaItem(currentMediaItemIndex + 1, event.track.mediaItem)
+                    }
+                }
+            }
+            is PlayerScreenEvent.OnAddToQueueClick -> {
+                if (_playbackState.value.playlist == null || _playbackState.value.playlist?.isEmpty() == true) {
+                    _playbackState.update {
+                        it.copy(
+                            playlist = listOf(event.track),
+                            currentTrack = event.track
+                        )
+                    }
+
+                    player?.run {
+                        addMediaItem(event.track.mediaItem)
+                        prepare()
+                        play()
+                    }
+                } else {
+                    _playbackState.value.playlist?.let { playlist ->
+                        if (!playlist.contains(event.track)){
+                            _playbackState.update {
+                                it.copy(
+                                    playlist = playlist.toMutableList() + event.track
+                                )
+                            }
+                        }
+                    }
+
+                    player?.run {
+                        addMediaItem(event.track.mediaItem)
+                    }
+                }
+            }
+
+            is PlayerScreenEvent.OnViewTrackInfoClick -> {
+                _trackInfoSheetState.update {
+                    it.copy(
+                        isShown = true,
+                        track = event.track
+                    )
+                }
+            }
+
+            PlayerScreenEvent.OnCloseTrackInfoSheetClick -> {
+                _trackInfoSheetState.update {
+                    it.copy(
+                        isShown = false
+                    )
                 }
             }
         }
     }
 
-    private fun startPositionUpdate() {
-        viewModelScope.launch {
+    private fun startPositionUpdate(): Job {
+        return viewModelScope.launch {
             player?.let { player ->
-                var playbackState = _playbackState.value
-                while (_playbackState.value == playbackState && playbackState.isPlaying) {
+                while (_playbackState.value.isPlaying) {
                     _playbackState.update {
                         it.copy(
                             position = player.currentPosition
                         )
                     }
-                    playbackState = _playbackState.value
                     delay(1000)
                 }
             }

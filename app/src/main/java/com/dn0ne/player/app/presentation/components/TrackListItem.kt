@@ -1,10 +1,13 @@
 package com.dn0ne.player.app.presentation.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -26,6 +29,9 @@ fun TrackListItem(
     track: Track,
     isCurrent: Boolean,
     onClick: () -> Unit,
+    onPlayNextClick: () -> Unit,
+    onAddToQueueClick: () -> Unit,
+    onViewTrackInfoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -37,30 +43,46 @@ fun TrackListItem(
             .background(
                 color = if (isCurrent) MaterialTheme.colorScheme.surfaceContainerLow else Color.Transparent
             )
-            .padding(12.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(vertical = 8.dp)
+            .padding(start = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        CoverArt(
-            uri = track.coverArtUri,
-            modifier = Modifier
-                .size(60.dp)
-                .clip(ShapeDefaults.Small)
-        )
+        val context = LocalContext.current
+        Row(
+            modifier = Modifier.fillMaxWidth(.8f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
 
-        Spacer(modifier = Modifier.width(16.dp))
+            CoverArt(
+                uri = track.coverArtUri,
+                modifier = Modifier
+                    .size(60.dp)
+                    .clip(ShapeDefaults.Small)
+            )
 
-        Column {
-            val context = LocalContext.current
-            Text(
-                text = track.title ?: context.resources.getString(R.string.unknown_title),
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = track.artist ?: context.resources.getString(R.string.unknown_artist),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column {
+                Text(
+                    text = track.title ?: context.resources.getString(R.string.unknown_title),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.basicMarquee()
+                )
+                Text(
+                    text = track.artist ?: context.resources.getString(R.string.unknown_artist),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.basicMarquee()
+                )
+            }
         }
+
+        TrackMenuButton(
+            onPlayNextClick = onPlayNextClick,
+            onAddToQueueClick = onAddToQueueClick,
+            onViewTrackInfoClick = onViewTrackInfoClick
+        )
     }
 }

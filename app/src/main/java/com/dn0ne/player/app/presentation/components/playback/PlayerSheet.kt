@@ -66,9 +66,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
-import com.dn0ne.player.app.domain.playback.PlaybackMode
 import com.dn0ne.player.R
+import com.dn0ne.player.app.domain.playback.PlaybackMode
 import com.dn0ne.player.app.presentation.components.CoverArt
+import com.dn0ne.player.app.presentation.components.TrackMenuButton
 import com.dn0ne.player.app.presentation.components.WavingSeekBar
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -85,6 +86,9 @@ fun PlayerSheet(
     onSeekTo: (Long) -> Unit,
     onPlaybackModeClick: () -> Unit,
     onCoverArtLoaded: (ImageBitmap?) -> Unit,
+    onPlayNextClick: () -> Unit,
+    onAddToQueueClick: () -> Unit,
+    onViewTrackInfoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember {
@@ -211,6 +215,9 @@ fun PlayerSheet(
                     },
                     onPlaybackModeClick = onPlaybackModeClick,
                     onCoverArtLoaded = onCoverArtLoaded,
+                    onPlayNextClick = onPlayNextClick,
+                    onAddToQueueClick = onAddToQueueClick,
+                    onViewTrackInfoClick = onViewTrackInfoClick,
                     modifier = Modifier.clickable(
                         onClick = {},
                         interactionSource = null,
@@ -363,6 +370,9 @@ fun ExpandedPlayer(
     onHideClick: () -> Unit,
     onPlaybackModeClick: () -> Unit,
     onCoverArtLoaded: (ImageBitmap?) -> Unit,
+    onPlayNextClick: () -> Unit,
+    onAddToQueueClick: () -> Unit,
+    onViewTrackInfoClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     BackHandler {
@@ -397,7 +407,7 @@ fun ExpandedPlayer(
                 Icon(
                     imageVector = Icons.Rounded.ExpandMore,
                     contentDescription = "Close player sheet",
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -412,9 +422,16 @@ fun ExpandedPlayer(
                             PlaybackMode.RepeatOne -> Icons.Rounded.RepeatOne
                             PlaybackMode.Shuffle -> Icons.Rounded.Shuffle
                         },
-                        contentDescription = null
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+
+                TrackMenuButton(
+                    onPlayNextClick = onPlayNextClick,
+                    onAddToQueueClick = onAddToQueueClick,
+                    onViewTrackInfoClick = onViewTrackInfoClick
+                )
             }
         }
 
