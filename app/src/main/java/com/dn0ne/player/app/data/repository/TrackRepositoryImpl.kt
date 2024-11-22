@@ -1,4 +1,4 @@
-package com.dn0ne.player.app.data
+package com.dn0ne.player.app.data.repository
 
 import android.content.ContentUris
 import android.content.Context
@@ -9,10 +9,10 @@ import androidx.media3.common.MediaItem
 import com.dn0ne.player.app.domain.track.Track
 import java.util.concurrent.TimeUnit
 
-class TrackResolver(
+class TrackRepositoryImpl(
     private val context: Context
-) {
-    fun getTracks(): List<Track> {
+): TrackRepository {
+    override fun getTracks(): List<Track> {
         val trackIdToGenre = getTrackIdToGenreMap()
 
         val collection =
