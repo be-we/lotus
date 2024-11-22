@@ -5,10 +5,10 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import com.dn0ne.player.app.data.SavedPlayerState
-import com.dn0ne.player.app.data.TrackResolver
+import com.dn0ne.player.app.data.repository.TrackRepository
 import com.dn0ne.player.app.domain.playback.PlaybackMode
-import com.dn0ne.player.app.presentation.components.playback.PlaybackState
 import com.dn0ne.player.app.domain.track.Track
+import com.dn0ne.player.app.presentation.components.playback.PlaybackState
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheetState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 
 class PlayerViewModel(
     private val savedPlayerState: SavedPlayerState,
-    private val trackResolver: TrackResolver
+    private val trackResolver: TrackRepository
 ) : ViewModel() {
     var player: Player? = null
 
