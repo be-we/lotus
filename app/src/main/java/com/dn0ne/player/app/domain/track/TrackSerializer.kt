@@ -40,7 +40,7 @@ object TrackSerializer : KSerializer<Track> {
             encodeStringElement(descriptor, 1, value.coverArtUri.toString())
             encodeIntElement(descriptor, 2, value.duration)
             encodeLongElement(descriptor, 3, value.size)
-            encodeStringElement(descriptor, 4, value.dateModified)
+            encodeLongElement(descriptor, 4, value.dateModified)
             encodeStringElement(descriptor, 5, value.data)
 
             encodeStringElement(descriptor, 6, value.title ?: "null")
@@ -60,7 +60,7 @@ object TrackSerializer : KSerializer<Track> {
             var coverArtUriString = ""
             var duration = -1
             var size = -1L
-            var dateModified = ""
+            var dateModified = -1L
             var data = ""
 
             var title: String? = null
@@ -78,7 +78,7 @@ object TrackSerializer : KSerializer<Track> {
                     1 -> coverArtUriString = decodeStringElement(descriptor, 1)
                     2 -> duration = decodeIntElement(descriptor, 2)
                     3 -> size = decodeLongElement(descriptor, 3)
-                    4 -> dateModified = decodeStringElement(descriptor, 4)
+                    4 -> dateModified = decodeLongElement(descriptor, 4)
                     5 -> data = decodeStringElement(descriptor, 5)
 
                     6 -> title = decodeStringElement(descriptor, 6).takeIf { it != "null" }

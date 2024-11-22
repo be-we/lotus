@@ -12,7 +12,7 @@ data class Track(
     val coverArtUri: Uri,
     val duration: Int,
     val size: Long,
-    val dateModified: String,
+    val dateModified: Long,
     val data: String,
 
     val title: String? = null,

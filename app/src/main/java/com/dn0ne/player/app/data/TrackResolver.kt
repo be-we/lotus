@@ -81,7 +81,7 @@ class TrackResolver(
                 val duration = cursor.getInt(durationColumn)
                 val albumId = cursor.getLong(albumIdColumn)
                 val size = cursor.getLong(sizeColumn)
-                val dateModified = cursor.getString(dateModifiedColumn)
+                val dateModified = cursor.getLong(dateModifiedColumn)
 
                 val title = cursor.getString(titleColumn)
                 val album = cursor.getString(albumColumn)
