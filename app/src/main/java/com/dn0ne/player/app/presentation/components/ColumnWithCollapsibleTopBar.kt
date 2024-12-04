@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import com.dn0ne.player.app.presentation.components.animatable.rememberAnimatable
 import kotlinx.coroutines.launch
 
 @Composable
@@ -56,9 +57,11 @@ fun ColumnWithCollapsibleTopBar(
 
     val minTopBarHeight = remember { with(density) { minTopBarHeight.toPx() } }
     val maxTopBarHeight = remember { with(density) { maxTopBarHeight.toPx() } }
-    val topBarHeight = remember {
-        Animatable(if (collapsedByDefault) minTopBarHeight else maxTopBarHeight)
-    }
+    val topBarHeight = rememberAnimatable(
+        initialValue = if (collapsedByDefault) {
+            minTopBarHeight
+        } else maxTopBarHeight
+    )
 
     LaunchedEffect(topBarHeight.value) {
         collapseFraction(
@@ -117,6 +120,8 @@ fun ColumnWithCollapsibleTopBar(
                 verticalArrangement = contentVerticalArrangement
             ) {
                 content()
+
+                Spacer(modifier = Modifier.height(100.dp))
             }
         }
 
@@ -149,9 +154,11 @@ fun LazyColumnWithCollapsibleTopBar(
 
     val minTopBarHeight = remember { with(density) { minTopBarHeight.toPx() } }
     val maxTopBarHeight = remember { with(density) { maxTopBarHeight.toPx() } }
-    val topBarHeight = remember {
-        Animatable(if (collapsedByDefault) minTopBarHeight else maxTopBarHeight)
-    }
+    val topBarHeight = rememberAnimatable(
+        initialValue = if (collapsedByDefault) {
+            minTopBarHeight
+        } else maxTopBarHeight
+    )
 
     LaunchedEffect(topBarHeight.value) {
         collapseFraction(
@@ -210,10 +217,16 @@ fun LazyColumnWithCollapsibleTopBar(
                 verticalArrangement = contentVerticalArrangement
             ) {
                 item(key = "spacer") {
-                    Box(modifier = Modifier.fillMaxWidth().height(1.dp))
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp))
                 }
 
                 content()
+
+                item {
+                    Spacer(modifier = Modifier.height(100.dp))
+                }
             }
         }
 
