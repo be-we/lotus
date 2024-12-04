@@ -1,27 +1,45 @@
 package com.dn0ne.player.app.presentation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import com.dn0ne.player.R
 import com.dn0ne.player.app.data.SavedPlayerState
+import com.dn0ne.player.app.data.remote.metadata.MetadataProvider
 import com.dn0ne.player.app.data.repository.TrackRepository
+import com.dn0ne.player.app.domain.metadata.Metadata
 import com.dn0ne.player.app.domain.playback.PlaybackMode
+import com.dn0ne.player.app.domain.result.DataError
+import com.dn0ne.player.app.domain.result.Result
 import com.dn0ne.player.app.domain.track.Track
 import com.dn0ne.player.app.presentation.components.playback.PlaybackState
+import com.dn0ne.player.app.presentation.components.snackbar.SnackbarController
+import com.dn0ne.player.app.presentation.components.snackbar.SnackbarEvent
+import com.dn0ne.player.app.presentation.components.trackinfo.ChangesSheetState
+import com.dn0ne.player.app.presentation.components.trackinfo.InfoSearchSheetState
+import com.dn0ne.player.app.presentation.components.trackinfo.ManualInfoEditSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheetState
+import com.dn0ne.player.core.data.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class PlayerViewModel(
     private val savedPlayerState: SavedPlayerState,
-    private val trackRepository: TrackRepository
+    private val trackRepository: TrackRepository,
+    private val metadataProvider: MetadataProvider,
+    private val settings: Settings
 ) : ViewModel() {
     var player: Player? = null
 
@@ -42,12 +60,31 @@ class PlayerViewModel(
 
     private var positionUpdateJob: Job? = null
 
-    private val _trackInfoSheetState = MutableStateFlow(TrackInfoSheetState())
-    val trackInfoSheetState = _trackInfoSheetState.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = TrackInfoSheetState()
+    private val _infoSearchSheetState = MutableStateFlow(InfoSearchSheetState())
+    private val _changesSheetState = MutableStateFlow(ChangesSheetState())
+    private val _manualInfoEditSheetState = MutableStateFlow(ManualInfoEditSheetState())
+    private val _trackInfoSheetState = MutableStateFlow(
+        TrackInfoSheetState(
+            showRisksOfMetadataEditingDialog = !settings.areRisksOfMetadataEditingAccepted
+        )
     )
+    val trackInfoSheetState = combine(
+        _trackInfoSheetState, _infoSearchSheetState, _changesSheetState, _manualInfoEditSheetState
+    ) { trackInfoSheetState, infoSearchSheetState, changesSheetState, manualInfoEditSheetState ->
+        trackInfoSheetState.copy(
+            infoSearchSheetState = infoSearchSheetState,
+            changesSheetState = changesSheetState,
+            manualInfoEditSheetState = manualInfoEditSheetState
+        )
+    }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = TrackInfoSheetState()
+        )
+
+    private val _pendingMetadata = Channel<Pair<Track, Metadata>>()
+    val pendingMetadata = _pendingMetadata.receiveAsFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -57,6 +94,24 @@ class PlayerViewModel(
                     _trackList.update {
                         tracks
                     }
+
+                    if (_trackInfoSheetState.value.track != null) {
+                        _trackInfoSheetState.update {
+                            it.copy(
+                                track = _trackList.value.find { track -> it.track?.uri == track.uri }
+                            )
+                        }
+
+                        _playbackState.update {
+                            PlaybackState()
+                        }
+
+                        withContext(Dispatchers.Main) {
+                            player?.stop()
+                            player?.clearMediaItems()
+                        }
+                    }
+
                 }
                 delay(5000L)
             }
@@ -256,7 +311,7 @@ class PlayerViewModel(
                     }
                 } else {
                     _playbackState.value.playlist?.let { playlist ->
-                        if (!playlist.contains(event.track)){
+                        if (!playlist.contains(event.track)) {
                             _playbackState.update {
                                 it.copy(
                                     playlist = playlist.toMutableList() + event.track
@@ -270,6 +325,7 @@ class PlayerViewModel(
                     }
                 }
             }
+
             is PlayerScreenEvent.OnAddToQueueClick -> {
                 if (_playbackState.value.playlist == null || _playbackState.value.playlist?.isEmpty() == true) {
                     _playbackState.update {
@@ -286,7 +342,7 @@ class PlayerViewModel(
                     }
                 } else {
                     _playbackState.value.playlist?.let { playlist ->
-                        if (!playlist.contains(event.track)){
+                        if (!playlist.contains(event.track)) {
                             _playbackState.update {
                                 it.copy(
                                     playlist = playlist.toMutableList() + event.track
@@ -317,6 +373,235 @@ class PlayerViewModel(
                     )
                 }
             }
+
+            PlayerScreenEvent.OnAcceptingRisksOfMetadataEditing -> {
+                settings.areRisksOfMetadataEditingAccepted = true
+                _trackInfoSheetState.update {
+                    it.copy(
+                        showRisksOfMetadataEditingDialog = false
+                    )
+                }
+            }
+
+            PlayerScreenEvent.OnMatchDurationWhenSearchMetadataClick -> {
+                settings.matchDurationWhenSearchMetadata = !settings.matchDurationWhenSearchMetadata
+            }
+
+            is PlayerScreenEvent.OnSearchInfo -> {
+                viewModelScope.launch {
+                    _infoSearchSheetState.update {
+                        it.copy(
+                            isLoading = true
+                        )
+                    }
+
+                    val result = metadataProvider.searchMetadata(
+                        query = event.query,
+                        trackDuration = _trackInfoSheetState.value.track?.duration?.toLong() ?: return@launch
+                    )
+                    when (result) {
+                        is Result.Error -> {
+                            when (result.error) {
+                                DataError.Network.BadRequest -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.query_was_corrupted
+                                        )
+                                    )
+                                    Log.d("Metadata Search", "${result.error} - ${event.query}")
+                                }
+
+                                DataError.Network.InternalServerError -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.musicbrainz_server_error
+                                        )
+                                    )
+                                }
+
+                                DataError.Network.ServiceUnavailable -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.musicbrainz_is_unavailable
+                                        )
+                                    )
+                                }
+
+                                DataError.Network.ParseError -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.failed_to_parse_response
+                                        )
+                                    )
+                                    Log.d("Metadata Search", "${result.error} - ${event.query}")
+                                }
+
+                                DataError.Network.NoInternet -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.no_internet
+                                        )
+                                    )
+                                }
+
+                                else -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.unknown_error_occurred
+                                        )
+                                    )
+                                    Log.d("Metadata Search", "${result.error} - ${event.query}")
+                                }
+                            }
+                        }
+
+                        is Result.Success -> {
+                            _infoSearchSheetState.update {
+                                it.copy(
+                                    searchResults = result.data
+                                )
+                            }
+                        }
+                    }
+
+                    _infoSearchSheetState.update {
+                        it.copy(
+                            isLoading = false
+                        )
+                    }
+                }
+            }
+
+            is PlayerScreenEvent.OnMetadataSearchResultPick -> {
+                viewModelScope.launch {
+                    _changesSheetState.update {
+                        it.copy(
+                            isLoadingArt = true
+                        )
+                    }
+                    val result = metadataProvider.getCoverArtBytes(event.searchResult)
+                    var coverArtBytes: ByteArray? = null
+                    when (result) {
+                        is Result.Success -> {
+                            coverArtBytes = result.data
+                            _changesSheetState.update {
+                                it.copy(
+                                    isLoadingArt = false,
+                                    metadata = it.metadata.copy(
+                                        coverArtBytes = coverArtBytes
+                                    )
+                                )
+                            }
+                        }
+
+                        is Result.Error -> {
+                            when (result.error) {
+                                DataError.Network.BadRequest -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.failed_to_load_cover_art_album_id_corrupted,
+                                        )
+                                    )
+                                }
+
+                                DataError.Network.NotFound -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.cover_art_not_found
+                                        )
+                                    )
+                                }
+
+                                DataError.Network.ServiceUnavailable -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.cover_art_archive_is_unavailable
+                                        )
+                                    )
+                                }
+
+                                DataError.Network.NoInternet -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.no_internet
+                                        )
+                                    )
+                                }
+
+                                DataError.Network.RequestTimeout -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.failed_to_load_cover_art_request_timeout
+                                        )
+                                    )
+                                }
+
+                                else -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.unknown_error_occurred
+                                        )
+                                    )
+                                }
+                            }
+                            _changesSheetState.update {
+                                it.copy(
+                                    isLoadingArt = false
+                                )
+                            }
+                            return@launch
+                        }
+                    }
+                }
+
+                _changesSheetState.update {
+                    it.copy(
+                        metadata = Metadata(
+                            title = event.searchResult.title,
+                            album = event.searchResult.album,
+                            artist = event.searchResult.artist,
+                            albumArtist = event.searchResult.albumArtist,
+                            genre = event.searchResult.genres?.joinToString(" / "),
+                            year = event.searchResult.year,
+                            trackNumber = event.searchResult.trackNumber
+                        ),
+                        isArtFromGallery = false
+                    )
+                }
+            }
+
+            is PlayerScreenEvent.OnOverwriteMetadataClick -> {
+                viewModelScope.launch {
+                    _trackInfoSheetState.value.track?.let { track ->
+                        _pendingMetadata.send(track to event.metadata)
+                    }
+                }
+            }
+
+            PlayerScreenEvent.OnRestoreCoverArtClick -> {
+                _manualInfoEditSheetState.update {
+                    it.copy(
+                        pickedCoverArtBytes = null
+                    )
+                }
+            }
+
+            is PlayerScreenEvent.OnConfirmMetadataEditClick -> {
+                _changesSheetState.update {
+                    it.copy(
+                        metadata = event.metadata,
+                        isArtFromGallery = event.metadata.coverArtBytes != null
+                    )
+                }
+            }
+        }
+    }
+
+    fun setPickedCoverArtBytes(bytes: ByteArray) {
+        _manualInfoEditSheetState.update {
+            it.copy(
+                pickedCoverArtBytes = bytes
+            )
         }
     }
 

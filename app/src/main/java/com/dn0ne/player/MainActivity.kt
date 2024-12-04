@@ -12,11 +12,14 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.navigation.compose.NavHost
@@ -27,14 +30,27 @@ import coil3.SingletonImageLoader
 import coil3.memory.MemoryCache
 import coil3.request.transitionFactory
 import coil3.transition.CrossfadeTransition
+import com.dn0ne.player.app.data.MetadataWriter
+import com.dn0ne.player.app.domain.metadata.Metadata
+import com.dn0ne.player.app.domain.result.DataError
+import com.dn0ne.player.app.domain.result.Result
+import com.dn0ne.player.app.domain.track.Track
 import com.dn0ne.player.app.presentation.PlayerScreen
 import com.dn0ne.player.app.presentation.PlayerViewModel
+import com.dn0ne.player.app.presentation.components.snackbar.ObserveAsEvents
+import com.dn0ne.player.app.presentation.components.snackbar.ScaffoldWithSnackbarEvents
+import com.dn0ne.player.app.presentation.components.snackbar.SnackbarController
+import com.dn0ne.player.app.presentation.components.snackbar.SnackbarEvent
 import com.dn0ne.player.core.presentation.Routes
 import com.dn0ne.player.setup.data.SetupState
 import com.dn0ne.player.setup.presentation.SetupScreen
 import com.dn0ne.player.setup.presentation.SetupViewModel
 import com.dn0ne.player.ui.theme.MusicPlayerTheme
 import com.google.common.util.concurrent.MoreExecutors
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
+import org.jaudiotagger.tag.TagOptionSingleton
 import org.koin.android.ext.android.get
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 
@@ -43,6 +59,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        TagOptionSingleton.getInstance().isAndroid = true
 
         SingletonImageLoader.setSafe {
             ImageLoader.Builder(applicationContext)
@@ -65,7 +83,7 @@ class MainActivity : ComponentActivity() {
             Toast.LENGTH_SHORT
         )
 
-        val requestPermissionLauncher =
+        val requestAudioPermissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) {
                     setupViewModel.onAudioPermissionRequest(true)
@@ -75,13 +93,47 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+        var isWritePermissionGranted = checkWritePermission()
+        val requestWritePermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                isWritePermissionGranted = isGranted
+            }
+
+        var trackToMetadataPair: Pair<Track, Metadata>? = null
+        val requestOneTimeWritePermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) {
+                trackToMetadataPair?.let {
+                    val metadataWriter: MetadataWriter = get()
+
+                    val result = metadataWriter.writeMetadata(
+                        track = it.first,
+                        metadata = it.second,
+                        onSecurityError = { println("SECURITY EXCEPTION OCCURRED") }
+                    )
+
+                    checkMetadataWriteResult(result)
+                }
+            }
+
+        val pickedCoverArtChannel = Channel<ByteArray>()
+        val pickCoverArt =
+            registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+                uri?.let {
+                    lifecycleScope.launch {
+                        contentResolver.openInputStream(it)?.use { input ->
+                            pickedCoverArtChannel.send(input.readBytes())
+                        }
+                    }
+                }
+            }
+
         val startDestination = if (checkAudioPermission() && setupState.isComplete) {
             Routes.Player
         } else Routes.Setup
 
         setContent {
             MusicPlayerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                ScaffoldWithSnackbarEvents(modifier = Modifier.fillMaxSize()) { innerPadding ->
 
                     val navController = rememberNavController()
                     NavHost(
@@ -98,7 +150,7 @@ class MainActivity : ComponentActivity() {
                                         }
 
                                         else -> {
-                                            requestPermissionLauncher.launch(
+                                            requestAudioPermissionLauncher.launch(
                                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                                                     Manifest.permission.READ_MEDIA_AUDIO
                                                 } else Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -122,9 +174,13 @@ class MainActivity : ComponentActivity() {
                         composable<Routes.Player> {
                             val viewModel = getViewModel<PlayerViewModel>()
                             val mediaSessionToken =
-                                SessionToken(application, ComponentName(application, PlaybackService::class.java))
+                                SessionToken(
+                                    application,
+                                    ComponentName(application, PlaybackService::class.java)
+                                )
 
-                            val controllerFuture = MediaController.Builder(application, mediaSessionToken).buildAsync()
+                            val controllerFuture =
+                                MediaController.Builder(application, mediaSessionToken).buildAsync()
                             controllerFuture.addListener(
                                 {
                                     viewModel.player = controllerFuture.get()
@@ -133,8 +189,66 @@ class MainActivity : ComponentActivity() {
                             )
                             PlayerScreen(
                                 viewModel = viewModel,
+                                onCoverArtPick = {
+                                    pickCoverArt.launch(
+                                        PickVisualMediaRequest(
+                                            ActivityResultContracts.PickVisualMedia.ImageOnly
+                                        )
+                                    )
+                                },
                                 modifier = Modifier.fillMaxSize()
                             )
+
+                            val coroutineScope = rememberCoroutineScope()
+                            ObserveAsEvents(flow = viewModel.pendingMetadata) { (track, metadata) ->
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                    trackToMetadataPair = track to metadata
+
+                                    val metadataWriter: MetadataWriter = get()
+                                    val result = metadataWriter.writeMetadata(
+                                        track = track,
+                                        metadata = metadata,
+                                        onSecurityError = { intentSender ->
+                                            requestOneTimeWritePermissionLauncher.launch(
+                                                IntentSenderRequest.Builder(intentSender).build()
+                                            )
+                                        }
+                                    )
+
+                                    checkMetadataWriteResult(result)
+                                } else {
+                                    if (!isWritePermissionGranted) {
+                                        requestWritePermissionLauncher.launch(
+                                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                        )
+
+                                        if (!isWritePermissionGranted) {
+                                            coroutineScope.launch {
+                                                SnackbarController.sendEvent(
+                                                    SnackbarEvent(
+                                                        message = R.string.write_permission_denied
+                                                    )
+                                                )
+                                            }
+                                        }
+
+                                        return@ObserveAsEvents
+                                    }
+
+                                    val metadataWriter: MetadataWriter = get()
+                                    val result = metadataWriter.writeMetadata(
+                                        track = track,
+                                        metadata = metadata,
+                                        onSecurityError = {}
+                                    )
+
+                                    checkMetadataWriteResult(result)
+                                }
+                            }
+
+                            ObserveAsEvents(pickedCoverArtChannel.receiveAsFlow()) { bytes ->
+                                viewModel.setPickedCoverArtBytes(bytes)
+                            }
                         }
                     }
                 }
@@ -149,6 +263,9 @@ class MainActivity : ComponentActivity() {
             } else Manifest.permission.READ_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED
 
+    private fun checkWritePermission(): Boolean =
+        checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+
     private fun goToAppSettings() {
         val intent = Intent(
             Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -157,5 +274,63 @@ class MainActivity : ComponentActivity() {
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         startActivity(intent)
+    }
+
+    private fun checkMetadataWriteResult(result: Result<Unit, DataError.Local>) {
+        lifecycleScope.launch {
+            when (result) {
+                is Result.Error -> {
+                    when (result.error) {
+                        DataError.Local.NoReadPermission -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.no_read_permission
+                                )
+                            )
+                        }
+
+                        DataError.Local.NoWritePermission -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.no_write_permission
+                                )
+                            )
+                        }
+
+                        DataError.Local.FailedToRead -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.failed_to_read
+                                )
+                            )
+                        }
+
+                        DataError.Local.FailedToWrite -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.failed_to_write
+                                )
+                            )
+                        }
+
+                        DataError.Local.Unknown -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.unknown_error_occurred
+                                )
+                            )
+                        }
+                    }
+                }
+
+                is Result.Success -> {
+                    SnackbarController.sendEvent(
+                        SnackbarEvent(
+                            message = R.string.metadata_change_succeed
+                        )
+                    )
+                }
+            }
+        }
     }
 }

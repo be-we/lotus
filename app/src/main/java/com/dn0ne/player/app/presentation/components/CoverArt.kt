@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
@@ -50,9 +51,11 @@ fun CoverArt(
             onError = {
                 onCoverArtLoaded(it.result.image?.toBitmap()?.asImageBitmap())
             },
+            contentScale = ContentScale.Crop,
             contentDescription = null,
             modifier = Modifier
                 .fillMaxSize()
+                .aspectRatio(1f)
         )
     }
 }

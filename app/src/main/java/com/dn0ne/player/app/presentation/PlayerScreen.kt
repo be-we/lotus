@@ -49,6 +49,7 @@ import com.materialkolor.ktx.toHct
 @Composable
 fun PlayerScreen(
     viewModel: PlayerViewModel,
+    onCoverArtPick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val dominantColorState = rememberDominantColorState()
@@ -84,6 +85,12 @@ fun PlayerScreen(
                 val currentTrack by remember {
                     derivedStateOf {
                         playbackState.currentTrack
+                    }
+                }
+
+                LaunchedEffect(currentTrack) {
+                    if (currentTrack == null) {
+                        dominantColorState.reset()
                     }
                 }
 
@@ -148,55 +155,81 @@ fun PlayerScreen(
                     modifier = Modifier
                         .align(alignment = Alignment.BottomCenter)
                 ) {
-                    LaunchedEffect(coverArtBitmap) {
-                        coverArtBitmap?.let {
-                            dominantColorState.updateFrom(it)
-                        }
-                    }
+                    currentTrack?.let {
 
-                    PlayerSheet(
-                        playbackStateFlow = viewModel.playbackState,
-                        onPlayClick = {
-                            viewModel.onEvent(PlayerScreenEvent.OnPlayClick)
-                        },
-                        onPauseClick = {
-                            viewModel.onEvent(PlayerScreenEvent.OnPauseClick)
-                        },
-                        onSeekToNextClick = {
-                            viewModel.onEvent(PlayerScreenEvent.OnSeekToNextClick)
-                        },
-                        onSeekToPreviousClick = {
-                            viewModel.onEvent(PlayerScreenEvent.OnSeekToPreviousClick)
-                        },
-                        onSeekTo = {
-                            viewModel.onEvent(PlayerScreenEvent.OnSeekTo(it))
-                        },
-                        onPlaybackModeClick = {
-                            viewModel.onEvent(PlayerScreenEvent.OnPlaybackModeClick)
-                        },
-                        onCoverArtLoaded = {
-                            coverArtBitmap = it
-                        },
-                        onPlayNextClick = {
-                            viewModel.onEvent(PlayerScreenEvent.OnPlayNextClick(currentTrack!!))
-                        },
-                        onAddToQueueClick = {
-                            viewModel.onEvent(PlayerScreenEvent.OnAddToQueueClick(currentTrack!!))
-                        },
-                        onViewTrackInfoClick = {
-                            viewModel.onEvent(PlayerScreenEvent.OnViewTrackInfoClick(currentTrack!!))
-                        },
-                        modifier = Modifier
-                            .align(alignment = Alignment.BottomCenter)
-                            .fillMaxWidth()
-                    )
+                        LaunchedEffect(coverArtBitmap) {
+                            coverArtBitmap?.let {
+                                dominantColorState.updateFrom(it)
+                            }
+                        }
+
+                        PlayerSheet(
+                            playbackStateFlow = viewModel.playbackState,
+                            onPlayClick = {
+                                viewModel.onEvent(PlayerScreenEvent.OnPlayClick)
+                            },
+                            onPauseClick = {
+                                viewModel.onEvent(PlayerScreenEvent.OnPauseClick)
+                            },
+                            onSeekToNextClick = {
+                                viewModel.onEvent(PlayerScreenEvent.OnSeekToNextClick)
+                            },
+                            onSeekToPreviousClick = {
+                                viewModel.onEvent(PlayerScreenEvent.OnSeekToPreviousClick)
+                            },
+                            onSeekTo = {
+                                viewModel.onEvent(PlayerScreenEvent.OnSeekTo(it))
+                            },
+                            onPlaybackModeClick = {
+                                viewModel.onEvent(PlayerScreenEvent.OnPlaybackModeClick)
+                            },
+                            onCoverArtLoaded = {
+                                coverArtBitmap = it
+                            },
+                            onPlayNextClick = {
+                                viewModel.onEvent(PlayerScreenEvent.OnPlayNextClick(currentTrack!!))
+                            },
+                            onAddToQueueClick = {
+                                viewModel.onEvent(PlayerScreenEvent.OnAddToQueueClick(currentTrack!!))
+                            },
+                            onViewTrackInfoClick = {
+                                viewModel.onEvent(
+                                    PlayerScreenEvent.OnViewTrackInfoClick(
+                                        currentTrack!!
+                                    )
+                                )
+                            },
+                            modifier = Modifier
+                                .align(alignment = Alignment.BottomCenter)
+                                .fillMaxWidth()
+                        )
+                    }
                 }
 
                 val trackInfoSheetState by viewModel.trackInfoSheetState.collectAsState()
                 TrackInfoSheet(
-                    trackInfoSheetState = trackInfoSheetState,
+                    state = trackInfoSheetState,
                     onCloseClick = {
                         viewModel.onEvent(PlayerScreenEvent.OnCloseTrackInfoSheetClick)
+                    },
+                    onSearchInfo = { query ->
+                        viewModel.onEvent(PlayerScreenEvent.OnSearchInfo(query))
+                    },
+                    onSearchResultClick = {
+                        viewModel.onEvent(PlayerScreenEvent.OnMetadataSearchResultPick(it))
+                    },
+                    onOverwriteMetadataClick = {
+                        viewModel.onEvent(PlayerScreenEvent.OnOverwriteMetadataClick(it))
+                    },
+                    onPickCoverArtClick = onCoverArtPick,
+                    onRestoreCoverArtClick = {
+                        viewModel.onEvent(PlayerScreenEvent.OnRestoreCoverArtClick)
+                    },
+                    onConfirmMetadataEditClick = {
+                        viewModel.onEvent(PlayerScreenEvent.OnConfirmMetadataEditClick(it))
+                    },
+                    onRisksOfMetadataEditingAccept = {
+                        viewModel.onEvent(PlayerScreenEvent.OnAcceptingRisksOfMetadataEditing)
                     },
                     modifier = Modifier
                         .fillMaxSize()

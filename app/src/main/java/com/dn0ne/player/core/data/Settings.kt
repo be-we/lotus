@@ -8,6 +8,8 @@ class Settings(context: Context) {
     private val themeKey = "theme"
     private val lyricsProviderKey = "lyrics-provider"
     private val metadataProviderKey = "metadata-provider"
+    private val areRisksOfMetadataEditingAcceptedKey = "metadata-editing-dialog"
+    private val matchDurationWhenSearchMetadataKey = "match-duration"
 
     var theme: Theme
         get() = Theme.entries[sharedPreferences.getInt(themeKey, 0)]
@@ -32,6 +34,24 @@ class Settings(context: Context) {
         set(value) {
             with(sharedPreferences.edit()) {
                 putInt(metadataProviderKey, value.ordinal)
+                apply()
+            }
+        }
+
+    var areRisksOfMetadataEditingAccepted: Boolean
+        get() = sharedPreferences.getBoolean(areRisksOfMetadataEditingAcceptedKey, false)
+        set(value) {
+            with(sharedPreferences.edit()) {
+                putBoolean(areRisksOfMetadataEditingAcceptedKey, value)
+                apply()
+            }
+        }
+
+    var matchDurationWhenSearchMetadata: Boolean
+        get() = sharedPreferences.getBoolean(matchDurationWhenSearchMetadataKey, true)
+        set(value) {
+            with(sharedPreferences.edit()) {
+                putBoolean(matchDurationWhenSearchMetadataKey, value)
                 apply()
             }
         }
