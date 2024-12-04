@@ -24,7 +24,7 @@ class TrackRepositoryImpl(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
             }
 
-        val projection = arrayOf(
+        val projection = mutableListOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.DATA,
             MediaStore.Audio.Media.DURATION,
@@ -38,8 +38,11 @@ class TrackRepositoryImpl(
             MediaStore.Audio.Media.ALBUM_ARTIST,
             MediaStore.Audio.Media.YEAR,
             MediaStore.Audio.Media.TRACK,
-            MediaStore.Audio.Media.BITRATE,
-        )
+        ).apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                add(MediaStore.Audio.Media.BITRATE)
+            }
+        }.toTypedArray()
 
         val selection = "${MediaStore.Audio.Media.DURATION} >= ?"
         val selectionArgs = arrayOf(
@@ -73,7 +76,9 @@ class TrackRepositoryImpl(
             val albumArtistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ARTIST)
             val yearColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR)
             val trackNumberColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK)
-            val bitrateColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.BITRATE)
+            val bitrateColumn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.BITRATE)
+            } else -1
 
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idColumn)
@@ -89,8 +94,10 @@ class TrackRepositoryImpl(
                 val albumArtist = cursor.getString(albumArtistColumn)
                 val year = cursor.getString(yearColumn)
                 val trackNumber = cursor.getString(trackNumberColumn)
-                val bitrate = cursor.getString(bitrateColumn)
                 val genre = trackIdToGenre.getOrDefault(id, null)
+                val bitrate = if (bitrateColumn >= 0) {
+                    cursor.getString(bitrateColumn)
+                } else null
 
                 val uri: Uri = ContentUris.withAppendedId(
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
