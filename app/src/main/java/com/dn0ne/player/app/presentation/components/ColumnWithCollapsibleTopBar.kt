@@ -1,6 +1,5 @@
 package com.dn0ne.player.app.presentation.components
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ScrollState
