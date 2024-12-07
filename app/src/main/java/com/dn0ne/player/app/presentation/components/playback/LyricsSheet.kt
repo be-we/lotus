@@ -1,9 +1,20 @@
 package com.dn0ne.player.app.presentation.components.playback
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.StartOffset
+import androidx.compose.animation.core.StartOffsetType
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -21,6 +32,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -48,6 +60,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
@@ -58,6 +71,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.dn0ne.player.R
@@ -66,6 +80,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlin.math.PI
+import kotlin.math.sin
 
 @Composable
 fun LyricsSheet(
@@ -198,57 +214,75 @@ fun LyricsSheet(
                         }
                     }
                 }
+
                 true -> {
                     lyrics?.synced?.let { synced ->
+                        val synced = synced.firstOrNull()?.first?.let { firstTime ->
+                            if (firstTime > 5000) {
+                                synced.toMutableList().apply {
+                                    add(0, 0 to "")
+                                }
+                            } else synced
+                        } ?: synced
+
                         itemsIndexed(
                             items = synced,
-                            key = { index, (time, _) -> "$index-$time"}
+                            key = { index, (time, _) -> "$index-$time" }
                         ) { index, (time, line) ->
                             Column {
                                 val nextTime = remember {
                                     synced.getOrNull(index + 1)?.first ?: Int.MAX_VALUE
                                 }
 
-                                SyncedLyricsLine(
-                                    positionFlow = playbackStateFlow.map { it.position },
-                                    time = time,
-                                    nextTime = nextTime,
-                                    line = line,
-                                    onClick = {
-                                        onSeekTo(time.toLong())
-                                    },
-                                    onBecomeCurrent = { textHeight ->
-                                        val isItemVisible = listState.layoutInfo
-                                            .visibleItemsInfo
-                                            .find { it.index == index } != null
+                                if (line.isNotBlank()) {
+                                    SyncedLyricsLine(
+                                        positionFlow = playbackStateFlow.map { it.position },
+                                        time = time,
+                                        nextTime = nextTime,
+                                        line = line,
+                                        onClick = {
+                                            onSeekTo(time.toLong())
+                                        },
+                                        onBecomeCurrent = { textHeight ->
+                                            val isItemVisible = listState.layoutInfo
+                                                .visibleItemsInfo
+                                                .find { it.index == index } != null
 
-                                        if (isItemVisible && !listState.isScrollInProgress) {
-                                            val offsetToCenterText =
-                                                textHeight.toInt() -
-                                                        listState.layoutInfo.viewportSize.height / 2
+                                            if (isItemVisible && !listState.isScrollInProgress) {
+                                                val offsetToCenterText =
+                                                    textHeight.toInt() -
+                                                            listState.layoutInfo.viewportSize.height / 2
 
-                                            coroutineScope.launch {
-                                                listState.animateScrollToItem(
-                                                    index = index + 1,
-                                                    scrollOffset = offsetToCenterText
-                                                )
+                                                coroutineScope.launch {
+                                                    listState.animateScrollToItem(
+                                                        index = index + 1,
+                                                        scrollOffset = offsetToCenterText
+                                                    )
+                                                }
                                             }
-                                        }
-                                    },
-                                    modifier = Modifier
-                                )
+                                        },
+                                        modifier = Modifier
+                                    )
+                                } else {
+                                    BubblesLine(
+                                        positionFlow = playbackStateFlow.map { it.position },
+                                        time = time,
+                                        nextTime = nextTime
+                                    )
+                                }
 
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
                     }
                 }
+
                 false -> {
                     lyrics?.plain?.let { plain ->
 
                         itemsIndexed(
                             items = plain,
-                            key = { index, line -> "$index-$line"}
+                            key = { index, line -> "$index-$line" }
                         ) { index, line ->
                             Column {
                                 PlainLyricsLine(
@@ -264,163 +298,6 @@ fun LyricsSheet(
         }
     }
 }
-
-/*@Composable
-fun LyricsSheet(
-    playbackStateFlow: StateFlow<PlaybackState>,
-    onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    BackHandler {
-        onBackClick()
-    }
-    val playbackState by playbackStateFlow.collectAsState()
-    val isLoadingLyrics by remember {
-        derivedStateOf {
-            playbackState.isLoadingLyrics
-        }
-    }
-    val lyrics by remember {
-        derivedStateOf {
-            playbackState.lyrics
-        }
-    }
-    var collapseFraction by remember {
-        mutableFloatStateOf(0f)
-    }
-    val context = LocalContext.current
-
-    var showSyncedLyrics by remember(lyrics) {
-        mutableStateOf<Boolean?>(
-            when {
-                lyrics?.synced != null -> true
-                lyrics?.plain != null -> false
-                else -> null
-            }
-        )
-    }
-
-    CompositionLocalProvider(
-        LocalContentColor provides MaterialTheme.colorScheme.inverseSurface
-    ) {
-        ColumnWithCollapsibleTopBar(
-            topBarContent = {
-                IconButton(
-                    onClick = onBackClick,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.ArrowBackIosNew,
-                        contentDescription = context.resources.getString(R.string.close_lyrics_sheet)
-                    )
-                }
-
-                Text(
-                    text = context.resources.getString(R.string.lyrics),
-                    fontSize = lerp(
-                        MaterialTheme.typography.titleLarge.fontSize,
-                        MaterialTheme.typography.displaySmall.fontSize,
-                        collapseFraction
-                    ),
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-
-                if (lyrics?.synced != null && lyrics?.plain != null && showSyncedLyrics != null) {
-                    LyricsTypeSwitch(
-                        isSynced = showSyncedLyrics!!,
-                        onIsSyncedSwitch = {
-                            showSyncedLyrics = it
-                        },
-                        enabled = collapseFraction == 1f,
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = 4.dp)
-                            .alpha(2 * (collapseFraction - 0.5f))
-                    )
-                }
-            },
-            collapseFraction = {
-                collapseFraction = it
-            },
-            contentPadding = PaddingValues(horizontal = 24.dp),
-            modifier = modifier
-                .background(color = MaterialTheme.colorScheme.inversePrimary)
-                .clickable(enabled = false, onClick = {})
-                .safeDrawingPadding()
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-
-            AnimatedContent(
-                targetState = showSyncedLyrics,
-                label = "lyrics-type-change-animation",
-                modifier = Modifier.fillMaxSize()
-            ) { showSyncedLyrics ->
-                when {
-                    showSyncedLyrics == null -> {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            if (isLoadingLyrics) {
-                                Text(
-                                    text = context.resources.getString(R.string.loading_lyrics),
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-
-                                Spacer(modifier = Modifier.height(8.dp))
-
-                                LinearProgressIndicator(
-                                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = .5f),
-                                    modifier = Modifier.width(100.dp)
-                                )
-                            } else {
-                                Text(text = context.resources.getString(R.string.cant_find_lyrics))
-                            }
-                        }
-                    }
-
-                    showSyncedLyrics -> {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            lyrics?.synced?.forEachIndexed { index, (time, line) ->
-                                val nextTime = remember {
-                                    lyrics?.synced?.getOrNull(index + 1)?.first ?: Int.MAX_VALUE
-                                }
-
-                                SyncedLyricsLine(
-                                    positionFlow = playbackStateFlow.map { it.position },
-                                    time = time,
-                                    nextTime = nextTime,
-                                    line = line
-                                )
-                            }
-                        }
-                    }
-
-                    !showSyncedLyrics -> {
-                        Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            lyrics?.plain?.forEach { line ->
-                                PlainLyricsLine(
-                                    line = line,
-                                    color = LocalContentColor.current
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}*/
 
 @Composable
 fun LyricsTypeSwitch(
@@ -602,5 +479,198 @@ fun SyncedLyricsLine(
                 indication = null,
                 onClick = onClick
             )
+    )
+}
+
+@Composable
+fun BubblesLine(
+    positionFlow: Flow<Long>,
+    time: Int,
+    nextTime: Int,
+    modifier: Modifier = Modifier
+) {
+    val position by positionFlow.collectAsState(0)
+    var bubblesContainerHeight by remember {
+        mutableFloatStateOf(0f)
+    }
+    val isCurrentLine by remember {
+        derivedStateOf {
+            position in time..nextTime
+        }
+    }
+
+    val progressFraction by remember {
+        derivedStateOf {
+            ((position.toFloat() - time) / (nextTime - time))
+                .coerceIn(0f, 1f)
+        }
+    }
+
+    val density = LocalDensity.current
+    val height = with(density) {
+        MaterialTheme.typography.headlineMedium.fontSize.toDp()
+    }
+
+    val infiniteTransition = rememberInfiniteTransition(
+        label = "bubbles-transition"
+    )
+
+    val firstBubbleProgress by remember {
+        derivedStateOf {
+            (progressFraction / .33f).coerceIn(0f, 1f)
+        }
+    }
+
+    val firstBubbleTranslationX by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2000, easing = EaseInOut),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "first-bubble-translation-x"
+    )
+
+    val secondBubbleProgress by remember {
+        derivedStateOf {
+            ((progressFraction - .33f) / .33f).coerceIn(0f, 1f)
+        }
+    }
+
+    val secondBubbleTranslationX by infiniteTransition.animateFloat(
+        initialValue = -2f,
+        targetValue = 2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2000, easing = EaseInOut),
+            repeatMode = RepeatMode.Reverse,
+            initialStartOffset = StartOffset(
+                offsetMillis = 500,
+                offsetType = StartOffsetType.FastForward
+            )
+        ),
+        label = "first-bubble-translation-x"
+    )
+
+    val thirdBubbleProgress by remember {
+        derivedStateOf {
+            ((progressFraction - .33f * 2) / .33f).coerceIn(0f, 1f)
+        }
+    }
+
+    val thirdBubbleTranslationX by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = -3f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2000, easing = EaseInOut),
+            repeatMode = RepeatMode.Reverse,
+            initialStartOffset = StartOffset(
+                offsetMillis = 1000,
+                offsetType = StartOffsetType.FastForward
+            )
+        ),
+        label = "first-bubble-translation-x"
+    )
+
+    val scale by animateFloatAsState(
+        targetValue = if (progressFraction < .97f) 1f else 1.2f,
+        label = "bubbles-scale-before-next-line"
+    )
+
+    Box(
+        modifier = modifier
+            .padding(horizontal = 8.dp, vertical = 4.dp)
+            .height(height)
+            .onGloballyPositioned {
+                bubblesContainerHeight = it.size.height.toFloat()
+            },
+    ) {
+        AnimatedVisibility(
+            visible = isCurrentLine,
+            enter = scaleIn(),
+            exit = scaleOut(),
+            modifier = Modifier
+                .fillMaxHeight()
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxHeight(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.Bottom
+            ) {
+                Bubble(
+                    bubbleHeight = height,
+                    containerHeight = bubblesContainerHeight,
+                    animationProgress = firstBubbleProgress,
+                    translationX = firstBubbleTranslationX,
+                    translationOffset = secondBubbleTranslationX
+                )
+
+                Bubble(
+                    bubbleHeight = height,
+                    containerHeight = bubblesContainerHeight,
+                    animationProgress = secondBubbleProgress,
+                    translationX = secondBubbleTranslationX,
+                    translationOffset = thirdBubbleTranslationX
+                )
+
+                Bubble(
+                    bubbleHeight = height,
+                    containerHeight = bubblesContainerHeight,
+                    animationProgress = thirdBubbleProgress,
+                    translationX = thirdBubbleTranslationX,
+                    translationOffset = firstBubbleTranslationX
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun Bubble(
+    bubbleHeight: Dp,
+    containerHeight: Float,
+    animationProgress: Float,
+    translationX: Float,
+    translationOffset: Float,
+    color: Color = LocalContentColor.current,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(bubbleHeight * .7f)
+            .graphicsLayer {
+                this.translationY =
+                    -containerHeight / 6 *
+                            (sin(20 * (animationProgress - .25f) / PI.toFloat()) / 2 + .5f) +
+                            translationX * translationOffset / 2
+
+                this.translationX = translationX
+                val scale = .5f + animationProgress / 2
+                scaleX = scale
+                scaleY = scale
+            }
+            .drawBehind {
+                drawCircle(
+                    radius = size.width,
+                    brush = Brush.radialGradient(
+                        0f to Color.Transparent,
+                        .5f to Color.Transparent,
+                        .5f to color.copy(alpha = animationProgress / 2 - .25f),
+                        .6f to color.copy(alpha = animationProgress / 3 - .25f),
+                        .8f to Color.Transparent,
+                        radius = size.width
+                    )
+                )
+
+                drawCircle(
+                    color = color.copy(
+                        alpha = .25f + animationProgress
+                    )
+                )
+            }
     )
 }
