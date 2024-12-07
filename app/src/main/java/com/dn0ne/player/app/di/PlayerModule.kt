@@ -3,8 +3,13 @@ package com.dn0ne.player.app.di
 import com.dn0ne.player.app.data.MetadataWriter
 import com.dn0ne.player.app.data.MetadataWriterImpl
 import com.dn0ne.player.app.data.SavedPlayerState
+import com.dn0ne.player.app.data.remote.lyrics.LrclibLyricsProvider
+import com.dn0ne.player.app.data.remote.lyrics.LyricsProvider
 import com.dn0ne.player.app.data.remote.metadata.MetadataProvider
 import com.dn0ne.player.app.data.remote.metadata.MusicBrainzMetadataProvider
+import com.dn0ne.player.app.data.repository.LyricsJson
+import com.dn0ne.player.app.data.repository.LyricsRepository
+import com.dn0ne.player.app.data.repository.RealmLyricsRepository
 import com.dn0ne.player.app.data.repository.TrackRepository
 import com.dn0ne.player.app.data.repository.TrackRepositoryImpl
 import com.dn0ne.player.app.presentation.PlayerViewModel
@@ -13,6 +18,8 @@ import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
+import io.realm.kotlin.Realm
+import io.realm.kotlin.RealmConfiguration
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -58,11 +65,34 @@ val playerModule = module {
         MetadataWriterImpl(context = androidContext())
     }
 
+    single<LyricsProvider> {
+        LrclibLyricsProvider(
+            context = androidContext(),
+            client = get()
+        )
+    }
+
+    single<Realm> {
+        val configuration = RealmConfiguration.create(
+            schema = setOf(LyricsJson::class)
+        )
+
+        Realm.open(configuration)
+    }
+
+    single<LyricsRepository> {
+        RealmLyricsRepository(
+            realm = get()
+        )
+    }
+
     viewModel<PlayerViewModel> {
         PlayerViewModel(
             savedPlayerState = get(),
             trackRepository = get(),
             metadataProvider = get(),
+            lyricsProvider = get(),
+            lyricsRepository = get(),
             settings = get()
         )
     }

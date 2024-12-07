@@ -199,6 +199,9 @@ fun PlayerScreen(
                                     )
                                 )
                             },
+                            onLyricsClick = {
+                                viewModel.onEvent(PlayerScreenEvent.OnLyricsClick)
+                            },
                             modifier = Modifier
                                 .align(alignment = Alignment.BottomCenter)
                                 .fillMaxWidth()

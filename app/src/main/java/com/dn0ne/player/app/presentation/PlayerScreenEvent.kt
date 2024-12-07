@@ -14,6 +14,7 @@ sealed interface PlayerScreenEvent {
     data class OnSeekTo(val position: Long): PlayerScreenEvent
 
     data object OnPlaybackModeClick: PlayerScreenEvent
+    data object OnLyricsClick: PlayerScreenEvent
 
     data class OnPlayNextClick(val track: Track): PlayerScreenEvent
     data class OnAddToQueueClick(val track: Track): PlayerScreenEvent

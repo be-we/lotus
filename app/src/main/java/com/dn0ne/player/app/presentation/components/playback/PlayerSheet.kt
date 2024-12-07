@@ -2,14 +2,19 @@ package com.dn0ne.player.app.presentation.components.playback
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.calculateTargetValue
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -36,6 +41,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ExpandMore
+import androidx.compose.material.icons.rounded.Lyrics
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.Repeat
@@ -89,6 +95,7 @@ fun PlayerSheet(
     onPlayNextClick: () -> Unit,
     onAddToQueueClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
+    onLyricsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var isExpanded by remember {
@@ -218,6 +225,7 @@ fun PlayerSheet(
                     onPlayNextClick = onPlayNextClick,
                     onAddToQueueClick = onAddToQueueClick,
                     onViewTrackInfoClick = onViewTrackInfoClick,
+                    onLyricsClick = onLyricsClick,
                     modifier = Modifier.clickable(
                         onClick = {},
                         interactionSource = null,
@@ -303,13 +311,15 @@ fun BottomPlayer(
                 Column {
                     val context = LocalContext.current
                     Text(
-                        text = currentTrack.title ?: context.resources.getString(R.string.unknown_title),
+                        text = currentTrack.title
+                            ?: context.resources.getString(R.string.unknown_title),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.basicMarquee()
                     )
                     Text(
-                        text = currentTrack.artist  ?: context.resources.getString(R.string.unknown_artist),
+                        text = currentTrack.artist
+                            ?: context.resources.getString(R.string.unknown_artist),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.basicMarquee()
@@ -373,137 +383,177 @@ fun ExpandedPlayer(
     onPlayNextClick: () -> Unit,
     onAddToQueueClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
+    onLyricsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     BackHandler {
         onHideClick()
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(color = MaterialTheme.colorScheme.surface)
-            .safeDrawingPadding()
-            .padding(horizontal = 28.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        val playbackState by playbackStateFlow.collectAsState()
-        val playbackMode by remember {
-            derivedStateOf {
-                playbackState.playbackMode
-            }
-        }
+    var showLyricsSheet by remember {
+        mutableStateOf(false)
+    }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopCenter),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+    Box {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.surface)
+                .safeDrawingPadding()
+                .padding(horizontal = 28.dp),
+            contentAlignment = Alignment.Center
         ) {
-            IconButton(
-                onClick = onHideClick
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.ExpandMore,
-                    contentDescription = "Close player sheet",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            val playbackState by playbackStateFlow.collectAsState()
+            val playbackMode by remember {
+                derivedStateOf {
+                    playbackState.playbackMode
+                }
             }
 
-
-            Row {
+            val context = LocalContext.current
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.TopCenter),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 IconButton(
-                    onClick = onPlaybackModeClick
+                    onClick = onHideClick
                 ) {
                     Icon(
-                        imageVector = when (playbackMode) {
-                            PlaybackMode.Repeat -> Icons.Rounded.Repeat
-                            PlaybackMode.RepeatOne -> Icons.Rounded.RepeatOne
-                            PlaybackMode.Shuffle -> Icons.Rounded.Shuffle
-                        },
-                        contentDescription = null,
+                        imageVector = Icons.Rounded.ExpandMore,
+                        contentDescription = context.resources.getString(R.string.close_player_sheet),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
-                TrackMenuButton(
-                    onPlayNextClick = onPlayNextClick,
-                    onAddToQueueClick = onAddToQueueClick,
-                    onViewTrackInfoClick = onViewTrackInfoClick
+
+                Row {
+                    IconButton(
+                        onClick = {
+                            onLyricsClick()
+                            showLyricsSheet = true
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Lyrics,
+                            contentDescription = context.resources.getString(R.string.show_lyrics)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = onPlaybackModeClick
+                    ) {
+                        Icon(
+                            imageVector = when (playbackMode) {
+                                PlaybackMode.Repeat -> Icons.Rounded.Repeat
+                                PlaybackMode.RepeatOne -> Icons.Rounded.RepeatOne
+                                PlaybackMode.Shuffle -> Icons.Rounded.Shuffle
+                            },
+                            contentDescription = context.resources.getString(R.string.playback_mode_toggle),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    TrackMenuButton(
+                        onPlayNextClick = onPlayNextClick,
+                        onAddToQueueClick = onAddToQueueClick,
+                        onViewTrackInfoClick = onViewTrackInfoClick
+                    )
+                }
+            }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                val currentTrack by remember {
+                    derivedStateOf {
+                        playbackState.currentTrack!!
+                    }
+                }
+
+                AnimatedContent(
+                    targetState = currentTrack,
+                    label = "cover-art-animation"
+                ) { track ->
+                    CoverArt(
+                        uri = track.coverArtUri,
+                        onCoverArtLoaded = onCoverArtLoaded,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(ShapeDefaults.Large)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(28.dp))
+
+                AnimatedContent(
+                    targetState = currentTrack,
+                    label = "title-artist-text-animation",
+                    transitionSpec = {
+                        fadeIn() togetherWith fadeOut()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) { track ->
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        val context = LocalContext.current
+                        Text(
+                            text = track.title
+                                ?: context.resources.getString(R.string.unknown_title),
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.basicMarquee()
+                        )
+
+                        Text(
+                            text = track.artist
+                                ?: context.resources.getString(R.string.unknown_artist),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.basicMarquee()
+                        )
+                    }
+
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                PlaybackControl(
+                    playbackStateFlow = playbackStateFlow,
+                    onPlayClick = onPlayClick,
+                    onPauseClick = onPauseClick,
+                    onSeekTo = onSeekTo,
+                    onSeekToNextClick = onSeekToNextClick,
+                    onSeekToPreviousClick = onSeekToPreviousClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
                 )
             }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        AnimatedVisibility(
+            visible = showLyricsSheet,
+            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideInVertically(
+                initialOffsetY = { it / 4 }),
+            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideOutVertically(
+                targetOffsetY = { it / 4 }),
+            modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            val currentTrack by remember {
-                derivedStateOf {
-                    playbackState.currentTrack!!
-                }
-            }
-
-            AnimatedContent(
-                targetState = currentTrack,
-                label = "cover-art-animation"
-            ) { track ->
-                CoverArt(
-                    uri = track.coverArtUri,
-                    onCoverArtLoaded = onCoverArtLoaded,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(ShapeDefaults.Large)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(28.dp))
-
-            AnimatedContent(
-                targetState = currentTrack,
-                label = "title-artist-text-animation",
-                transitionSpec = {
-                    fadeIn() togetherWith fadeOut()
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) { track ->
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    val context = LocalContext.current
-                    Text(
-                        text = track.title ?: context.resources.getString(R.string.unknown_title),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.basicMarquee()
-                    )
-
-                    Text(
-                        text = track.artist ?: context.resources.getString(R.string.unknown_artist),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.basicMarquee()
-                    )
-                }
-
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            PlaybackControl(
+            LyricsSheet(
                 playbackStateFlow = playbackStateFlow,
-                onPlayClick = onPlayClick,
-                onPauseClick = onPauseClick,
+                onBackClick = {
+                    showLyricsSheet = false
+                },
                 onSeekTo = onSeekTo,
-                onSeekToNextClick = onSeekToNextClick,
-                onSeekToPreviousClick = onSeekToPreviousClick,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxSize()
             )
         }
     }
