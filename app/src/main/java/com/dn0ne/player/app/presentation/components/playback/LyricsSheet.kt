@@ -174,9 +174,9 @@ fun LyricsSheet(
         ) {
             when (showSyncedLyrics) {
                 null -> {
-                    item {
+                    item(key = isLoadingLyrics) {
                         Column(
-                            modifier = Modifier.fillMaxSize().animateItem(),
+                            modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
