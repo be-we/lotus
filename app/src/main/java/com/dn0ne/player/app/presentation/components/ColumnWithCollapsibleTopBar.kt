@@ -172,11 +172,22 @@ fun LazyColumnWithCollapsibleTopBar(
                 source: NestedScrollSource
             ): Offset {
                 val previousHeight = topBarHeight.value
-                val newHeight =
-                    (previousHeight + if (listState.firstVisibleItemIndex == 0) available.y else 0f).coerceIn(
+                val newHeight = if (listState.firstVisibleItemIndex >= 0 && available.y < 0) {
+                    (previousHeight + available.y).coerceIn(
                         minTopBarHeight,
                         maxTopBarHeight
                     )
+                } else if (listState.firstVisibleItemIndex == 0) {
+                    (previousHeight + available.y).coerceIn(
+                        minTopBarHeight,
+                        maxTopBarHeight
+                    )
+                } else previousHeight
+                /*val newHeight =
+                    (previousHeight + if (listState.firstVisibleItemIndex == 0) available.y else 0f).coerceIn(
+                        minTopBarHeight,
+                        maxTopBarHeight
+                    )*/
                 coroutineScope.launch {
                     topBarHeight.snapTo(newHeight)
                 }
