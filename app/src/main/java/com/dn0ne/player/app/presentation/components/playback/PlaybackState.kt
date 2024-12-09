@@ -11,5 +11,8 @@ data class PlaybackState(
     val isLoadingLyrics: Boolean = false,
     val isPlaying: Boolean = false,
     val playbackMode: PlaybackMode = PlaybackMode.Repeat,
-    val position: Long = 0L
+    val position: Long = 0L,
+
+    val isPlayerExpanded: Boolean = false,
+    val isLyricsSheetExpanded: Boolean = false,
 )

@@ -165,6 +165,9 @@ fun PlayerScreen(
 
                         PlayerSheet(
                             playbackStateFlow = viewModel.playbackState,
+                            onPlayerExpandedChange = {
+                                viewModel.onEvent(PlayerScreenEvent.OnPlayerExpandedChange(it))
+                            },
                             onPlayClick = {
                                 viewModel.onEvent(PlayerScreenEvent.OnPlayClick)
                             },
@@ -198,6 +201,9 @@ fun PlayerScreen(
                                         currentTrack!!
                                     )
                                 )
+                            },
+                            onLyricsSheetExpandedChange = {
+                                viewModel.onEvent(PlayerScreenEvent.OnLyricsSheetExpandedChange(it))
                             },
                             onLyricsClick = {
                                 viewModel.onEvent(PlayerScreenEvent.OnLyricsClick)

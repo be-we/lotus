@@ -184,6 +184,10 @@ class PlayerViewModel(
                             )
                         }
 
+                        if (_playbackState.value.isLyricsSheetExpanded) {
+                            loadLyrics()
+                        }
+
                         positionUpdateJob?.cancel()
                         positionUpdateJob = startPositionUpdate()
                     }
@@ -300,102 +304,25 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnLyricsClick -> {
-                _playbackState.value.currentTrack?.let { currentTrack ->
-                    if (currentTrack.uri.toString() == _playbackState.value.lyrics?.uri) return
-
-                    _playbackState.update {
-                        it.copy(
-                            lyrics = null,
-                            isLoadingLyrics = true
-                        )
-                    }
-
-                    var lyrics: Lyrics? = lyricsRepository.getLyricsByUri(currentTrack.uri.toString())
-
-                    if (lyrics == null) {
-                        if (currentTrack.title == null || currentTrack.artist == null) {
-                            viewModelScope.launch {
-                                SnackbarController.sendEvent(
-                                    SnackbarEvent(
-                                        message = R.string.cant_look_for_lyrics_title_or_artist_is_missing
-                                    )
-                                )
-                            }
-                            return
-                        }
-
-                        viewModelScope.launch {
-                            val result = lyricsProvider.getLyrics(currentTrack)
-
-                            when(result) {
-                                is Result.Success -> {
-                                    lyrics = result.data
-
-                                    lyricsRepository.insertLyrics(lyrics)
-
-                                    _playbackState.update {
-                                        it.copy(
-                                            lyrics = lyrics,
-                                            isLoadingLyrics = false
-                                        )
-                                    }
-                                }
-                                is Result.Error -> {
-                                    _playbackState.update {
-                                        it.copy(
-                                            isLoadingLyrics = false
-                                        )
-                                    }
-                                    when(result.error) {
-                                        DataError.Network.BadRequest -> {
-                                            SnackbarController.sendEvent(
-                                                SnackbarEvent(
-                                                    message = R.string.cant_look_for_lyrics_title_or_artist_is_missing
-                                                )
-                                            )
-                                        }
-                                        DataError.Network.NotFound -> {
-                                            SnackbarController.sendEvent(
-                                                SnackbarEvent(
-                                                    message = R.string.lyrics_not_found
-                                                )
-                                            )
-                                        }
-                                        DataError.Network.ParseError -> {
-                                            SnackbarController.sendEvent(
-                                                SnackbarEvent(
-                                                    message = R.string.failed_to_parse_response
-                                                )
-                                            )
-                                        }
-                                        DataError.Network.NoInternet -> {
-                                            SnackbarController.sendEvent(
-                                                SnackbarEvent(
-                                                    message = R.string.no_internet
-                                                )
-                                            )
-                                        }
-                                        else -> {
-                                            SnackbarController.sendEvent(
-                                                SnackbarEvent(
-                                                    message = R.string.unknown_error_occurred
-                                                )
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        _playbackState.update {
-                            it.copy(
-                                lyrics = lyrics,
-                                isLoadingLyrics = false
-                            )
-                        }
-                    }
+            is PlayerScreenEvent.OnPlayerExpandedChange -> {
+                _playbackState.update {
+                    it.copy(
+                        isPlayerExpanded = event.isExpanded,
+                        isLyricsSheetExpanded = false
+                    )
                 }
+            }
+
+            is PlayerScreenEvent.OnLyricsSheetExpandedChange -> {
+                _playbackState.update {
+                    it.copy(
+                        isLyricsSheetExpanded = event.isExpanded
+                    )
+                }
+            }
+
+            PlayerScreenEvent.OnLyricsClick -> {
+                loadLyrics()
             }
 
             is PlayerScreenEvent.OnPlayNextClick -> {
@@ -738,6 +665,104 @@ class PlayerViewModel(
             PlaybackMode.Shuffle -> {
                 player?.repeatMode = Player.REPEAT_MODE_ALL
                 player?.shuffleModeEnabled = true
+            }
+        }
+    }
+
+    private fun loadLyrics() {
+        _playbackState.value.currentTrack?.let { currentTrack ->
+            if (currentTrack.uri.toString() == _playbackState.value.lyrics?.uri) return
+
+            _playbackState.update {
+                it.copy(
+                    lyrics = null,
+                    isLoadingLyrics = true
+                )
+            }
+
+            var lyrics: Lyrics? = lyricsRepository.getLyricsByUri(currentTrack.uri.toString())
+
+            if (lyrics == null) {
+                if (currentTrack.title == null || currentTrack.artist == null) {
+                    viewModelScope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
+                                message = R.string.cant_look_for_lyrics_title_or_artist_is_missing
+                            )
+                        )
+                    }
+                    return
+                }
+
+                viewModelScope.launch {
+                    val result = lyricsProvider.getLyrics(currentTrack)
+
+                    when(result) {
+                        is Result.Success -> {
+                            lyrics = result.data
+
+                            lyricsRepository.insertLyrics(lyrics)
+
+                            _playbackState.update {
+                                it.copy(
+                                    lyrics = lyrics,
+                                    isLoadingLyrics = false
+                                )
+                            }
+                        }
+                        is Result.Error -> {
+                            _playbackState.update {
+                                it.copy(
+                                    isLoadingLyrics = false
+                                )
+                            }
+                            when(result.error) {
+                                DataError.Network.BadRequest -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.cant_look_for_lyrics_title_or_artist_is_missing
+                                        )
+                                    )
+                                }
+                                DataError.Network.NotFound -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.lyrics_not_found
+                                        )
+                                    )
+                                }
+                                DataError.Network.ParseError -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.failed_to_parse_response
+                                        )
+                                    )
+                                }
+                                DataError.Network.NoInternet -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.no_internet
+                                        )
+                                    )
+                                }
+                                else -> {
+                                    SnackbarController.sendEvent(
+                                        SnackbarEvent(
+                                            message = R.string.unknown_error_occurred
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                _playbackState.update {
+                    it.copy(
+                        lyrics = lyrics,
+                        isLoadingLyrics = false
+                    )
+                }
             }
         }
     }

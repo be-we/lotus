@@ -13,7 +13,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -58,10 +60,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -85,6 +85,8 @@ import kotlin.math.absoluteValue
 @Composable
 fun PlayerSheet(
     playbackStateFlow: StateFlow<PlaybackState>,
+    onPlayerExpandedChange: (Boolean) -> Unit,
+    onLyricsSheetExpandedChange: (Boolean) -> Unit,
     onPlayClick: () -> Unit,
     onPauseClick: () -> Unit,
     onSeekToNextClick: () -> Unit,
@@ -98,10 +100,12 @@ fun PlayerSheet(
     onLyricsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isExpanded by remember {
-        mutableStateOf(false)
+    val playbackState by playbackStateFlow.collectAsState()
+    val isExpanded by remember {
+        derivedStateOf {
+            playbackState.isPlayerExpanded
+        }
     }
-
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
     val thresholdY = with(density) { 200.dp.toPx() }
@@ -163,7 +167,7 @@ fun PlayerSheet(
                     coroutineScope.launch {
                         val shouldChangeExpandedState = decayY.absoluteValue > (thresholdY * 0.5f)
                         if (shouldChangeExpandedState) {
-                            isExpanded = !isExpanded
+                            onPlayerExpandedChange(!isExpanded)
                             translationY.apply {
                                 animateTo(0f)
                                 if (isExpanded) {
@@ -192,7 +196,7 @@ fun PlayerSheet(
                 BottomPlayer(
                     playbackStateFlow = playbackStateFlow,
                     onClick = {
-                        isExpanded = true
+                        onPlayerExpandedChange(true)
                         translationY.updateBounds(
                             lowerBound = 0f,
                             upperBound = thresholdY
@@ -214,7 +218,7 @@ fun PlayerSheet(
                     onSeekToNextClick = onSeekToNextClick,
                     onSeekToPreviousClick = onSeekToPreviousClick,
                     onHideClick = {
-                        isExpanded = false
+                        onPlayerExpandedChange(false)
                         translationY.updateBounds(
                             lowerBound = -thresholdY,
                             upperBound = 0f
@@ -225,6 +229,7 @@ fun PlayerSheet(
                     onPlayNextClick = onPlayNextClick,
                     onAddToQueueClick = onAddToQueueClick,
                     onViewTrackInfoClick = onViewTrackInfoClick,
+                    onLyricsSheetExpandedChange = onLyricsSheetExpandedChange,
                     onLyricsClick = onLyricsClick,
                     modifier = Modifier.clickable(
                         onClick = {},
@@ -293,37 +298,49 @@ fun BottomPlayer(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-            ) {
-                CoverArt(
-                    uri = currentTrack.coverArtUri,
-                    onCoverArtLoaded = onCoverArtLoaded,
+            AnimatedContent(
+                targetState = currentTrack,
+                transitionSpec = {
+                    fadeIn() + slideInHorizontally(
+                        initialOffsetX = { it / 2 }
+                    ) togetherWith fadeOut() + slideOutHorizontally(
+                        targetOffsetX = { -it / 2 }
+                    )
+                },
+                label = "bottom-player-track-change-animation"
+            ) { currentTrack ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
-                        .size(48.dp)
-                        .clip(ShapeDefaults.Small)
-                )
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column {
-                    val context = LocalContext.current
-                    Text(
-                        text = currentTrack.title
-                            ?: context.resources.getString(R.string.unknown_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.basicMarquee()
+                        .fillMaxWidth(0.7f)
+                ) {
+                    CoverArt(
+                        uri = currentTrack.coverArtUri,
+                        onCoverArtLoaded = onCoverArtLoaded,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(ShapeDefaults.Small)
                     )
-                    Text(
-                        text = currentTrack.artist
-                            ?: context.resources.getString(R.string.unknown_artist),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.basicMarquee()
-                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Column {
+                        val context = LocalContext.current
+                        Text(
+                            text = currentTrack.title
+                                ?: context.resources.getString(R.string.unknown_title),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.basicMarquee()
+                        )
+                        Text(
+                            text = currentTrack.artist
+                                ?: context.resources.getString(R.string.unknown_artist),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.basicMarquee()
+                        )
+                    }
                 }
             }
 
@@ -383,6 +400,7 @@ fun ExpandedPlayer(
     onPlayNextClick: () -> Unit,
     onAddToQueueClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
+    onLyricsSheetExpandedChange: (Boolean) -> Unit,
     onLyricsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -390,8 +408,11 @@ fun ExpandedPlayer(
         onHideClick()
     }
 
-    var showLyricsSheet by remember {
-        mutableStateOf(false)
+    val playbackState by playbackStateFlow.collectAsState()
+    val showLyricsSheet by remember {
+        derivedStateOf {
+            playbackState.isLyricsSheetExpanded
+        }
     }
 
     Box {
@@ -403,7 +424,6 @@ fun ExpandedPlayer(
                 .padding(horizontal = 28.dp),
             contentAlignment = Alignment.Center
         ) {
-            val playbackState by playbackStateFlow.collectAsState()
             val playbackMode by remember {
                 derivedStateOf {
                     playbackState.playbackMode
@@ -414,6 +434,7 @@ fun ExpandedPlayer(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(top = 16.dp)
                     .align(Alignment.TopCenter),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -432,13 +453,14 @@ fun ExpandedPlayer(
                 Row {
                     IconButton(
                         onClick = {
+                            onLyricsSheetExpandedChange(true)
                             onLyricsClick()
-                            showLyricsSheet = true
                         }
                     ) {
                         Icon(
                             imageVector = Icons.Rounded.Lyrics,
-                            contentDescription = context.resources.getString(R.string.show_lyrics)
+                            contentDescription = context.resources.getString(R.string.show_lyrics),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
@@ -550,7 +572,7 @@ fun ExpandedPlayer(
             LyricsSheet(
                 playbackStateFlow = playbackStateFlow,
                 onBackClick = {
-                    showLyricsSheet = false
+                    onLyricsSheetExpandedChange(false)
                 },
                 onSeekTo = onSeekTo,
                 modifier = Modifier.fillMaxSize()
