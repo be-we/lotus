@@ -82,8 +82,8 @@ object TrackSerializer : KSerializer<Track> {
                     5 -> data = decodeStringElement(descriptor, 5)
 
                     6 -> title = decodeStringElement(descriptor, 6).takeIf { it != "null" }
-                    7 -> artist = decodeStringElement(descriptor, 7).takeIf { it != "null" }
-                    8 -> album = decodeStringElement(descriptor, 8).takeIf { it != "null" }
+                    7 -> album = decodeStringElement(descriptor, 8).takeIf { it != "null" }
+                    8 -> artist = decodeStringElement(descriptor, 7).takeIf { it != "null" }
                     9 -> albumArtist = decodeStringElement(descriptor, 9).takeIf { it != "null" }
                     10 -> genre = decodeStringElement(descriptor, 10).takeIf { it != "null" }
                     11 -> year = decodeStringElement(descriptor, 11).takeIf { it != "null" }
