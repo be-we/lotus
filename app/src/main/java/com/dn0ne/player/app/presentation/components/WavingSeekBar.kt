@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,11 +39,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.dn0ne.player.app.presentation.components.animatable.rememberAnimatable
 import kotlin.math.PI
 import kotlin.math.cos
 
@@ -182,6 +184,23 @@ fun WavingSeekBar(
                 )
             }
 
+            var lastAngle by remember {
+                mutableFloatStateOf(0f)
+            }
+            val animatable = rememberAnimatable(initialValue = 0f)
+            LaunchedEffect(isPlaying) {
+                val startAngle = (lastAngle.toInt() % 90).toFloat()
+                while (isPlaying) {
+                    animatable.animateTo(
+                        targetValue = startAngle + 90f,
+                        animationSpec = tween(durationMillis = 1000, easing = LinearEasing)
+                    ) {
+                        lastAngle = value
+                    }
+                    animatable.snapTo(startAngle)
+                }
+            }
+
             SeekBarHandle(
                 modifier = Modifier
                     .size(handleSize + handlePadding * 2)
@@ -194,9 +213,6 @@ fun WavingSeekBar(
                             label = "seek-bar-handle-position-animation"
                         ).value
                     )
-                    .clip(CircleShape)
-                    .background(color = MaterialTheme.colorScheme.primary)
-                    .align(Alignment.CenterStart)
                     .pointerInput(Unit) {
                         detectDragGestures(
                             onDragStart = {
@@ -215,6 +231,12 @@ fun WavingSeekBar(
                             handleOffsetFraction = handleOffset / barWidth
                         }
                     }
+                    .align(Alignment.CenterStart)
+                    .graphicsLayer {
+                        rotationZ = if (isPlaying) animatable.value else lastAngle
+                    }
+                    .clip(RoundedCornerShape(handleSize / 3))
+                    .background(color = MaterialTheme.colorScheme.primary)
             )
         }
 
