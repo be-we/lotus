@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -56,9 +56,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.metadata.MetadataSearchResult
+import com.dn0ne.player.app.presentation.components.ProviderText
 
 @Composable
 fun InfoSearchSheet(
@@ -99,10 +101,10 @@ fun InfoSearchSheet(
                 .fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp)
         ) {
-            items(
+            itemsIndexed(
                 items = state.searchResults,
-                key = { it.id + it.albumId }
-            ) { result ->
+                key = { index, result -> "$index-${result.id}-${result.albumId}" }
+            ) { _, result ->
                 SearchResultItem(
                     searchResult = result,
                     onClick = onSearchResultClick,
@@ -113,6 +115,22 @@ fun InfoSearchSheet(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            if (state.searchResults.isNotEmpty()) {
+                item {
+                    val context = LocalContext.current
+                    ProviderText(
+                        providerText = context.resources.getString(R.string.search_results_provided_by),
+                        uri = context.resources.getString(R.string.musicbrainz_uri),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(100.dp))
             }
         }
     }

@@ -76,6 +76,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.dn0ne.player.R
 import com.dn0ne.player.app.presentation.components.LazyColumnWithCollapsibleTopBar
+import com.dn0ne.player.app.presentation.components.ProviderText
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -125,16 +126,18 @@ fun LyricsSheet(
         val listState = rememberLazyListState()
         val coroutineScope = rememberCoroutineScope()
 
+        LaunchedEffect(lyrics) {
+            listState.animateScrollToItem(0)
+        }
+
         if (showSyncedLyrics == true) {
             LaunchedEffect(Unit) {
                 val index = lyrics?.synced?.indexOfFirst { playbackState.position < it.first } ?: -1
                 if (index >= 0) {
-                    coroutineScope.launch {
-                        listState.animateScrollToItem(
-                            index = index + 1,
-                            scrollOffset = -listState.layoutInfo.viewportSize.height / 3
-                        )
-                    }
+                    listState.animateScrollToItem(
+                        index = index + 1,
+                        scrollOffset = -listState.layoutInfo.viewportSize.height / 3
+                    )
                 }
             }
         }
@@ -274,6 +277,15 @@ fun LyricsSheet(
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
+
+                        item {
+                            ProviderText(
+                                providerText = context.resources.getString(R.string.lyrics_provided_by),
+                                uri = context.resources.getString(R.string.lrclib_uri),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
 
@@ -291,6 +303,15 @@ fun LyricsSheet(
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
+                        }
+
+                        item {
+                            ProviderText(
+                                providerText = context.resources.getString(R.string.lyrics_provided_by),
+                                uri = context.resources.getString(R.string.lrclib_uri),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
                         }
                     }
                 }
@@ -489,13 +510,13 @@ fun BubblesLine(
     nextTime: Int,
     modifier: Modifier = Modifier
 ) {
-    val position by positionFlow.collectAsState(0)
+    val position by positionFlow.collectAsState(-1)
     var bubblesContainerHeight by remember {
         mutableFloatStateOf(0f)
     }
     val isCurrentLine by remember {
         derivedStateOf {
-            position in time..nextTime
+            position >= 0L && position in time..nextTime
         }
     }
 

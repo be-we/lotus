@@ -101,4 +101,8 @@
     <string name="show_lyrics">Show lyrics</string>
     <string name="loading_lyrics">Loading lyrics</string>
     <string name="cant_find_lyrics">Can\'t find lyrics.</string>
+    <string name="lyrics_provided_by">Lyrics provided by LRCLIB</string>
+    <string name="lrclib_uri">https://lrclib.net</string>
+    <string name="search_results_provided_by">Results provided by MusicBrainz</string>
+    <string name="musicbrainz_uri">https://musicbrainz.org/</string>
 </resources>
