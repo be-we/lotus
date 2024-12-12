@@ -232,7 +232,9 @@ fun LyricsSheet(
                             items = synced,
                             key = { index, (time, _) -> "$index-$time" }
                         ) { index, (time, line) ->
-                            Column {
+                            Column(
+                                modifier = Modifier.animateItem()
+                            ) {
                                 val nextTime = remember {
                                     synced.getOrNull(index + 1)?.first ?: Int.MAX_VALUE
                                 }
@@ -263,8 +265,7 @@ fun LyricsSheet(
                                                     )
                                                 }
                                             }
-                                        },
-                                        modifier = Modifier
+                                        }
                                     )
                                 } else {
                                     BubblesLine(
@@ -296,10 +297,11 @@ fun LyricsSheet(
                             items = plain,
                             key = { index, line -> "$index-$line" }
                         ) { index, line ->
-                            Column {
+                            Column(
+                                modifier = Modifier.animateItem()
+                            ) {
                                 PlainLyricsLine(
-                                    line = line,
-                                    modifier = Modifier.animateItem()
+                                    line = line
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
