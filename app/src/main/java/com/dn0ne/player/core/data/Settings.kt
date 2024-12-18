@@ -6,8 +6,6 @@ class Settings(context: Context) {
     private val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
     private val themeKey = "theme"
-    private val lyricsProviderKey = "lyrics-provider"
-    private val metadataProviderKey = "metadata-provider"
     private val areRisksOfMetadataEditingAcceptedKey = "metadata-editing-dialog"
     private val matchDurationWhenSearchMetadataKey = "match-duration"
 
@@ -16,24 +14,6 @@ class Settings(context: Context) {
         set(value) {
             with(sharedPreferences.edit()) {
                 putInt(themeKey, value.ordinal)
-                apply()
-            }
-        }
-
-    var lyricsProvider: LyricsProvider
-        get() = LyricsProvider.entries[sharedPreferences.getInt(lyricsProviderKey, 0)]
-        set(value) {
-            with(sharedPreferences.edit()) {
-                putInt(lyricsProviderKey, value.ordinal)
-                apply()
-            }
-        }
-
-    var metadataProvider: MetadataProvider
-        get() = MetadataProvider.entries[sharedPreferences.getInt(metadataProviderKey, 0)]
-        set(value) {
-            with(sharedPreferences.edit()) {
-                putInt(metadataProviderKey, value.ordinal)
                 apply()
             }
         }
@@ -61,14 +41,4 @@ enum class Theme {
     System,
     Light,
     Dark
-}
-
-enum class LyricsProvider {
-    Musixmatch,
-    LastFm
-}
-
-enum class MetadataProvider {
-    LastFm,
-    Deezer
 }

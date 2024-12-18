@@ -13,8 +13,7 @@ val setupModule = module {
 
     viewModel<SetupViewModel> {
         SetupViewModel(
-            setupState = get(),
-            settings = get()
+            setupState = get()
         )
     }
 }

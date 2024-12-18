@@ -10,7 +10,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.dn0ne.player.setup.presentation.components.AudioPermissionPage
-import com.dn0ne.player.setup.presentation.components.MetadataPage
 import com.dn0ne.player.setup.presentation.components.WelcomePage
 
 @Composable
@@ -55,19 +54,10 @@ fun SetupScreen(
             AudioPermissionPage(
                 onGrantAudioPermissionClick = requestAudioPermission,
                 onNextClick = {
-                    viewModel.onEvent(SetupScreenEvent.OnFinishSetupClick)
+                    viewModel.onFinishSetupClick()
                     onFinishSetupClick()
                 },
                 isAudioPermissionGrantedState = isAudioPermissionGranted,
-                modifier = modifier.fillMaxSize()
-            )
-        }
-
-        composable<SetupPage.MetadataProvider> {
-            val selectedMetadataProviderState = viewModel.selectedMetadataProvider.collectAsState()
-            MetadataPage(
-                selectedMetadataProviderState = selectedMetadataProviderState,
-                onEvent = viewModel::onEvent,
                 modifier = modifier.fillMaxSize()
             )
         }
