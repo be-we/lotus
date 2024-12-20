@@ -199,7 +199,8 @@ fun SearchBox(
                 expanded = showDropdownMenu,
                 onDismissRequest = {
                     showDropdownMenu = false
-                }
+                },
+                shape = ShapeDefaults.Medium
             ) {
                 DropdownMenuItem(
                     text = {
@@ -211,7 +212,10 @@ fun SearchBox(
                             contentDescription = null
                         )
                     },
-                    onClick = onHintClick
+                    onClick = {
+                        onHintClick()
+                        showDropdownMenu = false
+                    }
                 )
             }
         }
