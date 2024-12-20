@@ -2,6 +2,10 @@ package com.dn0ne.player.app.presentation
 
 import com.dn0ne.player.app.domain.metadata.Metadata
 import com.dn0ne.player.app.domain.metadata.MetadataSearchResult
+import com.dn0ne.player.app.domain.sort.PlaylistSort
+import com.dn0ne.player.app.domain.sort.SortOrder
+import com.dn0ne.player.app.domain.sort.TrackSort
+import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
 
 sealed interface PlayerScreenEvent {
@@ -30,4 +34,15 @@ sealed interface PlayerScreenEvent {
     data class OnOverwriteMetadataClick(val metadata: Metadata): PlayerScreenEvent
     data object OnRestoreCoverArtClick: PlayerScreenEvent
     data class OnConfirmMetadataEditClick(val metadata: Metadata): PlayerScreenEvent
+
+    data class OnPlaylistSelection(val playlist: Playlist): PlayerScreenEvent
+
+    data class OnTrackSortChange(
+        val sort: TrackSort? = null,
+        val order: SortOrder? = null
+    ): PlayerScreenEvent
+    data class OnPlaylistSortChange(
+        val sort: PlaylistSort? = null,
+        val order: SortOrder? = null
+    ): PlayerScreenEvent
 }

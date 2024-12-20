@@ -105,4 +105,13 @@
     <string name="lrclib_uri">https://lrclib.net</string>
     <string name="search_results_provided_by">Results provided by MusicBrainz</string>
     <string name="musicbrainz_uri">https://musicbrainz.org/</string>
+    <string name="albums">Albums</string>
+    <string name="artists">Artists</string>
+    <string name="genres">Genres</string>
+    <string name="unknown">Unknown</string>
+    <string name="settings">Settings</string>
+    <string name="sort_order">Sort order</string>
+    <string name="sort_ascending">Sort ascending</string>
+    <string name="sort_descending">Sort descending</string>
+    <string name="track_count">Track Count</string>
 </resources>

@@ -16,6 +16,8 @@ import com.dn0ne.player.app.domain.metadata.Metadata
 import com.dn0ne.player.app.domain.playback.PlaybackMode
 import com.dn0ne.player.app.domain.result.DataError
 import com.dn0ne.player.app.domain.result.Result
+import com.dn0ne.player.app.domain.sort.sortedBy
+import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
 import com.dn0ne.player.app.presentation.components.playback.PlaybackState
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarController
@@ -32,6 +34,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -48,11 +51,83 @@ class PlayerViewModel(
 ) : ViewModel() {
     var player: Player? = null
 
+    private val _trackSort = MutableStateFlow(settings.trackSort)
+    val trackSort = _trackSort.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = _trackSort.value
+    )
+
+    private val _trackSortOrder = MutableStateFlow(settings.trackSortOrder)
+    val trackSortOrder = _trackSortOrder.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = _trackSortOrder.value
+    )
+
+    private val _playlistSort = MutableStateFlow(settings.playlistSort)
+    val playlistSort = _playlistSort.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = _playlistSort.value
+    )
+
+    private val _playlistSortOrder = MutableStateFlow(settings.playlistSortOrder)
+    val playlistSortOrder = _playlistSortOrder.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = _playlistSortOrder.value
+    )
+
     private val _trackList = MutableStateFlow(emptyList<Track>())
     val trackList = _trackList.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000L),
         initialValue = emptyList()
+    )
+
+    val albumPlaylists = _trackList.map {
+        it.groupBy { it.album }.entries.map {
+            Playlist(
+                title = it.key,
+                trackList = it.value
+            )
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = emptyList()
+    )
+    val artistPlaylists = _trackList.map {
+        it.groupBy { it.artist }.entries.map {
+            Playlist(
+                title = it.key,
+                trackList = it.value
+            )
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = emptyList()
+    )
+    val genrePlaylists = _trackList.map {
+        it.groupBy { it.genre }.entries.map {
+            Playlist(
+                title = it.key,
+                trackList = it.value
+            )
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = emptyList()
+    )
+
+    private val _selectedPlaylist = MutableStateFlow<Playlist?>(null)
+    val selectedPlaylist = _selectedPlaylist.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = null
     )
 
     private val _playbackState = MutableStateFlow(PlaybackState())
@@ -94,7 +169,11 @@ class PlayerViewModel(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
-                val tracks = trackRepository.getTracks()
+                val tracks = trackRepository.getTracks().sortedBy(
+                    sort = _trackSort.value,
+                    order = _trackSortOrder.value
+                )
+
                 if (_trackList.value != tracks) {
                     _trackList.update {
                         tracks
@@ -622,6 +701,60 @@ class PlayerViewModel(
                         metadata = event.metadata,
                         isArtFromGallery = event.metadata.coverArtBytes != null
                     )
+                }
+            }
+
+            is PlayerScreenEvent.OnPlaylistSelection -> {
+                _selectedPlaylist.update {
+                    event.playlist
+                }
+            }
+
+            is PlayerScreenEvent.OnTrackSortChange -> {
+                event.sort?.let { sort ->
+                    settings.trackSort = sort
+                    _trackSort.update {
+                        sort
+                    }
+                }
+
+                event.order?.let { order ->
+                    settings.trackSortOrder = order
+                    _trackSortOrder.update {
+                        order
+                    }
+                }
+
+                _trackList.update {
+                    it.sortedBy(
+                        sort = _trackSort.value,
+                        order = _trackSortOrder.value
+                    )
+                }
+
+                _selectedPlaylist.update {
+                    it?.copy(
+                        trackList = it.trackList.sortedBy(
+                            sort = _trackSort.value,
+                            order = _trackSortOrder.value
+                        )
+                    )
+                }
+            }
+
+            is PlayerScreenEvent.OnPlaylistSortChange -> {
+                event.sort?.let { sort ->
+                    settings.playlistSort = sort
+                    _playlistSort.update {
+                        sort
+                    }
+                }
+
+                event.order?.let { order ->
+                    settings.playlistSortOrder = order
+                    _playlistSortOrder.update {
+                        order
+                    }
                 }
             }
         }
