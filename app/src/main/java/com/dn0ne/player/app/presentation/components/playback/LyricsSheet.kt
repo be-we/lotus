@@ -232,9 +232,7 @@ fun LyricsSheet(
                             items = synced,
                             key = { index, (time, _) -> "$index-$time" }
                         ) { index, (time, line) ->
-                            Column(
-                                modifier = Modifier.animateItem()
-                            ) {
+                            Column {
                                 val nextTime = remember {
                                     synced.getOrNull(index + 1)?.first ?: Int.MAX_VALUE
                                 }
@@ -297,9 +295,7 @@ fun LyricsSheet(
                             items = plain,
                             key = { index, line -> "$index-$line" }
                         ) { index, line ->
-                            Column(
-                                modifier = Modifier.animateItem()
-                            ) {
+                            Column {
                                 PlainLyricsLine(
                                     line = line
                                 )
