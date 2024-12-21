@@ -287,6 +287,53 @@ fun SearchField(
 }
 
 @Composable
+fun SearchField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .clip(ShapeDefaults.ExtraLarge)
+            .background(color = MaterialTheme.colorScheme.surfaceContainerHigh)
+            .padding(12.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Search,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp)
+        )
+
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Box {
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
+            )
+
+            val context = LocalContext.current
+            value.ifEmpty {
+                Text(
+                    text = context.resources.getString(R.string.search),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.align(alignment = Alignment.CenterStart)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun SearchResultItem(
     searchResult: MetadataSearchResult,
     onClick: (MetadataSearchResult) -> Unit,

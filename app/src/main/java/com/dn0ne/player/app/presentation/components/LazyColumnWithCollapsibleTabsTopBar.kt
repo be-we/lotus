@@ -254,8 +254,6 @@ fun LazyColumnWithCollapsibleTabsTopBar(
                                         showTabRow = true
                                     }
                             ) {
-                                topBarButtons(selectedTabIndex)
-
                                 TabTitle(
                                     selectedTabIndex = selectedTabIndex,
                                     title = topBarTabTitles[selectedTabIndex],
@@ -265,6 +263,8 @@ fun LazyColumnWithCollapsibleTabsTopBar(
                                     boundTransformAnimationSpec = boundTransformAnimationSpec,
                                     modifier = Modifier.align(Alignment.Center)
                                 )
+
+                                topBarButtons(selectedTabIndex)
                             }
                         }
 

@@ -1,6 +1,7 @@
 package com.dn0ne.player.app.presentation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -26,6 +27,8 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -45,6 +48,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +57,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.navigation.compose.NavHost
@@ -64,6 +69,7 @@ import com.dn0ne.player.app.domain.sort.SortOrder
 import com.dn0ne.player.app.domain.sort.sortedBy
 import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
+import com.dn0ne.player.app.domain.track.filterTracks
 import com.dn0ne.player.app.presentation.components.LazyColumnWithCollapsibleTabsTopBar
 import com.dn0ne.player.app.presentation.components.LazyColumnWithCollapsibleTopBar
 import com.dn0ne.player.app.presentation.components.PlaylistCard
@@ -71,6 +77,7 @@ import com.dn0ne.player.app.presentation.components.PlaylistSortButton
 import com.dn0ne.player.app.presentation.components.TrackListItem
 import com.dn0ne.player.app.presentation.components.TrackSortButton
 import com.dn0ne.player.app.presentation.components.playback.PlayerSheet
+import com.dn0ne.player.app.presentation.components.trackinfo.SearchField
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheet
 import com.kmpalette.rememberDominantColorState
 import com.materialkolor.DynamicMaterialTheme
@@ -159,6 +166,13 @@ fun PlayerScreen(
                     startDestination = PlayerRoutes.Main
                 ) {
                     composable<PlayerRoutes.Main> {
+                        var searchFieldValue by rememberSaveable {
+                            mutableStateOf("")
+                        }
+                        var showSearchField by rememberSaveable {
+                            mutableStateOf(false)
+                        }
+
                         LazyColumnWithCollapsibleTabsTopBar(
                             topBarTabTitles = topBarTabs,
                             tabTitleTextStyle = MaterialTheme.typography.titleLarge.copy(
@@ -170,58 +184,117 @@ fun PlayerScreen(
                                 fontWeight = FontWeight.Bold
                             ),
                             topBarButtons = { tabIndex ->
-                                Row(
+                                AnimatedContent(
+                                    targetState = showSearchField,
+                                    label = "top-bar-search-bar-animation",
                                     modifier = Modifier
-                                        .align(Alignment.BottomStart)
+                                        .fillMaxWidth()
                                         .padding(horizontal = 12.dp, vertical = 4.dp)
-                                ) {
-                                    IconButton(
-                                        onClick = {}
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Rounded.Settings,
-                                            contentDescription = context.resources.getString(R.string.settings)
-                                        )
-                                    }
+                                        .align(Alignment.BottomCenter)
+                                ) { state ->
+                                    when (state) {
+                                        false -> {
+                                            Row(
+                                                horizontalArrangement = Arrangement.SpaceBetween
+                                            ) {
+                                                Row {
+                                                    IconButton(
+                                                        onClick = {}
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Rounded.Settings,
+                                                            contentDescription = context.resources.getString(
+                                                                R.string.settings
+                                                            )
+                                                        )
+                                                    }
 
-                                    if (tabIndex == 0) {
-                                        TrackSortButton(
-                                            sort = trackSort,
-                                            order = trackSortOrder,
-                                            onSortChange = {
-                                                viewModel.onEvent(
-                                                    PlayerScreenEvent.OnTrackSortChange(
-                                                        sort = it
+                                                    if (tabIndex == 0) {
+                                                        TrackSortButton(
+                                                            sort = trackSort,
+                                                            order = trackSortOrder,
+                                                            onSortChange = {
+                                                                viewModel.onEvent(
+                                                                    PlayerScreenEvent.OnTrackSortChange(
+                                                                        sort = it
+                                                                    )
+                                                                )
+                                                            },
+                                                            onSortOrderChange = {
+                                                                viewModel.onEvent(
+                                                                    PlayerScreenEvent.OnTrackSortChange(
+                                                                        order = it
+                                                                    )
+                                                                )
+                                                            }
+                                                        )
+                                                    } else {
+                                                        PlaylistSortButton(
+                                                            sort = playlistSort,
+                                                            order = playlistSortOrder,
+                                                            onSortChange = {
+                                                                viewModel.onEvent(
+                                                                    PlayerScreenEvent.OnPlaylistSortChange(
+                                                                        sort = it
+                                                                    )
+                                                                )
+                                                            },
+                                                            onSortOrderChange = {
+                                                                viewModel.onEvent(
+                                                                    PlayerScreenEvent.OnPlaylistSortChange(
+                                                                        order = it
+                                                                    )
+                                                                )
+                                                            }
+                                                        )
+                                                    }
+                                                }
+
+                                                IconButton(
+                                                    onClick = {
+                                                        showSearchField = true
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Rounded.Search,
+                                                        contentDescription = context.resources.getString(
+                                                            R.string.track_search
+                                                        )
                                                     )
-                                                )
-                                            },
-                                            onSortOrderChange = {
-                                                viewModel.onEvent(
-                                                    PlayerScreenEvent.OnTrackSortChange(
-                                                        order = it
-                                                    )
-                                                )
+                                                }
                                             }
-                                        )
-                                    } else {
-                                        PlaylistSortButton(
-                                            sort = playlistSort,
-                                            order = playlistSortOrder,
-                                            onSortChange = {
-                                                viewModel.onEvent(
-                                                    PlayerScreenEvent.OnPlaylistSortChange(
-                                                        sort = it
-                                                    )
+                                        }
+
+                                        true -> {
+                                            Box(
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                SearchField(
+                                                    value = searchFieldValue,
+                                                    onValueChange = {
+                                                        searchFieldValue = it.trimStart()
+                                                    },
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(horizontal = 48.dp)
+                                                        .align(Alignment.Center)
                                                 )
-                                            },
-                                            onSortOrderChange = {
-                                                viewModel.onEvent(
-                                                    PlayerScreenEvent.OnPlaylistSortChange(
-                                                        order = it
+                                                IconButton(
+                                                    onClick = {
+                                                        showSearchField = false
+                                                        searchFieldValue = ""
+                                                    },
+                                                    modifier = Modifier.align(Alignment.CenterEnd)
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Rounded.Close,
+                                                        contentDescription = context.resources.getString(
+                                                            R.string.close_track_search
+                                                        )
                                                     )
-                                                )
+                                                }
                                             }
-                                        )
+                                        }
                                     }
                                 }
                             },
@@ -236,7 +309,13 @@ fun PlayerScreen(
                             when (tabIndex) {
                                 1 -> {
                                     playlistCards(
-                                        playlists = albumPlaylists,
+                                        playlists = albumPlaylists.filter {
+                                            if (searchFieldValue.isBlank()) return@filter true
+                                            it.title?.contains(
+                                                searchFieldValue,
+                                                ignoreCase = true
+                                            ) == true
+                                        },
                                         sort = playlistSort,
                                         sortOrder = playlistSortOrder,
                                         fallbackPlaylistTitle = context.resources.getString(R.string.unknown_album),
@@ -259,7 +338,13 @@ fun PlayerScreen(
 
                                 2 -> {
                                     playlistCards(
-                                        playlists = artistPlaylists,
+                                        playlists = artistPlaylists.filter {
+                                            if (searchFieldValue.isBlank()) return@filter true
+                                            it.title?.contains(
+                                                searchFieldValue,
+                                                ignoreCase = true
+                                            ) == true
+                                        },
                                         sort = playlistSort,
                                         sortOrder = playlistSortOrder,
                                         fallbackPlaylistTitle = context.resources.getString(R.string.unknown_artist),
@@ -281,7 +366,13 @@ fun PlayerScreen(
 
                                 3 -> {
                                     playlistCards(
-                                        playlists = genrePlaylists,
+                                        playlists = genrePlaylists.filter {
+                                            if (searchFieldValue.isBlank()) return@filter true
+                                            it.title?.contains(
+                                                searchFieldValue,
+                                                ignoreCase = true
+                                            ) == true
+                                        },
                                         sort = playlistSort,
                                         sortOrder = playlistSortOrder,
                                         fallbackPlaylistTitle = context.resources.getString(R.string.unknown_genre),
@@ -303,7 +394,7 @@ fun PlayerScreen(
 
                                 else -> {
                                     trackList(
-                                        trackList = trackList,
+                                        trackList = trackList.filterTracks(searchFieldValue),
                                         currentTrack = currentTrack,
                                         onTrackClick = { track ->
                                             viewModel.onEvent(
@@ -351,44 +442,15 @@ fun PlayerScreen(
 
                         val playlist by viewModel.selectedPlaylist.collectAsState()
 
+                        var searchFieldValue by rememberSaveable {
+                            mutableStateOf("")
+                        }
+                        var showSearchField by rememberSaveable {
+                            mutableStateOf(false)
+                        }
+
                         LazyColumnWithCollapsibleTopBar(
                             topBarContent = {
-                                Row(
-                                    modifier = Modifier
-                                        .align(Alignment.BottomStart)
-                                        .padding(horizontal = 12.dp, vertical = 4.dp)
-                                ) {
-                                    IconButton(
-                                        onClick = {
-                                            navController.navigateUp()
-                                        }
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Rounded.ArrowBackIosNew,
-                                            contentDescription = context.resources.getString(R.string.back)
-                                        )
-                                    }
-
-                                    TrackSortButton(
-                                        sort = trackSort,
-                                        order = trackSortOrder,
-                                        onSortChange = {
-                                            viewModel.onEvent(
-                                                PlayerScreenEvent.OnTrackSortChange(
-                                                    sort = it
-                                                )
-                                            )
-                                        },
-                                        onSortOrderChange = {
-                                            viewModel.onEvent(
-                                                PlayerScreenEvent.OnTrackSortChange(
-                                                    order = it
-                                                )
-                                            )
-                                        }
-                                    )
-                                }
-
                                 Text(
                                     text = playlist?.title
                                         ?: context.resources.getString(R.string.unknown),
@@ -399,11 +461,108 @@ fun PlayerScreen(
                                             fraction = collapseFraction
                                         ),
                                     ),
+                                    softWrap = collapseFraction > .2f,
+                                    overflow = if (collapseFraction > .2f) {
+                                        TextOverflow.Clip
+                                    } else TextOverflow.Ellipsis,
                                     textAlign = TextAlign.Center,
                                     modifier = Modifier
                                         .align(Alignment.Center)
-                                        .padding(horizontal = 28.dp)
+                                        .padding(horizontal = if (collapseFraction > .2f) 28.dp else 108.dp)
                                 )
+
+                                AnimatedContent(
+                                    targetState = showSearchField,
+                                    label = "top-bar-search-bar-animation",
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                                        .align(Alignment.BottomCenter)
+                                ) { state ->
+                                    when (state) {
+                                        false -> {
+                                            Row(
+                                                horizontalArrangement = Arrangement.SpaceBetween
+                                            ) {
+                                                Row {
+                                                    IconButton(
+                                                        onClick = {
+                                                            navController.navigateUp()
+                                                        }
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Rounded.ArrowBackIosNew,
+                                                            contentDescription = context.resources.getString(R.string.back)
+                                                        )
+                                                    }
+
+                                                    TrackSortButton(
+                                                        sort = trackSort,
+                                                        order = trackSortOrder,
+                                                        onSortChange = {
+                                                            viewModel.onEvent(
+                                                                PlayerScreenEvent.OnTrackSortChange(
+                                                                    sort = it
+                                                                )
+                                                            )
+                                                        },
+                                                        onSortOrderChange = {
+                                                            viewModel.onEvent(
+                                                                PlayerScreenEvent.OnTrackSortChange(
+                                                                    order = it
+                                                                )
+                                                            )
+                                                        }
+                                                    )
+                                                }
+
+                                                IconButton(
+                                                    onClick = {
+                                                        showSearchField = true
+                                                    }
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Rounded.Search,
+                                                        contentDescription = context.resources.getString(
+                                                            R.string.track_search
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        }
+
+                                        true -> {
+                                            Box(
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                SearchField(
+                                                    value = searchFieldValue,
+                                                    onValueChange = {
+                                                        searchFieldValue = it.trimStart()
+                                                    },
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(horizontal = 48.dp)
+                                                        .align(Alignment.Center)
+                                                )
+                                                IconButton(
+                                                    onClick = {
+                                                        showSearchField = false
+                                                        searchFieldValue = ""
+                                                    },
+                                                    modifier = Modifier.align(Alignment.CenterEnd)
+                                                ) {
+                                                    Icon(
+                                                        imageVector = Icons.Rounded.Close,
+                                                        contentDescription = context.resources.getString(
+                                                            R.string.close_track_search
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             },
                             collapseFraction = {
                                 collapseFraction = it
@@ -415,7 +574,7 @@ fun PlayerScreen(
                         ) {
                             playlist?.let { (_, trackList) ->
                                 trackList(
-                                    trackList = trackList,
+                                    trackList = trackList.filterTracks(searchFieldValue),
                                     currentTrack = currentTrack,
                                     onTrackClick = { track ->
                                         viewModel.onEvent(

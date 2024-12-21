@@ -114,4 +114,6 @@
     <string name="sort_ascending">Sort ascending</string>
     <string name="sort_descending">Sort descending</string>
     <string name="track_count">Track Count</string>
+    <string name="close_track_search">Close track search</string>
+    <string name="track_search">Track search</string>
 </resources>
