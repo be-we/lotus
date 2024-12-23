@@ -96,6 +96,7 @@ fun PlayerSheet(
     onCoverArtLoaded: (ImageBitmap?) -> Unit,
     onPlayNextClick: () -> Unit,
     onAddToQueueClick: () -> Unit,
+    onAddToPlaylistClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
     onLyricsClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -228,6 +229,7 @@ fun PlayerSheet(
                     onCoverArtLoaded = onCoverArtLoaded,
                     onPlayNextClick = onPlayNextClick,
                     onAddToQueueClick = onAddToQueueClick,
+                    onAddToPlaylistClick = onAddToPlaylistClick,
                     onViewTrackInfoClick = onViewTrackInfoClick,
                     onLyricsSheetExpandedChange = onLyricsSheetExpandedChange,
                     onLyricsClick = onLyricsClick,
@@ -399,6 +401,7 @@ fun ExpandedPlayer(
     onCoverArtLoaded: (ImageBitmap?) -> Unit,
     onPlayNextClick: () -> Unit,
     onAddToQueueClick: () -> Unit,
+    onAddToPlaylistClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
     onLyricsSheetExpandedChange: (Boolean) -> Unit,
     onLyricsClick: () -> Unit,
@@ -481,6 +484,7 @@ fun ExpandedPlayer(
                     TrackMenuButton(
                         onPlayNextClick = onPlayNextClick,
                         onAddToQueueClick = onAddToQueueClick,
+                        onAddToPlaylistClick = onAddToPlaylistClick,
                         onViewTrackInfoClick = onViewTrackInfoClick
                     )
                 }

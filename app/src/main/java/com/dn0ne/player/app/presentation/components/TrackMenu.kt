@@ -2,9 +2,11 @@ package com.dn0ne.player.app.presentation.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.rounded.AddToQueue
 import androidx.compose.material.icons.rounded.AudioFile
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.PlaylistRemove
 import androidx.compose.material.icons.rounded.QueuePlayNext
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -27,7 +29,9 @@ fun TrackMenu(
     onDismissRequest: () -> Unit,
     onPlayNextClick: () -> Unit,
     onAddToQueueClick: () -> Unit,
-    onViewTrackInfoClick: () -> Unit
+    onAddToPlaylistClick: () -> Unit,
+    onViewTrackInfoClick: () -> Unit,
+    onRemoveFromPlaylistClick: (() -> Unit)? = null
 ) {
     DropdownMenu(
         expanded = isExpanded,
@@ -69,6 +73,40 @@ fun TrackMenu(
 
         DropdownMenuItem(
             text = {
+                Text(text = context.resources.getString(R.string.add_to_playlist))
+            },
+            onClick = {
+                onAddToPlaylistClick()
+                onDismissRequest()
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.PlaylistAdd,
+                    contentDescription = null
+                )
+            }
+        )
+
+        onRemoveFromPlaylistClick?.let {
+            DropdownMenuItem(
+                text = {
+                    Text(text = context.resources.getString(R.string.remove_from_playlist))
+                },
+                onClick = {
+                    onRemoveFromPlaylistClick()
+                    onDismissRequest()
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Rounded.PlaylistRemove,
+                        contentDescription = null
+                    )
+                }
+            )
+        }
+
+        DropdownMenuItem(
+            text = {
                 Text(text = context.resources.getString(R.string.track_info))
             },
             onClick = {
@@ -89,7 +127,9 @@ fun TrackMenu(
 fun TrackMenuButton(
     onPlayNextClick: () -> Unit,
     onAddToQueueClick: () -> Unit,
+    onAddToPlaylistClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
+    onRemoveFromPlaylistClick: (() -> Unit)? = null,
 ) {
     Box {
         var isMenuExpanded by remember {
@@ -114,7 +154,9 @@ fun TrackMenuButton(
             onDismissRequest = { isMenuExpanded = false },
             onPlayNextClick = onPlayNextClick,
             onAddToQueueClick = onAddToQueueClick,
-            onViewTrackInfoClick = onViewTrackInfoClick
+            onAddToPlaylistClick = onAddToPlaylistClick,
+            onViewTrackInfoClick = onViewTrackInfoClick,
+            onRemoveFromPlaylistClick = onRemoveFromPlaylistClick
         )
     }
 }

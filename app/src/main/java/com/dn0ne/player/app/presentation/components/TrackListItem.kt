@@ -31,7 +31,10 @@ fun TrackListItem(
     onClick: () -> Unit,
     onPlayNextClick: () -> Unit,
     onAddToQueueClick: () -> Unit,
+    onAddToPlaylistClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
+    onRemoveFromPlaylistClick: (() -> Unit)? = null,
+    dragHandle: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -44,7 +47,7 @@ fun TrackListItem(
                 color = if (isCurrent) MaterialTheme.colorScheme.surfaceContainerLow else Color.Transparent
             )
             .padding(vertical = 8.dp)
-            .padding(start = 8.dp),
+            .padding(start = 8.dp, end = if (dragHandle != null) 8.dp else 0.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -79,10 +82,18 @@ fun TrackListItem(
             }
         }
 
-        TrackMenuButton(
-            onPlayNextClick = onPlayNextClick,
-            onAddToQueueClick = onAddToQueueClick,
-            onViewTrackInfoClick = onViewTrackInfoClick
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TrackMenuButton(
+                onPlayNextClick = onPlayNextClick,
+                onAddToQueueClick = onAddToQueueClick,
+                onAddToPlaylistClick = onAddToPlaylistClick,
+                onViewTrackInfoClick = onViewTrackInfoClick,
+                onRemoveFromPlaylistClick = onRemoveFromPlaylistClick
+            )
+
+            dragHandle?.invoke()
+        }
     }
 }

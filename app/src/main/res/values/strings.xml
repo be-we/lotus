@@ -116,4 +116,23 @@
     <string name="track_count">Track Count</string>
     <string name="close_track_search">Close track search</string>
     <string name="track_search">Track search</string>
+    <string name="playlists">Playlists</string>
+    <string name="create_playlist">Create playlist</string>
+    <string name="add_to_playlist">Add to playlist</string>
+    <string name="back_to_add_to_playlist">Back to add to playlist</string>
+    <string name="new_playlist_title_placeholder">e.g. Favourites</string>
+    <string name="name">Name</string>
+    <string name="create">Create</string>
+    <string name="blank_playlist_name_error">Please name the playlist.</string>
+    <string name="playlist_already_exists_error">This name is already taken.</string>
+    <string name="nothing_yet">Nothing yet.</string>
+    <string name="reorder_track">Reorder track</string>
+    <string name="remove_from_playlist">Remove from playlist</string>
+    <string name="track_is_already_on_playlist">This track is already on the playlist.</string>
+    <string name="delete_playlist">Delete playlist</string>
+    <string name="rename_playlist">Rename playlist</string>
+    <string name="rename">Rename</string>
+    <string name="delete">Delete</string>
+    <string name="delete_playlist_dialog_title">Delete playlist?</string>
+    <string name="delete_playlist_dialog_text">This won\'t affect the tracks in it.</string>
 </resources>

@@ -72,6 +72,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun LazyColumnWithCollapsibleTabsTopBar(
     topBarTabTitles: List<String>,
+    defaultSelectedTabIndex: Int = 0,
     tabTitleTextStyle: TextStyle = MaterialTheme.typography.headlineLarge,
     tabRowTitleTextStyle: TextStyle = MaterialTheme.typography.titleLarge,
     topBarButtons: @Composable BoxScope.(tabIndex: Int) -> Unit = {},
@@ -143,7 +144,7 @@ fun LazyColumnWithCollapsibleTabsTopBar(
     }
 
     var selectedTabIndex by rememberSaveable {
-        mutableIntStateOf(0)
+        mutableIntStateOf(defaultSelectedTabIndex.coerceIn(topBarTabTitles.indices))
     }
     var showTabRow by remember {
         mutableStateOf(false)

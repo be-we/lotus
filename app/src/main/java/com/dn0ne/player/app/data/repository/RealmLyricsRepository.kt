@@ -5,6 +5,7 @@ import io.realm.kotlin.Realm
 import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -23,6 +24,7 @@ class RealmLyricsRepository(
 }
 
 class LyricsJson(): RealmObject {
+    @PrimaryKey
     var uri: String = ""
     var json: String = ""
 

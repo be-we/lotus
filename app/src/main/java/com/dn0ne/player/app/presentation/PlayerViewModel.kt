@@ -10,6 +10,7 @@ import com.dn0ne.player.app.data.SavedPlayerState
 import com.dn0ne.player.app.data.remote.lyrics.LyricsProvider
 import com.dn0ne.player.app.data.remote.metadata.MetadataProvider
 import com.dn0ne.player.app.data.repository.LyricsRepository
+import com.dn0ne.player.app.data.repository.PlaylistRepository
 import com.dn0ne.player.app.data.repository.TrackRepository
 import com.dn0ne.player.app.domain.lyrics.Lyrics
 import com.dn0ne.player.app.domain.metadata.Metadata
@@ -47,6 +48,7 @@ class PlayerViewModel(
     private val metadataProvider: MetadataProvider,
     private val lyricsProvider: LyricsProvider,
     private val lyricsRepository: LyricsRepository,
+    private val playlistRepository: PlaylistRepository,
     private val settings: Settings
 ) : ViewModel() {
     var player: Player? = null
@@ -89,7 +91,7 @@ class PlayerViewModel(
     val albumPlaylists = _trackList.map {
         it.groupBy { it.album }.entries.map {
             Playlist(
-                title = it.key,
+                name = it.key,
                 trackList = it.value
             )
         }
@@ -101,7 +103,7 @@ class PlayerViewModel(
     val artistPlaylists = _trackList.map {
         it.groupBy { it.artist }.entries.map {
             Playlist(
-                title = it.key,
+                name = it.key,
                 trackList = it.value
             )
         }
@@ -113,11 +115,17 @@ class PlayerViewModel(
     val genrePlaylists = _trackList.map {
         it.groupBy { it.genre }.entries.map {
             Playlist(
-                title = it.key,
+                name = it.key,
                 trackList = it.value
             )
         }
     }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = emptyList()
+    )
+
+    val playlists = playlistRepository.getPlaylists().stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000L),
         initialValue = emptyList()
@@ -210,7 +218,7 @@ class PlayerViewModel(
                     _playbackState.update {
                         it.copy(
                             playlist = playlist,
-                            currentTrack = playlist.find { player!!.currentMediaItem == it.mediaItem },
+                            currentTrack = playlist.trackList.find { player!!.currentMediaItem == it.mediaItem },
                             isPlaying = player!!.isPlaying,
                             position = player!!.currentPosition
                         )
@@ -255,7 +263,7 @@ class PlayerViewModel(
 
                         _playbackState.update {
                             it.copy(
-                                currentTrack = it.playlist?.find {
+                                currentTrack = it.playlist?.trackList?.find {
                                     it.mediaItem == mediaItem
                                 },
                                 isPlaying = true,
@@ -284,7 +292,7 @@ class PlayerViewModel(
                     if (_playbackState.value.playlist != event.playlist) {
                         player.clearMediaItems()
                         player.addMediaItems(
-                            event.playlist.map { track -> track.mediaItem }
+                            event.playlist.trackList.map { track -> track.mediaItem }
                         )
                     }
 
@@ -297,7 +305,7 @@ class PlayerViewModel(
                     savedPlayerState.playlist = event.playlist
 
                     player.seekTo(
-                        _playbackState.value.playlist!!.indexOfFirst { it == event.track },
+                        _playbackState.value.playlist!!.trackList.indexOfFirst { it == event.track },
                         0L
                     )
                     player.prepare()
@@ -405,10 +413,10 @@ class PlayerViewModel(
             }
 
             is PlayerScreenEvent.OnPlayNextClick -> {
-                if (_playbackState.value.playlist == null || _playbackState.value.playlist?.isEmpty() == true) {
+                if (_playbackState.value.playlist == null || _playbackState.value.playlist?.trackList?.isEmpty() == true) {
                     _playbackState.update {
                         it.copy(
-                            playlist = listOf(event.track),
+                            playlist = Playlist(null, listOf(event.track)),
                             currentTrack = event.track
                         )
                     }
@@ -420,10 +428,12 @@ class PlayerViewModel(
                     }
                 } else {
                     _playbackState.value.playlist?.let { playlist ->
-                        if (!playlist.contains(event.track)) {
+                        if (!playlist.trackList.contains(event.track)) {
                             _playbackState.update {
                                 it.copy(
-                                    playlist = playlist.toMutableList() + event.track
+                                    playlist = playlist.copy(
+                                        trackList = playlist.trackList.toMutableList() + event.track
+                                    )
                                 )
                             }
                         }
@@ -436,10 +446,10 @@ class PlayerViewModel(
             }
 
             is PlayerScreenEvent.OnAddToQueueClick -> {
-                if (_playbackState.value.playlist == null || _playbackState.value.playlist?.isEmpty() == true) {
+                if (_playbackState.value.playlist == null || _playbackState.value.playlist?.trackList?.isEmpty() == true) {
                     _playbackState.update {
                         it.copy(
-                            playlist = listOf(event.track),
+                            playlist = Playlist(null, listOf(event.track)),
                             currentTrack = event.track
                         )
                     }
@@ -451,10 +461,12 @@ class PlayerViewModel(
                     }
                 } else {
                     _playbackState.value.playlist?.let { playlist ->
-                        if (!playlist.contains(event.track)) {
+                        if (!playlist.trackList.contains(event.track)) {
                             _playbackState.update {
                                 it.copy(
-                                    playlist = playlist.toMutableList() + event.track
+                                    playlist = playlist.copy(
+                                        trackList = playlist.trackList.toMutableList() + event.track
+                                    )
                                 )
                             }
                         }
@@ -506,7 +518,8 @@ class PlayerViewModel(
 
                     val result = metadataProvider.searchMetadata(
                         query = event.query,
-                        trackDuration = _trackInfoSheetState.value.track?.duration?.toLong() ?: return@launch
+                        trackDuration = _trackInfoSheetState.value.track?.duration?.toLong()
+                            ?: return@launch
                     )
                     when (result) {
                         is Result.Error -> {
@@ -757,6 +770,105 @@ class PlayerViewModel(
                     }
                 }
             }
+
+            is PlayerScreenEvent.OnCreatePlaylistClick -> {
+                viewModelScope.launch {
+                    if (playlists.value.map { it.name }.contains(event.name)) return@launch
+                    playlistRepository.insertPlaylist(
+                        Playlist(
+                            name = event.name,
+                            trackList = emptyList()
+                        )
+                    )
+                }
+            }
+
+            is PlayerScreenEvent.OnRenamePlaylistClick -> {
+                viewModelScope.launch {
+                    if (playlists.value.map { it.name }.contains(event.name)) return@launch
+                    playlistRepository.renamePlaylist(
+                        playlist = event.playlist,
+                        name = event.name
+                    )
+
+                    _selectedPlaylist.update {
+                        it?.copy(
+                            name = event.name
+                        )
+                    }
+                }
+            }
+
+            is PlayerScreenEvent.OnDeletePlaylistClick -> {
+                viewModelScope.launch {
+                    playlistRepository.deletePlaylist(
+                        playlist = event.playlist
+                    )
+
+                    _selectedPlaylist.update { null }
+                }
+            }
+
+            is PlayerScreenEvent.OnAddToPlaylist -> {
+                viewModelScope.launch {
+                    if (event.playlist.trackList.contains(event.track)) {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
+                                message = R.string.track_is_already_on_playlist
+                            )
+                        )
+                        return@launch
+                    }
+
+                    val newTrackList = event.playlist.trackList + event.track
+                    playlistRepository.updatePlaylistTrackList(
+                        playlist = event.playlist,
+                        trackList = newTrackList
+                    )
+
+                    _selectedPlaylist.update {
+                        it?.copy(
+                            trackList = newTrackList
+                        )
+                    }
+                }
+            }
+
+            is PlayerScreenEvent.OnRemoveFromPlaylist -> {
+                viewModelScope.launch {
+                    val newTrackList = event.playlist.trackList.toMutableList().apply {
+                        remove(event.track)
+                    }
+
+                    playlistRepository.updatePlaylistTrackList(
+                        playlist = event.playlist,
+                        trackList = newTrackList
+                    )
+
+                    _selectedPlaylist.update {
+                        it?.copy(
+                            trackList = newTrackList
+                        )
+                    }
+                }
+            }
+
+            is PlayerScreenEvent.OnPlaylistReorder -> {
+                if (event.playlist.trackList != event.trackList) {
+                    viewModelScope.launch {
+                        playlistRepository.updatePlaylistTrackList(
+                            playlist = event.playlist,
+                            trackList = event.trackList
+                        )
+                    }
+
+                    _selectedPlaylist.update {
+                        it?.copy(
+                            trackList = event.trackList
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -830,7 +942,7 @@ class PlayerViewModel(
                 viewModelScope.launch {
                     val result = lyricsProvider.getLyrics(currentTrack)
 
-                    when(result) {
+                    when (result) {
                         is Result.Success -> {
                             lyrics = result.data
 
@@ -843,13 +955,14 @@ class PlayerViewModel(
                                 )
                             }
                         }
+
                         is Result.Error -> {
                             _playbackState.update {
                                 it.copy(
                                     isLoadingLyrics = false
                                 )
                             }
-                            when(result.error) {
+                            when (result.error) {
                                 DataError.Network.BadRequest -> {
                                     SnackbarController.sendEvent(
                                         SnackbarEvent(
@@ -857,6 +970,7 @@ class PlayerViewModel(
                                         )
                                     )
                                 }
+
                                 DataError.Network.NotFound -> {
                                     SnackbarController.sendEvent(
                                         SnackbarEvent(
@@ -864,6 +978,7 @@ class PlayerViewModel(
                                         )
                                     )
                                 }
+
                                 DataError.Network.ParseError -> {
                                     SnackbarController.sendEvent(
                                         SnackbarEvent(
@@ -871,6 +986,7 @@ class PlayerViewModel(
                                         )
                                     )
                                 }
+
                                 DataError.Network.NoInternet -> {
                                     SnackbarController.sendEvent(
                                         SnackbarEvent(
@@ -878,6 +994,7 @@ class PlayerViewModel(
                                         )
                                     )
                                 }
+
                                 else -> {
                                     SnackbarController.sendEvent(
                                         SnackbarEvent(

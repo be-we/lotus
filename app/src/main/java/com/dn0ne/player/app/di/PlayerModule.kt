@@ -9,7 +9,10 @@ import com.dn0ne.player.app.data.remote.metadata.MetadataProvider
 import com.dn0ne.player.app.data.remote.metadata.MusicBrainzMetadataProvider
 import com.dn0ne.player.app.data.repository.LyricsJson
 import com.dn0ne.player.app.data.repository.LyricsRepository
+import com.dn0ne.player.app.data.repository.PlaylistJson
+import com.dn0ne.player.app.data.repository.PlaylistRepository
 import com.dn0ne.player.app.data.repository.RealmLyricsRepository
+import com.dn0ne.player.app.data.repository.RealmPlaylistRepository
 import com.dn0ne.player.app.data.repository.TrackRepository
 import com.dn0ne.player.app.data.repository.TrackRepositoryImpl
 import com.dn0ne.player.app.presentation.PlayerViewModel
@@ -74,7 +77,7 @@ val playerModule = module {
 
     single<Realm> {
         val configuration = RealmConfiguration.create(
-            schema = setOf(LyricsJson::class)
+            schema = setOf(LyricsJson::class, PlaylistJson::class)
         )
 
         Realm.open(configuration)
@@ -86,6 +89,12 @@ val playerModule = module {
         )
     }
 
+    single<PlaylistRepository> {
+        RealmPlaylistRepository(
+            realm = get()
+        )
+    }
+
     viewModel<PlayerViewModel> {
         PlayerViewModel(
             savedPlayerState = get(),
@@ -93,6 +102,7 @@ val playerModule = module {
             metadataProvider = get(),
             lyricsProvider = get(),
             lyricsRepository = get(),
+            playlistRepository = get(),
             settings = get()
         )
     }

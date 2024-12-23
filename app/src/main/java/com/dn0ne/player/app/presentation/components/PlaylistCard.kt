@@ -43,12 +43,12 @@ fun PlaylistCard(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (coverArtPreviewUris.size == 1) {
-            val dominantColorState = rememberDominantColorState()
-            val coroutineScope = rememberCoroutineScope()
-            Box {
+        Box {
+            if (coverArtPreviewUris.size <= 1) {
+                val dominantColorState = rememberDominantColorState()
+                val coroutineScope = rememberCoroutineScope()
                 CoverArt(
-                    uri = coverArtPreviewUris.first(),
+                    uri = coverArtPreviewUris.firstOrNull() ?: Uri.EMPTY,
                     onCoverArtLoaded = { bitmap ->
                         bitmap?.let {
                             coroutineScope.launch {
@@ -69,9 +69,7 @@ fun PlaylistCard(
                         .align(Alignment.BottomCenter)
                         .offset(y = (-4).dp)
                 )
-            }
-        } else {
-            Box {
+            } else {
                 FourArtsPreview(
                     coverArtPreviewUris
                 )
@@ -174,7 +172,7 @@ fun TrackCountBubble(
                 color = contentColor.copy(alpha = .1f),
                 shape = ShapeDefaults.ExtraLarge
             )
-            .padding(horizontal = 8.dp,vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(

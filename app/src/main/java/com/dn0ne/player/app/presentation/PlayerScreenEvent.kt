@@ -9,7 +9,7 @@ import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
 
 sealed interface PlayerScreenEvent {
-    data class OnTrackClick(val track: Track, val playlist: List<Track>): PlayerScreenEvent
+    data class OnTrackClick(val track: Track, val playlist: Playlist): PlayerScreenEvent
 
     data class OnPlayerExpandedChange(val isExpanded: Boolean): PlayerScreenEvent
     data class OnLyricsSheetExpandedChange(val isExpanded: Boolean): PlayerScreenEvent
@@ -45,4 +45,11 @@ sealed interface PlayerScreenEvent {
         val sort: PlaylistSort? = null,
         val order: SortOrder? = null
     ): PlayerScreenEvent
+
+    data class OnCreatePlaylistClick(val name: String): PlayerScreenEvent
+    data class OnRenamePlaylistClick(val name: String, val playlist: Playlist): PlayerScreenEvent
+    data class OnDeletePlaylistClick(val playlist: Playlist): PlayerScreenEvent
+    data class OnAddToPlaylist(val track: Track, val playlist: Playlist): PlayerScreenEvent
+    data class OnRemoveFromPlaylist(val track: Track, val playlist: Playlist): PlayerScreenEvent
+    data class OnPlaylistReorder(val trackList: List<Track>, val playlist: Playlist): PlayerScreenEvent
 }

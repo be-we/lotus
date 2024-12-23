@@ -48,13 +48,13 @@ fun List<Playlist>.sortedBy(
     return when(order) {
         SortOrder.Ascending -> {
             when(sort) {
-                PlaylistSort.Title -> sortedBy { it.title }
+                PlaylistSort.Title -> sortedBy { it.name }
                 PlaylistSort.TrackCount -> sortedBy { it.trackList.size }
             }
         }
         SortOrder.Descending -> {
             when(sort) {
-                PlaylistSort.Title -> sortedByDescending { it.title }
+                PlaylistSort.Title -> sortedByDescending { it.name }
                 PlaylistSort.TrackCount -> sortedByDescending { it.trackList.size }
             }
         }
