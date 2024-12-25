@@ -1,0 +1,11 @@
+package com.dn0ne.player.app.presentation.components
+
+import android.content.res.Configuration
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+
+@Composable
+fun isSystemInLandscapeOrientation(): Boolean {
+    val context = LocalContext.current
+    return context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+}

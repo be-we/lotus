@@ -17,6 +17,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -69,6 +70,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.dn0ne.player.app.presentation.components.animatable.rememberAnimatable
+import com.dn0ne.player.app.presentation.components.isSystemInLandscapeOrientation
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class)
@@ -94,13 +96,20 @@ fun LazyGridWithCollapsibleTabsTopBar(
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
 
+    val isInLandscapeOrientation = isSystemInLandscapeOrientation()
     val minTopBarHeight = remember { with(density) { minTopBarHeight.toPx() } }
     val maxTopBarHeight = remember { with(density) { maxTopBarHeight.toPx() } }
     val topBarHeight = rememberAnimatable(
-        initialValue = if (collapsedByDefault) {
+        initialValue = if (collapsedByDefault || isInLandscapeOrientation) {
             minTopBarHeight
         } else maxTopBarHeight
     )
+
+    LaunchedEffect(isInLandscapeOrientation) {
+        if (isInLandscapeOrientation) {
+            topBarHeight.snapTo(minTopBarHeight)
+        }
+    }
 
     LaunchedEffect(topBarHeight.value) {
         collapseFraction(
@@ -167,7 +176,11 @@ fun LazyGridWithCollapsibleTabsTopBar(
 
     Box(
         modifier = modifier
-            .nestedScroll(topBarScrollConnection)
+            .nestedScroll(
+                if (!isInLandscapeOrientation) {
+                    topBarScrollConnection
+                } else DefaultNestedScrollConnection
+            )
     ) {
         Column {
             Spacer(
