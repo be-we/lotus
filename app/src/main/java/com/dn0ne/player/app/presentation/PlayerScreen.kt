@@ -13,11 +13,13 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Search
@@ -57,7 +59,7 @@ import com.dn0ne.player.app.domain.sort.TrackSort
 import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
 import com.dn0ne.player.app.domain.track.filterTracks
-import com.dn0ne.player.app.presentation.components.LazyColumnWithCollapsibleTabsTopBar
+import com.dn0ne.player.app.presentation.components.LazyGridWithCollapsibleTabsTopBar
 import com.dn0ne.player.app.presentation.components.PlaylistSortButton
 import com.dn0ne.player.app.presentation.components.TrackSortButton
 import com.dn0ne.player.app.presentation.components.playback.PlayerSheet
@@ -560,7 +562,7 @@ fun MainPlayerScreen(
         mutableStateOf(false)
     }
 
-    LazyColumnWithCollapsibleTabsTopBar(
+    LazyGridWithCollapsibleTabsTopBar(
         topBarTabTitles = topBarTabs,
         defaultSelectedTabIndex = 1,
         tabTitleTextStyle = MaterialTheme.typography.titleLarge.copy(
@@ -673,7 +675,14 @@ fun MainPlayerScreen(
         collapseFraction = {
             collapseFraction = it
         },
-        contentHorizontalAlignment = Alignment.CenterHorizontally,
+        contentHorizontalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterHorizontally),
+        contentVerticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        gridCells = {
+            if (it == 1) GridCells.Fixed(1) else {
+                GridCells.Adaptive(150.dp)
+            }
+        },
         modifier = Modifier
             .fillMaxSize()
             .safeDrawingPadding()
@@ -693,8 +702,6 @@ fun MainPlayerScreen(
                     fallbackPlaylistTitle = context.resources.getString(R.string.unknown),
                     showSinglePreview = false,
                     onCardClick = onPlaylistSelection,
-                    itemModifier = Modifier
-                        .padding(horizontal = 28.dp)
                 )
             }
 
@@ -712,8 +719,6 @@ fun MainPlayerScreen(
                     fallbackPlaylistTitle = context.resources.getString(R.string.unknown_album),
                     showSinglePreview = true,
                     onCardClick = onAlbumPlaylistSelection,
-                    itemModifier = Modifier
-                        .padding(horizontal = 28.dp)
                 )
             }
 
@@ -730,8 +735,6 @@ fun MainPlayerScreen(
                     sortOrder = playlistSortOrder,
                     fallbackPlaylistTitle = context.resources.getString(R.string.unknown_artist),
                     onCardClick = onArtistPlaylistSelection,
-                    itemModifier = Modifier
-                        .padding(horizontal = 28.dp)
                 )
             }
 
@@ -748,8 +751,6 @@ fun MainPlayerScreen(
                     sortOrder = playlistSortOrder,
                     fallbackPlaylistTitle = context.resources.getString(R.string.unknown_genre),
                     onCardClick = onGenrePlaylistSelection,
-                    itemModifier = Modifier
-                        .padding(horizontal = 28.dp)
                 )
             }
 

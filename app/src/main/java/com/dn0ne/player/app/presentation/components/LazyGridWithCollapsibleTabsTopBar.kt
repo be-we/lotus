@@ -30,10 +30,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
@@ -70,7 +73,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun LazyColumnWithCollapsibleTabsTopBar(
+fun LazyGridWithCollapsibleTabsTopBar(
     topBarTabTitles: List<String>,
     defaultSelectedTabIndex: Int = 0,
     tabTitleTextStyle: TextStyle = MaterialTheme.typography.headlineLarge,
@@ -80,12 +83,13 @@ fun LazyColumnWithCollapsibleTabsTopBar(
     maxTopBarHeight: Dp = 250.dp,
     collapsedByDefault: Boolean = false,
     collapseFraction: (Float) -> Unit = {},
-    listState: LazyListState = rememberLazyListState(),
+    listState: LazyGridState = rememberLazyGridState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    contentHorizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    contentHorizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     contentVerticalArrangement: Arrangement.Vertical = Arrangement.Top,
     modifier: Modifier = Modifier,
-    tabContent: LazyListScope.(tabIndex: Int) -> Unit
+    gridCells: (tabIndex: Int) -> GridCells = { GridCells.Fixed(1) },
+    tabContent: LazyGridScope.(tabIndex: Int) -> Unit
 ) {
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
@@ -174,15 +178,20 @@ fun LazyColumnWithCollapsibleTabsTopBar(
                 targetState = selectedTabIndex,
                 label = "column-tab-animation",
             ) { tabIndex ->
-                LazyColumn(
+                LazyVerticalGrid(
+                    columns = gridCells(tabIndex),
                     state = listState,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(contentPadding),
-                    horizontalAlignment = contentHorizontalAlignment,
+                    horizontalArrangement = contentHorizontalArrangement,
                     verticalArrangement = contentVerticalArrangement
                 ) {
-                    item(key = "spacer") {
+                    item(
+                        span = {
+                            GridItemSpan(this.maxLineSpan)
+                        }
+                    ) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -192,8 +201,16 @@ fun LazyColumnWithCollapsibleTabsTopBar(
 
                     tabContent(tabIndex)
 
-                    item {
-                        Spacer(modifier = Modifier.height(100.dp))
+                    item(
+                        span = {
+                            GridItemSpan(this.maxLineSpan)
+                        }
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp)
+                        )
                     }
                 }
             }
