@@ -308,7 +308,6 @@ fun MutablePlaylist(
                         .graphicsLayer {
                             scaleY = scale
                             scaleX = scale
-                            shadowElevation = scale
                         }
                         .clip(ShapeDefaults.Medium)
                         .background(
