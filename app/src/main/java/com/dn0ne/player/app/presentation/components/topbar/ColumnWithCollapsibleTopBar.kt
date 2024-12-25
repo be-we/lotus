@@ -1,4 +1,4 @@
-package com.dn0ne.player.app.presentation.components
+package com.dn0ne.player.app.presentation.components.topbar
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring

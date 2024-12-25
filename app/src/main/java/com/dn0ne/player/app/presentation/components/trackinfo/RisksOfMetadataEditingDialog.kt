@@ -1,4 +1,4 @@
-package com.dn0ne.player.app.presentation.components
+package com.dn0ne.player.app.presentation.components.trackinfo
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Warning

@@ -1,4 +1,4 @@
-package com.dn0ne.player.app.presentation.components
+package com.dn0ne.player.app.presentation.components.playback
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateDpAsState
