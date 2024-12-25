@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
@@ -140,6 +141,7 @@ fun ManualInfoEditSheet(
                     contentDescription = context.resources.getString(R.string.new_cover_art),
                     modifier = Modifier
                         .padding(horizontal = 12.dp)
+                        .requiredWidthIn(max = 400.dp)
                         .fillMaxWidth(.7f)
                         .aspectRatio(1f)
                         .clip(ShapeDefaults.Medium)

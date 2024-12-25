@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -172,6 +173,7 @@ fun TrackInfoSheet(
                             CoverArt(
                                 uri = coverArtUri,
                                 modifier = Modifier
+                                    .requiredWidthIn(max = 400.dp)
                                     .fillMaxWidth(.7f)
                                     .clip(ShapeDefaults.Medium)
                             )
