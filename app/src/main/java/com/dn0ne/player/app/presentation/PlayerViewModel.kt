@@ -177,12 +177,9 @@ class PlayerViewModel(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
-                val tracks = trackRepository.getTracks().sortedBy(
-                    sort = _trackSort.value,
-                    order = _trackSortOrder.value
-                )
+                val tracks = trackRepository.getTracks()
 
-                if (_trackList.value != tracks) {
+                if (!_trackList.value.containsAll(tracks)) {
                     _trackList.update {
                         tracks
                     }
