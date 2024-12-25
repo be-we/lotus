@@ -825,12 +825,6 @@ class PlayerViewModel(
                         playlist = event.playlist,
                         trackList = newTrackList
                     )
-
-                    _selectedPlaylist.update {
-                        it?.copy(
-                            trackList = newTrackList
-                        )
-                    }
                 }
             }
 
