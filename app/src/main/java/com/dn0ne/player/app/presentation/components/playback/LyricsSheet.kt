@@ -75,7 +75,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.dn0ne.player.R
-import com.dn0ne.player.app.presentation.components.LazyColumnWithCollapsibleTopBar
+import com.dn0ne.player.app.presentation.components.topbar.LazyColumnWithCollapsibleTopBar
 import com.dn0ne.player.app.presentation.components.ProviderText
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow

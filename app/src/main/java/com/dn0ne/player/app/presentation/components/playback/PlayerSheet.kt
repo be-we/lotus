@@ -76,7 +76,6 @@ import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.playback.PlaybackMode
 import com.dn0ne.player.app.presentation.components.CoverArt
 import com.dn0ne.player.app.presentation.components.TrackMenuButton
-import com.dn0ne.player.app.presentation.components.WavingSeekBar
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue

@@ -52,7 +52,7 @@ import coil3.compose.AsyncImage
 import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.metadata.Metadata
 import com.dn0ne.player.app.domain.track.Track
-import com.dn0ne.player.app.presentation.components.ColumnWithCollapsibleTopBar
+import com.dn0ne.player.app.presentation.components.topbar.ColumnWithCollapsibleTopBar
 
 @Composable
 fun ManualInfoEditSheet(

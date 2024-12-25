@@ -55,9 +55,8 @@ import androidx.navigation.compose.rememberNavController
 import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.metadata.Metadata
 import com.dn0ne.player.app.domain.metadata.MetadataSearchResult
-import com.dn0ne.player.app.presentation.components.ColumnWithCollapsibleTopBar
+import com.dn0ne.player.app.presentation.components.topbar.ColumnWithCollapsibleTopBar
 import com.dn0ne.player.app.presentation.components.CoverArt
-import com.dn0ne.player.app.presentation.components.RisksOfMetadataEditingDialog
 import java.util.Date
 import kotlin.math.roundToInt
 
