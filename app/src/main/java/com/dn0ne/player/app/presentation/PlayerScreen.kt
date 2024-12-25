@@ -144,11 +144,19 @@ fun PlayerScreen(
                     navController = navController,
                     enterTransition = {
                         fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideInVertically(
-                            initialOffsetY = { it / 4 })
+                            initialOffsetY = { it / 10 })
                     },
                     exitTransition = {
                         fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideOutVertically(
-                            targetOffsetY = { it / 4 })
+                            targetOffsetY = { -it / 10 })
+                    },
+                    popEnterTransition = {
+                        fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideInVertically(
+                            initialOffsetY = { -it / 10 })
+                    },
+                    popExitTransition = {
+                        fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideOutVertically(
+                            targetOffsetY = { it / 10 })
                     },
                     startDestination = PlayerRoutes.Main
                 ) {
@@ -362,7 +370,12 @@ fun PlayerScreen(
                                     playlists = playlists,
                                     initialName = playlist.name ?: "",
                                     onRenameClick = {
-                                        viewModel.onEvent(PlayerScreenEvent.OnRenamePlaylistClick(it, playlist))
+                                        viewModel.onEvent(
+                                            PlayerScreenEvent.OnRenamePlaylistClick(
+                                                it,
+                                                playlist
+                                            )
+                                        )
                                     },
                                     onDismissRequest = {
                                         showRenameSheet = false
@@ -375,7 +388,11 @@ fun PlayerScreen(
                                     onConfirm = {
                                         showDeleteDialog = false
                                         navController.navigateUp()
-                                        viewModel.onEvent(PlayerScreenEvent.OnDeletePlaylistClick(playlist))
+                                        viewModel.onEvent(
+                                            PlayerScreenEvent.OnDeletePlaylistClick(
+                                                playlist
+                                            )
+                                        )
                                     },
                                     onDismissRequest = {
                                         showDeleteDialog = false
@@ -675,7 +692,10 @@ fun MainPlayerScreen(
         collapseFraction = {
             collapseFraction = it
         },
-        contentHorizontalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.CenterHorizontally),
+        contentHorizontalArrangement = Arrangement.spacedBy(
+            16.dp,
+            alignment = Alignment.CenterHorizontally
+        ),
         contentVerticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp),
         gridCells = {

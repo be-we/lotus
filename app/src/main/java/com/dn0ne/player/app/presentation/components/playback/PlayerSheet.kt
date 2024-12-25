@@ -716,9 +716,9 @@ fun ExpandedPlayer(
         AnimatedVisibility(
             visible = showLyricsSheet,
             enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideInVertically(
-                initialOffsetY = { it / 4 }),
+                initialOffsetY = { it / 10 }),
             exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideOutVertically(
-                targetOffsetY = { it / 4 }),
+                targetOffsetY = { it / 10 }),
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
             LyricsSheet(
