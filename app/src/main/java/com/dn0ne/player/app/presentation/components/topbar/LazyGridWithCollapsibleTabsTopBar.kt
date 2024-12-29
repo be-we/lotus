@@ -1,5 +1,6 @@
 package com.dn0ne.player.app.presentation.components.topbar
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -192,6 +193,12 @@ fun LazyGridWithCollapsibleTabsTopBar(
                 targetState = selectedTabIndex,
                 label = "column-tab-animation",
             ) { tabIndex ->
+                if (tabIndex != defaultSelectedTabIndex) {
+                    BackHandler {
+                        selectedTabIndex = defaultSelectedTabIndex
+                    }
+                }
+
                 LazyVerticalGrid(
                     columns = gridCells(tabIndex),
                     state = listState,
