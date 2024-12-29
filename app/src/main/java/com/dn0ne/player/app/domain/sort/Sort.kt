@@ -18,7 +18,7 @@ fun List<Track>.sortedBy(sort: TrackSort, order: SortOrder): List<Track> {
                 TrackSort.Title -> sortedBy { it.title }
                 TrackSort.Album -> sortedBy { it.album }
                 TrackSort.Artist -> sortedBy { it.artist }
-                TrackSort.Genre -> sortedBy { it.genre }
+                TrackSort.Genre -> sortedBy { it.genre?.take(10) }
                 TrackSort.Year -> sortedBy { it.year }
                 TrackSort.DateModified -> sortedBy { it.dateModified }
             }
@@ -29,7 +29,7 @@ fun List<Track>.sortedBy(sort: TrackSort, order: SortOrder): List<Track> {
                 TrackSort.Title -> sortedByDescending { it.title }
                 TrackSort.Album -> sortedByDescending { it.album }
                 TrackSort.Artist -> sortedByDescending { it.artist }
-                TrackSort.Genre -> sortedByDescending { it.genre }
+                TrackSort.Genre -> sortedByDescending { it.genre?.take(10) }
                 TrackSort.Year -> sortedByDescending { it.year }
                 TrackSort.DateModified -> sortedByDescending { it.dateModified }
             }
