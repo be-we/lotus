@@ -28,6 +28,7 @@ import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RippleConfiguration
@@ -135,7 +136,8 @@ fun PlayerScreen(
         }
         CompositionLocalProvider(
             LocalIndication provides ripple,
-            LocalRippleConfiguration provides rippleConfiguration
+            LocalRippleConfiguration provides rippleConfiguration,
+            LocalContentColor provides MaterialTheme.colorScheme.onSurface
         ) {
 
             Box(
@@ -448,9 +450,11 @@ fun PlayerScreen(
                 ) {
                     currentTrack?.let {
 
-                        LaunchedEffect(coverArtBitmap) {
-                            coverArtBitmap?.let {
-                                dominantColorState.updateFrom(it)
+                        if (useAlbumArtColor) {
+                            LaunchedEffect(coverArtBitmap) {
+                                coverArtBitmap?.let {
+                                    dominantColorState.updateFrom(it)
+                                }
                             }
                         }
 
