@@ -52,4 +52,7 @@ sealed interface PlayerScreenEvent {
     data class OnAddToPlaylist(val track: Track, val playlist: Playlist): PlayerScreenEvent
     data class OnRemoveFromPlaylist(val track: Track, val playlist: Playlist): PlayerScreenEvent
     data class OnPlaylistReorder(val trackList: List<Track>, val playlist: Playlist): PlayerScreenEvent
+
+    data object OnSettingsClick: PlayerScreenEvent
+    data object OnCloseSettingsClick: PlayerScreenEvent
 }

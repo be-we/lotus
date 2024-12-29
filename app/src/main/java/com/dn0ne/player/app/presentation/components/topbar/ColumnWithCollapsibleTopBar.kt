@@ -20,7 +20,10 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -141,7 +144,11 @@ fun ColumnWithCollapsibleTopBar(
                 .fillMaxWidth()
                 .height(with(density) { topBarHeight.value.toDp() }),
         ) {
-            topBarContent()
+            CompositionLocalProvider(
+                LocalContentColor provides MaterialTheme.colorScheme.onSurface
+            ) {
+                topBarContent()
+            }
         }
     }
 }
@@ -202,11 +209,7 @@ fun LazyColumnWithCollapsibleTopBar(
                         maxTopBarHeight
                     )
                 } else previousHeight
-                /*val newHeight =
-                    (previousHeight + if (listState.firstVisibleItemIndex == 0) available.y else 0f).coerceIn(
-                        minTopBarHeight,
-                        maxTopBarHeight
-                    )*/
+
                 coroutineScope.launch {
                     topBarHeight.snapTo(newHeight)
                 }
@@ -270,7 +273,11 @@ fun LazyColumnWithCollapsibleTopBar(
                 .fillMaxWidth()
                 .height(with(density) { topBarHeight.value.toDp() }),
         ) {
-            topBarContent()
+            CompositionLocalProvider(
+                LocalContentColor provides MaterialTheme.colorScheme.onSurface
+            ) {
+                topBarContent()
+            }
         }
     }
 }

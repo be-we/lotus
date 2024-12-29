@@ -11,6 +11,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -59,7 +60,6 @@ import com.dn0ne.player.app.domain.sort.TrackSort
 import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
 import com.dn0ne.player.app.domain.track.filterTracks
-import com.dn0ne.player.app.presentation.components.topbar.LazyGridWithCollapsibleTabsTopBar
 import com.dn0ne.player.app.presentation.components.PlaylistSortButton
 import com.dn0ne.player.app.presentation.components.TrackSortButton
 import com.dn0ne.player.app.presentation.components.playback.PlayerSheet
@@ -69,11 +69,15 @@ import com.dn0ne.player.app.presentation.components.playlist.MutablePlaylist
 import com.dn0ne.player.app.presentation.components.playlist.Playlist
 import com.dn0ne.player.app.presentation.components.playlist.RenamePlaylistBottomSheet
 import com.dn0ne.player.app.presentation.components.playlist.playlistCards
+import com.dn0ne.player.app.presentation.components.settings.SettingsSheet
+import com.dn0ne.player.app.presentation.components.settings.Theme
+import com.dn0ne.player.app.presentation.components.topbar.LazyGridWithCollapsibleTabsTopBar
 import com.dn0ne.player.app.presentation.components.trackList
 import com.dn0ne.player.app.presentation.components.trackinfo.SearchField
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheet
 import com.kmpalette.rememberDominantColorState
 import com.materialkolor.DynamicMaterialTheme
+import com.materialkolor.PaletteStyle
 import com.materialkolor.ktx.toHct
 import kotlinx.serialization.Serializable
 
@@ -84,13 +88,42 @@ fun PlayerScreen(
     onCoverArtPick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val useDynamicColor by viewModel.settings.useDynamicColor.collectAsState()
+    val useAlbumArtColor by viewModel.settings.useAlbumArtColor.collectAsState()
     val dominantColorState = rememberDominantColorState()
     var coverArtBitmap by remember {
         mutableStateOf<ImageBitmap?>(null)
     }
+
+    LaunchedEffect(useAlbumArtColor, useDynamicColor) {
+        if (useAlbumArtColor) {
+            coverArtBitmap?.let {
+                dominantColorState.updateFrom(it)
+            }
+        } else dominantColorState.reset()
+    }
+
+    val appearance by viewModel.settings.appearance.collectAsState()
+    val paletteStyle by viewModel.settings.paletteStyle.collectAsState()
     DynamicMaterialTheme(
         seedColor = dominantColorState.color,
         primary = dominantColorState.color.takeIf { it.toHct().chroma <= 20 },
+        useDarkTheme = when (appearance) {
+            Theme.Appearance.System -> isSystemInDarkTheme()
+            Theme.Appearance.Light -> false
+            Theme.Appearance.Dark -> true
+        },
+        style = when (paletteStyle) {
+            Theme.PaletteStyle.TonalSpot -> PaletteStyle.TonalSpot
+            Theme.PaletteStyle.Neutral -> PaletteStyle.Neutral
+            Theme.PaletteStyle.Vibrant -> PaletteStyle.Vibrant
+            Theme.PaletteStyle.Expressive -> PaletteStyle.Expressive
+            Theme.PaletteStyle.Rainbow -> PaletteStyle.Rainbow
+            Theme.PaletteStyle.FruitSalad -> PaletteStyle.FruitSalad
+            Theme.PaletteStyle.Monochrome -> PaletteStyle.Monochrome
+            Theme.PaletteStyle.Fidelity -> PaletteStyle.Fidelity
+            Theme.PaletteStyle.Content -> PaletteStyle.Content
+        },
         animate = true
     ) {
         val rippleColor = MaterialTheme.colorScheme.primaryContainer
@@ -254,6 +287,9 @@ fun PlayerScreen(
                                     )
                                 )
                                 navController.navigate(PlayerRoutes.Playlist)
+                            },
+                            onSettingsClick = {
+                                viewModel.onEvent(PlayerScreenEvent.OnSettingsClick)
                             }
                         )
                     }
@@ -468,6 +504,7 @@ fun PlayerScreen(
                             onLyricsClick = {
                                 viewModel.onEvent(PlayerScreenEvent.OnLyricsClick)
                             },
+                            settings = viewModel.settings,
                             modifier = Modifier
                                 .align(alignment = Alignment.BottomCenter)
                                 .fillMaxWidth()
@@ -527,6 +564,16 @@ fun PlayerScreen(
                         }
                     )
                 }
+
+                val settingsSheetState by viewModel.settingsSheetState.collectAsState()
+                SettingsSheet(
+                    state = settingsSheetState,
+                    onCloseClick = {
+                        viewModel.onEvent(PlayerScreenEvent.OnCloseSettingsClick)
+                    },
+                    dominantColorState = dominantColorState,
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
@@ -555,6 +602,7 @@ fun MainPlayerScreen(
     onAlbumPlaylistSelection: (Playlist) -> Unit,
     onArtistPlaylistSelection: (Playlist) -> Unit,
     onGenrePlaylistSelection: (Playlist) -> Unit,
+    onSettingsClick: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -606,7 +654,7 @@ fun MainPlayerScreen(
                         ) {
                             Row {
                                 IconButton(
-                                    onClick = {}
+                                    onClick = onSettingsClick
                                 ) {
                                     Icon(
                                         imageVector = Icons.Rounded.Settings,

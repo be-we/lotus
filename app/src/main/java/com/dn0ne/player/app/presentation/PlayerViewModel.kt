@@ -1,6 +1,7 @@
 package com.dn0ne.player.app.presentation
 
 import android.util.Log
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -21,6 +22,7 @@ import com.dn0ne.player.app.domain.sort.sortedBy
 import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
 import com.dn0ne.player.app.presentation.components.playback.PlaybackState
+import com.dn0ne.player.app.presentation.components.settings.SettingsSheetState
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarController
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarEvent
 import com.dn0ne.player.app.presentation.components.trackinfo.ChangesSheetState
@@ -49,9 +51,20 @@ class PlayerViewModel(
     private val lyricsProvider: LyricsProvider,
     private val lyricsRepository: LyricsRepository,
     private val playlistRepository: PlaylistRepository,
-    private val settings: Settings
+    val settings: Settings
 ) : ViewModel() {
     var player: Player? = null
+
+    private val _settingsSheetState = MutableStateFlow(
+        SettingsSheetState(
+            settings = settings
+        )
+    )
+    val settingsSheetState = _settingsSheetState.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = _settingsSheetState.value
+    )
 
     private val _trackSort = MutableStateFlow(settings.trackSort)
     val trackSort = _trackSort.stateIn(
@@ -278,6 +291,14 @@ class PlayerViewModel(
                 }
             )
 
+        }
+
+        viewModelScope.launch {
+            snapshotFlow {
+                settings.hashCode()
+            }.collect {
+                println("SETTINGS UPDATED")
+            }
         }
     }
 
@@ -858,6 +879,22 @@ class PlayerViewModel(
                             trackList = event.trackList
                         )
                     }
+                }
+            }
+
+            PlayerScreenEvent.OnSettingsClick -> {
+                _settingsSheetState.update {
+                    it.copy(
+                        isShown = true
+                    )
+                }
+            }
+
+            PlayerScreenEvent.OnCloseSettingsClick -> {
+                _settingsSheetState.update {
+                    it.copy(
+                        isShown = false
+                    )
                 }
             }
         }

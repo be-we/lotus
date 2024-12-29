@@ -95,16 +95,16 @@ fun TrackInfoSheet(
                 navController = navController,
                 startDestination = TrackInfoRoutes.Info,
                 enterTransition = {
-                    slideInHorizontally(initialOffsetX = { it })
+                    fadeIn() + slideInHorizontally(initialOffsetX = { it / 5 })
                 },
                 exitTransition = {
-                    slideOutHorizontally(targetOffsetX = { -it })
+                    fadeOut() + slideOutHorizontally(targetOffsetX = { -it / 5 })
                 },
                 popEnterTransition = {
-                    slideInHorizontally(initialOffsetX = { -it })
+                    fadeIn() + slideInHorizontally(initialOffsetX = { -it / 5 })
                 },
                 popExitTransition = {
-                    slideOutHorizontally(targetOffsetX = { it })
+                    fadeOut() + slideOutHorizontally(targetOffsetX = { it / 5 })
                 }
             ) {
                 composable<TrackInfoRoutes.Info> {

@@ -69,6 +69,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -87,6 +88,9 @@ import kotlin.math.sin
 @Composable
 fun LyricsSheet(
     playbackStateFlow: StateFlow<PlaybackState>,
+    lyricsTextStyle: TextStyle,
+    containerColor: Color,
+    contentColor: Color,
     onBackClick: () -> Unit,
     onSeekTo: (Long) -> Unit,
     modifier: Modifier = Modifier
@@ -121,7 +125,7 @@ fun LyricsSheet(
     }
 
     CompositionLocalProvider(
-        LocalContentColor provides MaterialTheme.colorScheme.inverseSurface
+        LocalContentColor provides contentColor
     ) {
         val listState = rememberLazyListState()
         val coroutineScope = rememberCoroutineScope()
@@ -144,41 +148,45 @@ fun LyricsSheet(
 
         LazyColumnWithCollapsibleTopBar(
             topBarContent = {
-                IconButton(
-                    onClick = onBackClick,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                CompositionLocalProvider(
+                    LocalContentColor provides contentColor
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.ArrowBackIosNew,
-                        contentDescription = context.resources.getString(R.string.close_lyrics_sheet)
-                    )
-                }
-
-                Text(
-                    text = context.resources.getString(R.string.lyrics),
-                    fontSize = lerp(
-                        MaterialTheme.typography.titleLarge.fontSize,
-                        MaterialTheme.typography.displaySmall.fontSize,
-                        collapseFraction
-                    ),
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-
-                if (lyrics?.synced != null && lyrics?.plain != null && showSyncedLyrics != null) {
-                    LyricsTypeSwitch(
-                        isSynced = showSyncedLyrics!!,
-                        onIsSyncedSwitch = {
-                            showSyncedLyrics = it
-                        },
-                        enabled = collapseFraction == 1f,
+                    IconButton(
+                        onClick = onBackClick,
                         modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = 6.dp)
-                            .alpha(2 * (collapseFraction - 0.5f))
+                            .align(Alignment.BottomStart)
+                            .padding(horizontal = 12.dp, vertical = 4.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.ArrowBackIosNew,
+                            contentDescription = context.resources.getString(R.string.close_lyrics_sheet)
+                        )
+                    }
+
+                    Text(
+                        text = context.resources.getString(R.string.lyrics),
+                        fontSize = lerp(
+                            MaterialTheme.typography.titleLarge.fontSize,
+                            MaterialTheme.typography.displaySmall.fontSize,
+                            collapseFraction
+                        ),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.Center)
                     )
+
+                    if (lyrics?.synced != null && lyrics?.plain != null && showSyncedLyrics != null) {
+                        LyricsTypeSwitch(
+                            isSynced = showSyncedLyrics!!,
+                            onIsSyncedSwitch = {
+                                showSyncedLyrics = it
+                            },
+                            enabled = collapseFraction == 1f,
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(bottom = 6.dp)
+                                .alpha(2 * (collapseFraction - 0.5f))
+                        )
+                    }
                 }
             },
             collapseFraction = {
@@ -187,7 +195,7 @@ fun LyricsSheet(
             listState = listState,
             contentPadding = PaddingValues(horizontal = 24.dp),
             modifier = modifier
-                .background(color = MaterialTheme.colorScheme.inversePrimary)
+                .background(color = containerColor)
                 .clickable(enabled = false, onClick = {})
                 .safeDrawingPadding()
         ) {
@@ -232,7 +240,9 @@ fun LyricsSheet(
                             items = synced,
                             key = { index, (time, _) -> "$index-$time" }
                         ) { index, (time, line) ->
-                            Column {
+                            Column(
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
                                 val nextTime = remember {
                                     synced.getOrNull(index + 1)?.first ?: Int.MAX_VALUE
                                 }
@@ -243,6 +253,7 @@ fun LyricsSheet(
                                         time = time,
                                         nextTime = nextTime,
                                         line = line,
+                                        style = lyricsTextStyle,
                                         onClick = {
                                             onSeekTo(time.toLong())
                                         },
@@ -263,13 +274,21 @@ fun LyricsSheet(
                                                     )
                                                 }
                                             }
-                                        }
+                                        },
+                                        modifier = Modifier.fillMaxWidth()
                                     )
                                 } else {
                                     BubblesLine(
                                         positionFlow = playbackStateFlow.map { it.position },
                                         time = time,
-                                        nextTime = nextTime
+                                        nextTime = nextTime,
+                                        modifier = Modifier.align(
+                                            when(lyricsTextStyle.textAlign) {
+                                                TextAlign.Center -> Alignment.CenterHorizontally
+                                                TextAlign.End -> Alignment.End
+                                                else -> Alignment.Start
+                                            }
+                                        )
                                     )
                                 }
 
@@ -297,7 +316,9 @@ fun LyricsSheet(
                         ) { index, line ->
                             Column {
                                 PlainLyricsLine(
-                                    line = line
+                                    line = line,
+                                    style = lyricsTextStyle,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
@@ -322,6 +343,7 @@ fun LyricsSheet(
 fun LyricsTypeSwitch(
     isSynced: Boolean,
     onIsSyncedSwitch: (Boolean) -> Unit,
+    contentColor: Color = LocalContentColor.current,
     enabled: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -331,7 +353,7 @@ fun LyricsTypeSwitch(
             .width(IntrinsicSize.Min)
             .height(IntrinsicSize.Min)
             .clip(ShapeDefaults.ExtraLarge)
-            .background(color = MaterialTheme.colorScheme.primary.copy(alpha = .2f))
+            .background(color = contentColor.copy(alpha = .1f))
     ) {
         var midPoint by remember {
             mutableStateOf(0.dp)
@@ -348,7 +370,7 @@ fun LyricsTypeSwitch(
                 .fillMaxWidth(.5f)
                 .offset(x = capsuleOffset)
                 .clip(ShapeDefaults.ExtraLarge)
-                .background(color = MaterialTheme.colorScheme.primary.copy(alpha = .2f))
+                .background(color = contentColor.copy(alpha = .1f))
         )
 
         Row(
@@ -360,6 +382,8 @@ fun LyricsTypeSwitch(
         ) {
             Text(
                 text = context.resources.getString(R.string.synced),
+                color = contentColor,
+                fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .weight(1f)
@@ -378,6 +402,8 @@ fun LyricsTypeSwitch(
 
             Text(
                 text = context.resources.getString(R.string.plain),
+                color = contentColor,
+                fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .weight(1f)
@@ -400,14 +426,14 @@ fun LyricsTypeSwitch(
 @Composable
 fun PlainLyricsLine(
     line: String,
+    style: TextStyle,
     color: Color = LocalContentColor.current,
     modifier: Modifier = Modifier
 ) {
     Text(
         text = line,
-        style = MaterialTheme.typography.headlineMedium,
+        style = style,
         color = color,
-        fontWeight = FontWeight.SemiBold,
         modifier = modifier
     )
 }
@@ -418,6 +444,7 @@ fun SyncedLyricsLine(
     time: Int,
     nextTime: Int,
     line: String,
+    style: TextStyle,
     onClick: () -> Unit,
     onBecomeCurrent: (textHeight: Float) -> Unit,
     modifier: Modifier = Modifier
@@ -467,7 +494,7 @@ fun SyncedLyricsLine(
 
     Text(
         text = line,
-        style = MaterialTheme.typography.headlineMedium
+        style = style
             .copy(
                 brush = Brush.verticalGradient(
                     colors = listOf(
@@ -483,13 +510,16 @@ fun SyncedLyricsLine(
                 )
             ),
         color = color,
-        fontWeight = FontWeight.SemiBold,
         modifier = modifier
             .onGloballyPositioned {
                 textHeight = it.size.height.toFloat()
             }
             .graphicsLayer {
-                transformOrigin = TransformOrigin(0f, .5f)
+                transformOrigin = when(style.textAlign) {
+                    TextAlign.Center -> TransformOrigin(.5f, .5f)
+                    TextAlign.End -> TransformOrigin(1f, .5f)
+                    else -> TransformOrigin(0f, .5f)
+                }
                 scaleX = scale
                 scaleY = scale
             }

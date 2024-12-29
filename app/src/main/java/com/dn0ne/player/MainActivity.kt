@@ -15,10 +15,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -37,6 +42,7 @@ import com.dn0ne.player.app.domain.result.Result
 import com.dn0ne.player.app.domain.track.Track
 import com.dn0ne.player.app.presentation.PlayerScreen
 import com.dn0ne.player.app.presentation.PlayerViewModel
+import com.dn0ne.player.app.presentation.components.settings.Theme
 import com.dn0ne.player.app.presentation.components.snackbar.ObserveAsEvents
 import com.dn0ne.player.app.presentation.components.snackbar.ScaffoldWithSnackbarEvents
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarController
@@ -187,17 +193,38 @@ class MainActivity : ComponentActivity() {
                                 },
                                 MoreExecutors.directExecutor()
                             )
-                            PlayerScreen(
-                                viewModel = viewModel,
-                                onCoverArtPick = {
-                                    pickCoverArt.launch(
-                                        PickVisualMediaRequest(
-                                            ActivityResultContracts.PickVisualMedia.ImageOnly
+
+                            val appearance by viewModel.settings.appearance.collectAsState()
+                            val isDarkTheme = when(appearance) {
+                                Theme.Appearance.System -> isSystemInDarkTheme()
+                                Theme.Appearance.Light -> false
+                                Theme.Appearance.Dark -> true
+                            }
+                            LaunchedEffect(appearance) {
+                                WindowCompat.getInsetsController(window, window.decorView)
+                                    .apply {
+                                            isAppearanceLightStatusBars = !isDarkTheme
+                                            isAppearanceLightNavigationBars = !isDarkTheme
+                                    }
+
+                            }
+
+                            val useDynamicColor by viewModel.settings.useDynamicColor.collectAsState()
+                            MusicPlayerTheme(
+                                dynamicColor = useDynamicColor
+                            ) {
+                                PlayerScreen(
+                                    viewModel = viewModel,
+                                    onCoverArtPick = {
+                                        pickCoverArt.launch(
+                                            PickVisualMediaRequest(
+                                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                                            )
                                         )
-                                    )
-                                },
-                                modifier = Modifier.fillMaxSize()
-                            )
+                                    },
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
 
                             val coroutineScope = rememberCoroutineScope()
                             ObserveAsEvents(flow = viewModel.pendingMetadata) { (track, metadata) ->

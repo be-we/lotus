@@ -39,10 +39,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -237,125 +239,129 @@ fun LazyGridWithCollapsibleTabsTopBar(
             val boundTransformAnimationSpec = remember { spring<Rect>() }
             val contentAnimationSpec = remember { spring<Float>() }
 
-            SharedTransitionLayout {
-                AnimatedContent(
-                    targetState = showTabRow,
-                    transitionSpec = {
-                        scaleIn(contentAnimationSpec, initialScale = 1.5f) +
-                                fadeIn(contentAnimationSpec) togetherWith
-                                scaleOut(contentAnimationSpec, targetScale = 1.5f) +
-                                fadeOut(contentAnimationSpec)
-                    },
-                    label = "top-bar-title-animation"
-                ) { state ->
-                    when (state) {
-                        false -> {
-                            val viewportWidth by remember {
-                                derivedStateOf {
-                                    tabListState.layoutInfo.viewportSize.width
-                                }
-                            }
-                            val listItemsCount by remember {
-                                derivedStateOf {
-                                    tabListState.layoutInfo.totalItemsCount
-                                }
-                            }
-
-                            LaunchedEffect(listItemsCount) {
-                                tabListState.scrollToItem(
-                                    index = selectedTabIndex + 1,
-                                )
-
-                                tabListState.scrollToItem(
-                                    index = selectedTabIndex + 1,
-                                    scrollOffset = -viewportWidth / 2 + tabListState.layoutInfo.visibleItemsInfo.first { it.index == selectedTabIndex + 1 }.size / 2
-                                )
-                            }
-
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clickable(
-                                        interactionSource = remember {
-                                            MutableInteractionSource()
-                                        },
-                                        indication = null
-                                    ) {
-                                        showTabRow = true
+            CompositionLocalProvider(
+                LocalContentColor provides MaterialTheme.colorScheme.onSurface
+            ) {
+                SharedTransitionLayout {
+                    AnimatedContent(
+                        targetState = showTabRow,
+                        transitionSpec = {
+                            scaleIn(contentAnimationSpec, initialScale = 1.5f) +
+                                    fadeIn(contentAnimationSpec) togetherWith
+                                    scaleOut(contentAnimationSpec, targetScale = 1.5f) +
+                                    fadeOut(contentAnimationSpec)
+                        },
+                        label = "top-bar-title-animation"
+                    ) { state ->
+                        when (state) {
+                            false -> {
+                                val viewportWidth by remember {
+                                    derivedStateOf {
+                                        tabListState.layoutInfo.viewportSize.width
                                     }
-                            ) {
-                                TabTitle(
-                                    selectedTabIndex = selectedTabIndex,
-                                    title = topBarTabTitles[selectedTabIndex],
-                                    style = tabTitleTextStyle,
-                                    sharedTransitionScope = this@SharedTransitionLayout,
-                                    animatedVisibilityScope = this@AnimatedContent,
-                                    boundTransformAnimationSpec = boundTransformAnimationSpec,
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-
-                                topBarButtons(selectedTabIndex)
-                            }
-                        }
-
-                        true -> {
-                            val viewportWidth by remember {
-                                derivedStateOf {
-                                    tabListState.layoutInfo.viewportSize.width
                                 }
-                            }
+                                val listItemsCount by remember {
+                                    derivedStateOf {
+                                        tabListState.layoutInfo.totalItemsCount
+                                    }
+                                }
 
-                            LazyRow(
-                                state = tabListState,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clickable(
-                                        interactionSource = remember {
-                                            MutableInteractionSource()
-                                        },
-                                        indication = null
-                                    ) {
-                                        showTabRow = false
-                                    },
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                item {
-                                    Spacer(
-                                        modifier = Modifier.width(
-                                            with(density) {
-                                                (viewportWidth / 2.5f).toDp()
-                                            }
-                                        )
+                                LaunchedEffect(listItemsCount) {
+                                    tabListState.scrollToItem(
+                                        index = selectedTabIndex + 1,
+                                    )
+
+                                    tabListState.scrollToItem(
+                                        index = selectedTabIndex + 1,
+                                        scrollOffset = -viewportWidth / 2 + tabListState.layoutInfo.visibleItemsInfo.first { it.index == selectedTabIndex + 1 }.size / 2
                                     )
                                 }
 
-                                itemsIndexed(
-                                    items = topBarTabTitles,
-                                    key = { index, title -> "$index-$title" }
-                                ) { index, title ->
-                                    TabRowTitle(
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clickable(
+                                            interactionSource = remember {
+                                                MutableInteractionSource()
+                                            },
+                                            indication = null
+                                        ) {
+                                            showTabRow = true
+                                        }
+                                ) {
+                                    TabTitle(
                                         selectedTabIndex = selectedTabIndex,
-                                        index = index,
-                                        title = title,
-                                        style = tabRowTitleTextStyle,
-                                        onClick = {
-                                            selectedTabIndex = index
-                                            showTabRow = false
-                                        },
+                                        title = topBarTabTitles[selectedTabIndex],
+                                        style = tabTitleTextStyle,
                                         sharedTransitionScope = this@SharedTransitionLayout,
                                         animatedVisibilityScope = this@AnimatedContent,
-                                        boundTransformAnimationSpec = boundTransformAnimationSpec
+                                        boundTransformAnimationSpec = boundTransformAnimationSpec,
+                                        modifier = Modifier.align(Alignment.Center)
                                     )
+
+                                    topBarButtons(selectedTabIndex)
+                                }
+                            }
+
+                            true -> {
+                                val viewportWidth by remember {
+                                    derivedStateOf {
+                                        tabListState.layoutInfo.viewportSize.width
+                                    }
                                 }
 
-                                item {
-                                    Spacer(
-                                        modifier = Modifier.width(
-                                            with(density) {
-                                                (viewportWidth / 2.5f).toDp()
-                                            }
+                                LazyRow(
+                                    state = tabListState,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clickable(
+                                            interactionSource = remember {
+                                                MutableInteractionSource()
+                                            },
+                                            indication = null
+                                        ) {
+                                            showTabRow = false
+                                        },
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    item {
+                                        Spacer(
+                                            modifier = Modifier.width(
+                                                with(density) {
+                                                    (viewportWidth / 2.5f).toDp()
+                                                }
+                                            )
                                         )
-                                    )
+                                    }
+
+                                    itemsIndexed(
+                                        items = topBarTabTitles,
+                                        key = { index, title -> "$index-$title" }
+                                    ) { index, title ->
+                                        TabRowTitle(
+                                            selectedTabIndex = selectedTabIndex,
+                                            index = index,
+                                            title = title,
+                                            style = tabRowTitleTextStyle,
+                                            onClick = {
+                                                selectedTabIndex = index
+                                                showTabRow = false
+                                            },
+                                            sharedTransitionScope = this@SharedTransitionLayout,
+                                            animatedVisibilityScope = this@AnimatedContent,
+                                            boundTransformAnimationSpec = boundTransformAnimationSpec
+                                        )
+                                    }
+
+                                    item {
+                                        Spacer(
+                                            modifier = Modifier.width(
+                                                with(density) {
+                                                    (viewportWidth / 2.5f).toDp()
+                                                }
+                                            )
+                                        )
+                                    }
                                 }
                             }
                         }
