@@ -2,6 +2,7 @@ package com.dn0ne.player.app.data.remote.metadata
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.ui.util.fastForEach
 import com.dn0ne.player.app.domain.metadata.MetadataSearchResult
 import com.dn0ne.player.app.domain.result.DataError
 import com.dn0ne.player.app.domain.result.Result
@@ -173,7 +174,7 @@ private data class SearchResultDto(
 
 private fun SearchResultDto.toMetadataSearchResultList(): List<MetadataSearchResult> {
     var results = mutableListOf<MetadataSearchResult>()
-    recordings.forEach { recording ->
+    recordings.fastForEach { recording ->
         val artist = recording.artistCredit.map {
             it.name + (it.joinphrase ?: "")
         }.joinToString(separator = "")

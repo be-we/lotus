@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import androidx.compose.ui.util.fastForEach
 import androidx.media3.common.MediaItem
 import com.dn0ne.player.app.domain.track.Track
 import java.util.concurrent.TimeUnit
@@ -186,7 +187,7 @@ class TrackRepositoryImpl(
         val genres = getGenres()
 
         val trackIdToGenreMap = mutableMapOf<Long, String>()
-        genres.forEach { genre ->
+        genres.fastForEach { genre ->
             val collection = MediaStore.Audio.Genres.Members.getContentUri(
                 "external",
                 genre.id
