@@ -60,6 +60,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.material.icons)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.exoplayerdash)
