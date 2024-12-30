@@ -82,8 +82,12 @@ fun SettingsGroup(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(
-                        when (index) {
-                            0 -> {
+                        when {
+                            items.lastIndex == 0 -> {
+                                RoundedCornerShape(28.dp)
+                            }
+
+                            index == 0 -> {
                                 RoundedCornerShape(
                                     topStart = 28.dp,
                                     topEnd = 28.dp,
@@ -92,7 +96,7 @@ fun SettingsGroup(
                                 )
                             }
 
-                            items.lastIndex -> {
+                            index == items.lastIndex -> {
                                 RoundedCornerShape(
                                     topStart = 4.dp,
                                     topEnd = 4.dp,

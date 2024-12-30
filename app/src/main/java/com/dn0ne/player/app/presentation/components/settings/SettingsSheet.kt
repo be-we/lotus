@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.ColorLens
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Lyrics
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -163,6 +164,19 @@ fun SettingsSheet(
                         SettingsGroup(
                             items = settings
                         )
+
+                        SettingsGroup(
+                            items = listOf(
+                                SettingsItem(
+                                    title = "${context.resources.getString(R.string.about)} ${context.resources.getString(R.string.app_name)}",
+                                    supportingText = context.resources.getString(R.string.about_explain),
+                                    icon = Icons.Rounded.Info,
+                                    onClick = {
+                                        navController.navigate(SettingsRoutes.About)
+                                    }
+                                )
+                            )
+                        )
                     }
                 }
 
@@ -196,6 +210,15 @@ fun SettingsSheet(
                         modifier = Modifier.fillMaxSize()
                     )
                 }
+
+                composable<SettingsRoutes.About> {
+                    AboutPage(
+                        onBackClick = {
+                            navController.navigateUp()
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
             }
         }
     }
@@ -214,4 +237,7 @@ sealed interface SettingsRoutes {
 
     @Serializable
     data object Lyrics: SettingsRoutes
+
+    @Serializable
+    data object About: SettingsRoutes
 }

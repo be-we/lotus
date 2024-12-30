@@ -138,7 +138,7 @@
     <string name="close_settings_sheet">Close settings sheet</string>
     <string name="theme">Theme</string>
     <string name="theme_supporting_text">Appearance, palette</string>
-    <string name="lyrics_supporting_text">Font size, alignment</string>
+    <string name="lyrics_supporting_text">Font settings, alignment</string>
     <string name="playback">Playback</string>
     <string name="playback_supporting_text">Audio focus</string>
     <string name="appearance">Appearance</string>
@@ -174,4 +174,12 @@
     <string name="end">End</string>
     <string name="start">Start</string>
     <string name="reset">Reset</string>
+    <string name="repo">Repository</string>
+    <string name="repo_explain">Check out project\'s repo</string>
+    <string name="repo_url">https://github.com/dn0ne/music-player</string>
+    <string name="about">About</string>
+    <string name="about_explain">Version, repository, feedback</string>
+    <string name="feedback">Feedback</string>
+    <string name="feedback_explain">Contact to suggest a feature or report a problem</string>
+    <string name="feedback_url">mailto:dev.dn0ne@gmail.com</string>
 </resources>
