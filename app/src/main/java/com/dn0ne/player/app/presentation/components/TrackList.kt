@@ -21,6 +21,12 @@ fun LazyListScope.trackList(
     onAddToPlaylistClick: (Track) -> Unit,
     onViewTrackInfoClick: (Track) -> Unit,
 ) {
+    if (trackList.isEmpty()) {
+        item {
+            NothingYet()
+        }
+    }
+
     items(
         items = trackList,
         key = { it.uri }
@@ -52,6 +58,12 @@ fun LazyGridScope.trackList(
     onAddToPlaylistClick: (Track) -> Unit,
     onViewTrackInfoClick: (Track) -> Unit,
 ) {
+    if (trackList.isEmpty()) {
+        item {
+            NothingYet()
+        }
+    }
+
     items(
         items = trackList,
         key = { it.uri }
@@ -68,7 +80,5 @@ fun LazyGridScope.trackList(
                 .fillMaxWidth()
                 .animateItem()
         )
-
-        //Spacer(modifier = Modifier.height(8.dp))
     }
 }

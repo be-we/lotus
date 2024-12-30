@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.track.Playlist
+import com.dn0ne.player.app.presentation.components.NothingYet
 import com.dn0ne.player.app.presentation.components.PlaylistCard
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -230,11 +231,7 @@ fun AddToOrCreatePlaylistBottomSheet(
                                 }
                             }
                         } else {
-                            Text(
-                                text = context.resources.getString(R.string.nothing_yet),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                            )
+                            NothingYet()
                         }
                     }
                 }

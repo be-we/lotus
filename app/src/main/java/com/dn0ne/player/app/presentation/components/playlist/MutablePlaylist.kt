@@ -54,6 +54,7 @@ import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
 import com.dn0ne.player.app.domain.track.filterTracks
+import com.dn0ne.player.app.presentation.components.NothingYet
 import com.dn0ne.player.app.presentation.components.topbar.LazyColumnWithCollapsibleTopBar
 import com.dn0ne.player.app.presentation.components.TrackListItem
 import com.dn0ne.player.app.presentation.components.trackinfo.SearchField
@@ -244,6 +245,12 @@ fun MutablePlaylist(
             .fillMaxSize()
             .safeDrawingPadding()
     ) {
+        if (trackList.isEmpty()) {
+            item {
+                NothingYet()
+            }
+        }
+
         items(
             items = trackList.filterTracks(searchFieldValue),
             key = { "${it.uri}" }
