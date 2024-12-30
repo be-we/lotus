@@ -69,7 +69,7 @@ fun AboutPage(
         collapseFraction = {
             collapseFraction = it
         },
-        contentPadding = PaddingValues(horizontal = 28.dp),
+        contentPadding = PaddingValues(horizontal = 24.dp),
         contentHorizontalAlignment = Alignment.CenterHorizontally,
         contentVerticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier
