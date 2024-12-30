@@ -1,7 +1,6 @@
 package com.dn0ne.player.app.presentation
 
 import android.util.Log
-import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -291,14 +290,6 @@ class PlayerViewModel(
                 }
             )
 
-        }
-
-        viewModelScope.launch {
-            snapshotFlow {
-                settings.hashCode()
-            }.collect {
-                println("SETTINGS UPDATED")
-            }
         }
     }
 
