@@ -163,13 +163,6 @@ fun LazyGridWithCollapsibleTabsTopBar(
         }
     }
 
-    val tabListState = rememberLazyListState()
-    val viewportWidth by remember {
-        derivedStateOf {
-            tabListState.layoutInfo.viewportSize.width
-        }
-    }
-
     var selectedTabIndex by rememberSaveable {
         mutableIntStateOf(defaultSelectedTabIndex.coerceIn(topBarTabTitles.indices))
     }
@@ -204,17 +197,6 @@ fun LazyGridWithCollapsibleTabsTopBar(
                 if (tabIndex != defaultSelectedTabIndex) {
                     BackHandler {
                         selectedTabIndex = defaultSelectedTabIndex
-
-                        coroutineScope.launch {
-                            tabListState.scrollToItem(
-                                index = selectedTabIndex + 1,
-                            )
-
-                            tabListState.scrollToItem(
-                                index = selectedTabIndex + 1,
-                                scrollOffset = -viewportWidth / 2 + tabListState.layoutInfo.visibleItemsInfo.first { it.index == selectedTabIndex + 1 }.size / 2
-                            )
-                        }
                     }
                 }
 
@@ -261,6 +243,12 @@ fun LazyGridWithCollapsibleTabsTopBar(
                 .fillMaxWidth()
                 .height(with(density) { topBarHeight.value.toDp() })
         ) {
+            val tabListState = rememberLazyListState()
+            val viewportWidth by remember {
+                derivedStateOf {
+                    tabListState.layoutInfo.viewportSize.width
+                }
+            }
             val boundTransformAnimationSpec = remember { spring<Rect>() }
             val contentAnimationSpec = remember { spring<Float>() }
 
@@ -293,7 +281,10 @@ fun LazyGridWithCollapsibleTabsTopBar(
 
                                     tabListState.scrollToItem(
                                         index = selectedTabIndex + 1,
-                                        scrollOffset = -viewportWidth / 2 + tabListState.layoutInfo.visibleItemsInfo.first { it.index == selectedTabIndex + 1 }.size / 2
+                                        scrollOffset = -viewportWidth / 2 + (tabListState
+                                            .layoutInfo
+                                            .visibleItemsInfo
+                                            .firstOrNull { it.index == selectedTabIndex + 1 }?.size ?: 0) / 2
                                     )
                                 }
 
@@ -324,10 +315,18 @@ fun LazyGridWithCollapsibleTabsTopBar(
                             }
 
                             true -> {
-                                val viewportWidth by remember {
-                                    derivedStateOf {
-                                        tabListState.layoutInfo.viewportSize.width
-                                    }
+                                LaunchedEffect(Unit) {
+                                    tabListState.scrollToItem(
+                                        index = selectedTabIndex + 1,
+                                    )
+
+                                    tabListState.scrollToItem(
+                                        index = selectedTabIndex + 1,
+                                        scrollOffset = -viewportWidth / 2 + (tabListState
+                                            .layoutInfo
+                                            .visibleItemsInfo
+                                            .firstOrNull { it.index == selectedTabIndex + 1 }?.size ?: 0) / 2
+                                    )
                                 }
 
                                 LazyRow(
