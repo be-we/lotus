@@ -46,6 +46,7 @@ fun ColumnWithCollapsibleTopBar(
     topBarContent: @Composable BoxScope.() -> Unit,
     minTopBarHeight: Dp = 60.dp,
     maxTopBarHeight: Dp = 250.dp,
+    maxTopBarHeightLandscape: Dp = 150.dp,
     collapsedByDefault: Boolean = false,
     collapseFraction: (Float) -> Unit = {},
     contentScrollState: ScrollState = rememberScrollState(),
@@ -60,7 +61,13 @@ fun ColumnWithCollapsibleTopBar(
 
     val isInLandscapeOrientation = isSystemInLandscapeOrientation()
     val minTopBarHeight = remember { with(density) { minTopBarHeight.toPx() } }
-    val maxTopBarHeight = remember { with(density) { maxTopBarHeight.toPx() } }
+    val maxTopBarHeight = remember {
+        with(density) {
+            if (isInLandscapeOrientation) {
+                maxTopBarHeightLandscape.toPx()
+            } else maxTopBarHeight.toPx()
+        }
+    }
     val topBarHeight = rememberAnimatable(
         initialValue = if (collapsedByDefault || isInLandscapeOrientation) {
             minTopBarHeight
@@ -113,11 +120,7 @@ fun ColumnWithCollapsibleTopBar(
 
     Box(
         modifier = modifier
-            .nestedScroll(
-                if (!isInLandscapeOrientation) {
-                    topBarScrollConnection
-                } else DefaultNestedScrollConnection
-            )
+            .nestedScroll(topBarScrollConnection)
     ) {
         Column {
             Spacer(
@@ -158,6 +161,7 @@ fun LazyColumnWithCollapsibleTopBar(
     topBarContent: @Composable BoxScope.() -> Unit,
     minTopBarHeight: Dp = 60.dp,
     maxTopBarHeight: Dp = 250.dp,
+    maxTopBarHeightLandscape: Dp = 150.dp,
     collapsedByDefault: Boolean = false,
     collapseFraction: (Float) -> Unit = {},
     listState: LazyListState = rememberLazyListState(),
@@ -172,7 +176,13 @@ fun LazyColumnWithCollapsibleTopBar(
 
     val isInLandscapeOrientation = isSystemInLandscapeOrientation()
     val minTopBarHeight = remember { with(density) { minTopBarHeight.toPx() } }
-    val maxTopBarHeight = remember { with(density) { maxTopBarHeight.toPx() } }
+    val maxTopBarHeight = remember {
+        with(density) {
+            if (isInLandscapeOrientation) {
+                maxTopBarHeightLandscape.toPx()
+            } else maxTopBarHeight.toPx()
+        }
+    }
     val topBarHeight = rememberAnimatable(
         initialValue = if (collapsedByDefault || isInLandscapeOrientation) {
             minTopBarHeight
@@ -180,9 +190,7 @@ fun LazyColumnWithCollapsibleTopBar(
     )
 
     LaunchedEffect(isInLandscapeOrientation) {
-        if (isInLandscapeOrientation) {
-            topBarHeight.snapTo(minTopBarHeight)
-        }
+        topBarHeight.snapTo(maxTopBarHeight)
     }
 
     LaunchedEffect(topBarHeight.value) {
@@ -232,11 +240,7 @@ fun LazyColumnWithCollapsibleTopBar(
 
     Box(
         modifier = modifier
-            .nestedScroll(
-                if (!isInLandscapeOrientation) {
-                    topBarScrollConnection
-                } else DefaultNestedScrollConnection
-            )
+            .nestedScroll(topBarScrollConnection)
     ) {
         Column {
             Spacer(

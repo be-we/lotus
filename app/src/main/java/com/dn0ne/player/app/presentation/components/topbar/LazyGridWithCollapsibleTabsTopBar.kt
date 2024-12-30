@@ -85,6 +85,7 @@ fun LazyGridWithCollapsibleTabsTopBar(
     topBarButtons: @Composable BoxScope.(tabIndex: Int) -> Unit = {},
     minTopBarHeight: Dp = 60.dp,
     maxTopBarHeight: Dp = 250.dp,
+    maxTopBarHeightLandscape: Dp = 150.dp,
     collapsedByDefault: Boolean = false,
     collapseFraction: (Float) -> Unit = {},
     listState: LazyGridState = rememberLazyGridState(),
@@ -100,7 +101,13 @@ fun LazyGridWithCollapsibleTabsTopBar(
 
     val isInLandscapeOrientation = isSystemInLandscapeOrientation()
     val minTopBarHeight = remember { with(density) { minTopBarHeight.toPx() } }
-    val maxTopBarHeight = remember { with(density) { maxTopBarHeight.toPx() } }
+    val maxTopBarHeight = remember {
+        with(density) {
+            if (isInLandscapeOrientation) {
+                maxTopBarHeightLandscape.toPx()
+            } else maxTopBarHeight.toPx()
+        }
+    }
     val topBarHeight = rememberAnimatable(
         initialValue = if (collapsedByDefault || isInLandscapeOrientation) {
             minTopBarHeight
@@ -108,9 +115,7 @@ fun LazyGridWithCollapsibleTabsTopBar(
     )
 
     LaunchedEffect(isInLandscapeOrientation) {
-        if (isInLandscapeOrientation) {
-            topBarHeight.snapTo(minTopBarHeight)
-        }
+        topBarHeight.snapTo(maxTopBarHeight)
     }
 
     LaunchedEffect(topBarHeight.value) {
@@ -178,11 +183,7 @@ fun LazyGridWithCollapsibleTabsTopBar(
 
     Box(
         modifier = modifier
-            .nestedScroll(
-                if (!isInLandscapeOrientation) {
-                    topBarScrollConnection
-                } else DefaultNestedScrollConnection
-            )
+            .nestedScroll(topBarScrollConnection)
     ) {
         Column {
             Spacer(
