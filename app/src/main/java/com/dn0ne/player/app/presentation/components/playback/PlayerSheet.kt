@@ -827,7 +827,7 @@ fun PlaybackControl(
                 Icon(
                     imageVector = Icons.Rounded.SkipPrevious,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(36.dp)
                 )
             }
@@ -840,7 +840,7 @@ fun PlaybackControl(
                     Icon(
                         imageVector = Icons.Rounded.Pause,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(48.dp)
                     )
                 }
@@ -852,7 +852,7 @@ fun PlaybackControl(
                     Icon(
                         imageVector = Icons.Rounded.PlayArrow,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(48.dp)
 
                     )
@@ -866,7 +866,7 @@ fun PlaybackControl(
                 Icon(
                     imageVector = Icons.Rounded.SkipNext,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(36.dp)
                 )
             }
