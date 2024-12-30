@@ -193,7 +193,7 @@ class PlayerViewModel(
 
                 if (!_trackList.value.containsAll(tracks)) {
                     _trackList.update {
-                        tracks
+                        tracks.sortedBy(_trackSort.value, _trackSortOrder.value)
                     }
 
                     if (_trackInfoSheetState.value.track != null) {
