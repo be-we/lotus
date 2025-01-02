@@ -71,7 +71,6 @@ import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.sort.PlaylistSort
 import com.dn0ne.player.app.domain.sort.SortOrder
 import com.dn0ne.player.app.domain.sort.TrackSort
-import com.dn0ne.player.app.domain.sort.sortedBy
 import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
 import com.dn0ne.player.app.domain.track.filterTracks
@@ -234,7 +233,7 @@ fun PlayerScreen(
                         var selectedTabIndex by rememberSaveable {
                             mutableIntStateOf(1)
                         }
-                        val shouldShowLocateButton by remember {
+                        val shouldShowLocateButton by remember(currentTrack, trackList) {
                             derivedStateOf {
                                 selectedTabIndex == 1 &&
                                         currentTrack != null &&
@@ -243,7 +242,7 @@ fun PlayerScreen(
                                         } == null
                             }
                         }
-                        onLocateClick = remember(currentTrack) {
+                        onLocateClick = remember(currentTrack, trackList) {
                             {
                                 gridState.animateScrollToItem(
                                     trackList.indexOf(currentTrack) + 1
@@ -382,21 +381,20 @@ fun PlayerScreen(
 
                         val playlist by viewModel.selectedPlaylist.collectAsState()
                         playlist?.let { playlist ->
-                            var sortedTrackList by remember {
-                                mutableStateOf(playlist.trackList)
-                            }
-                            val shouldShowLocateButton by remember {
+                            val shouldShowLocateButton by remember(currentTrack, playlist) {
                                 derivedStateOf {
+                                    val index = playlist.trackList.indexOf(currentTrack)
                                     currentTrack != null &&
+                                            index >= 0 &&
                                             listState.layoutInfo.visibleItemsInfo.find {
-                                                it.index == sortedTrackList.indexOf(currentTrack) + 1
+                                                it.index == index + 1
                                             } == null
                                 }
                             }
-                            onLocateClick = remember(currentTrack) {
+                            onLocateClick = remember(currentTrack, playlist) {
                                 {
                                     listState.animateScrollToItem(
-                                        sortedTrackList.indexOf(currentTrack) + 1
+                                        playlist.trackList.indexOf(currentTrack) + 1
                                     )
                                 }
                             }
@@ -439,10 +437,6 @@ fun PlayerScreen(
                                             order
                                         )
                                     )
-                                    sortedTrackList = sortedTrackList.sortedBy(
-                                        sort ?: trackSort,
-                                        order ?: trackSortOrder
-                                    )
                                 },
                                 onBackClick = {
                                     navController.navigateUp()
@@ -479,15 +473,17 @@ fun PlayerScreen(
                             var changedTrackList by remember {
                                 mutableStateOf(playlist.trackList)
                             }
-                            val shouldShowLocateButton by remember {
+                            val shouldShowLocateButton by remember(currentTrack, changedTrackList) {
                                 derivedStateOf {
+                                    val index = changedTrackList.indexOf(currentTrack)
                                     currentTrack != null &&
+                                            index >= 0 &&
                                             listState.layoutInfo.visibleItemsInfo.find {
-                                                it.index == changedTrackList.indexOf(currentTrack) + 1
+                                                it.index == index + 1
                                             } == null
                                 }
                             }
-                            onLocateClick = remember(currentTrack) {
+                            onLocateClick = remember(currentTrack, changedTrackList) {
                                 {
                                     listState.animateScrollToItem(
                                         changedTrackList.indexOf(currentTrack) + 1
@@ -602,7 +598,7 @@ fun PlayerScreen(
                         ScrollToTopAndLocateButtons(
                             showScrollToTopButton = showScrollToTopButton,
                             onScrollToTopClick = onScrollToTopClick,
-                            showLocateButton = showScrollToTopButton,
+                            showLocateButton = showLocateButton,
                             onLocateClick = onLocateClick,
                             modifier = Modifier.align(Alignment.End)
                         )
@@ -1040,7 +1036,7 @@ fun ScrollToTopAndLocateButtons(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .animateContentSize(),
         horizontalArrangement = Arrangement.End
     ) {
