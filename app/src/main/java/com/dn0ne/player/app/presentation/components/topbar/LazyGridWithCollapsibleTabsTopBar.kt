@@ -80,6 +80,7 @@ import kotlinx.coroutines.launch
 fun LazyGridWithCollapsibleTabsTopBar(
     topBarTabTitles: List<String>,
     defaultSelectedTabIndex: Int = 0,
+    onTabChange: (tabIndex: Int) -> Unit = {},
     tabTitleTextStyle: TextStyle = MaterialTheme.typography.headlineLarge,
     tabRowTitleTextStyle: TextStyle = MaterialTheme.typography.titleLarge,
     topBarButtons: @Composable BoxScope.(tabIndex: Int) -> Unit = {},
@@ -88,7 +89,7 @@ fun LazyGridWithCollapsibleTabsTopBar(
     maxTopBarHeightLandscape: Dp = 150.dp,
     collapsedByDefault: Boolean = false,
     collapseFraction: (Float) -> Unit = {},
-    listState: LazyGridState = rememberLazyGridState(),
+    gridState: LazyGridState = rememberLazyGridState(),
     contentPadding: PaddingValues = PaddingValues(0.dp),
     contentHorizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     contentVerticalArrangement: Arrangement.Vertical = Arrangement.Top,
@@ -131,12 +132,12 @@ fun LazyGridWithCollapsibleTabsTopBar(
                 source: NestedScrollSource
             ): Offset {
                 val previousHeight = topBarHeight.value
-                val newHeight = if (listState.firstVisibleItemIndex >= 0 && available.y < 0) {
+                val newHeight = if (gridState.firstVisibleItemIndex >= 0 && available.y < 0) {
                     (previousHeight + available.y).coerceIn(
                         minTopBarHeight,
                         maxTopBarHeight
                     )
-                } else if (listState.firstVisibleItemIndex == 0) {
+                } else if (gridState.firstVisibleItemIndex == 0) {
                     (previousHeight + available.y).coerceIn(
                         minTopBarHeight,
                         maxTopBarHeight
@@ -171,7 +172,7 @@ fun LazyGridWithCollapsibleTabsTopBar(
     }
     val isColumnScrollInProgress by remember {
         derivedStateOf {
-            listState.isScrollInProgress
+            gridState.isScrollInProgress
         }
     }
 
@@ -197,12 +198,13 @@ fun LazyGridWithCollapsibleTabsTopBar(
                 if (tabIndex != defaultSelectedTabIndex) {
                     BackHandler {
                         selectedTabIndex = defaultSelectedTabIndex
+                        onTabChange(defaultSelectedTabIndex)
                     }
                 }
 
                 LazyVerticalGrid(
                     columns = gridCells(tabIndex),
-                    state = listState,
+                    state = gridState,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(contentPadding),
@@ -364,6 +366,7 @@ fun LazyGridWithCollapsibleTabsTopBar(
                                             style = tabRowTitleTextStyle,
                                             onClick = {
                                                 selectedTabIndex = index
+                                                onTabChange(index)
                                                 showTabRow = false
                                             },
                                             sharedTransitionScope = this@SharedTransitionLayout,
