@@ -138,7 +138,7 @@ fun ColumnWithCollapsibleTopBar(
             ) {
                 content()
 
-                Spacer(modifier = Modifier.height(100.dp))
+                Spacer(modifier = Modifier.height(200.dp))
             }
         }
 
@@ -267,7 +267,7 @@ fun LazyColumnWithCollapsibleTopBar(
                 content()
 
                 item {
-                    Spacer(modifier = Modifier.height(100.dp))
+                    Spacer(modifier = Modifier.height(200.dp))
                 }
             }
         }
