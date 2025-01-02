@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -65,6 +66,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 @OptIn(FlowPreview::class)
 @Composable
 fun MutablePlaylist(
+    listState: LazyListState = rememberLazyListState(),
     playlist: Playlist,
     currentTrack: Track?,
     onRenamePlaylistClick: () -> Unit,
@@ -99,7 +101,6 @@ fun MutablePlaylist(
     var trackList by remember(playlist) {
         mutableStateOf(playlist.trackList)
     }
-    val listState = rememberLazyListState()
     val reorderableListState = rememberReorderableLazyListState(listState) { from, to ->
         trackList = trackList.toMutableList().apply {
             add(to.index - 1, removeAt(from.index - 1))

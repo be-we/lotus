@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Close
@@ -44,6 +46,7 @@ import com.dn0ne.player.app.presentation.components.trackinfo.SearchField
 
 @Composable
 fun Playlist(
+    listState: LazyListState = rememberLazyListState(),
     playlist: Playlist,
     currentTrack: Track?,
     onTrackClick: (Track, Playlist) -> Unit,
@@ -74,6 +77,7 @@ fun Playlist(
     }
 
     LazyColumnWithCollapsibleTopBar(
+        listState = listState,
         topBarContent = {
             Text(
                 text = playlist.name
