@@ -182,4 +182,6 @@
     <string name="feedback">Feedback</string>
     <string name="feedback_explain">Contact to suggest a feature or report a problem</string>
     <string name="feedback_url">mailto:dev.dn0ne@gmail.com</string>
+    <string name="scroll_to_top">Scroll to top</string>
+    <string name="scroll_to_current_track">Scroll to current track</string>
 </resources>

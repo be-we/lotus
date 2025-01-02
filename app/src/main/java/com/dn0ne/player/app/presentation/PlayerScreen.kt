@@ -2,10 +2,13 @@ package com.dn0ne.player.app.presentation
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -14,6 +17,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,13 +25,20 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.KeyboardArrowUp
+import androidx.compose.material.icons.rounded.MyLocation
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
@@ -40,8 +51,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,6 +71,7 @@ import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.sort.PlaylistSort
 import com.dn0ne.player.app.domain.sort.SortOrder
 import com.dn0ne.player.app.domain.sort.TrackSort
+import com.dn0ne.player.app.domain.sort.sortedBy
 import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
 import com.dn0ne.player.app.domain.track.filterTracks
@@ -80,6 +94,7 @@ import com.kmpalette.rememberDominantColorState
 import com.materialkolor.DynamicMaterialTheme
 import com.materialkolor.PaletteStyle
 import com.materialkolor.ktx.toHct
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -175,6 +190,19 @@ fun PlayerScreen(
 
                 val navController = rememberNavController()
 
+                var showScrollToTopButton by remember {
+                    mutableStateOf(false)
+                }
+                var onScrollToTopClick by remember {
+                    mutableStateOf(suspend {})
+                }
+                var showLocateButton by remember {
+                    mutableStateOf(false)
+                }
+                var onLocateClick by remember {
+                    mutableStateOf(suspend {})
+                }
+
                 NavHost(
                     navController = navController,
                     enterTransition = {
@@ -202,7 +230,48 @@ fun PlayerScreen(
                         val artistPlaylists by viewModel.artistPlaylists.collectAsState()
                         val genrePlaylists by viewModel.genrePlaylists.collectAsState()
 
+                        val gridState = rememberLazyGridState()
+                        var selectedTabIndex by rememberSaveable {
+                            mutableIntStateOf(1)
+                        }
+                        val shouldShowLocateButton by remember {
+                            derivedStateOf {
+                                selectedTabIndex == 1 &&
+                                        currentTrack != null &&
+                                        gridState.layoutInfo.visibleItemsInfo.find {
+                                            it.index == trackList.indexOf(currentTrack) + 1
+                                        } == null
+                            }
+                        }
+                        onLocateClick = remember(currentTrack) {
+                            {
+                                gridState.animateScrollToItem(
+                                    trackList.indexOf(currentTrack) + 1
+                                )
+                            }
+                        }
+                        LaunchedEffect(shouldShowLocateButton) {
+                            showLocateButton = shouldShowLocateButton
+                        }
+
+                        val isScrolledEnough by remember {
+                            derivedStateOf {
+                                gridState.firstVisibleItemIndex >= 5
+                            }
+                        }
+                        onScrollToTopClick = {
+                            gridState.animateScrollToItem(0)
+                        }
+
+                        LaunchedEffect(isScrolledEnough) {
+                            showScrollToTopButton = isScrolledEnough
+                        }
+
                         MainPlayerScreen(
+                            gridState = gridState,
+                            onTabChange = {
+                                selectedTabIndex = it
+                            },
                             trackList = trackList,
                             currentTrack = currentTrack,
                             onTrackClick = { track, playlist ->
@@ -297,9 +366,46 @@ fun PlayerScreen(
                     }
 
                     composable<PlayerRoutes.Playlist> {
+                        val listState = rememberLazyListState()
+                        val isScrolledEnough by remember {
+                            derivedStateOf {
+                                listState.firstVisibleItemIndex >= 5
+                            }
+                        }
+                        onScrollToTopClick = {
+                            listState.animateScrollToItem(0)
+                        }
+
+                        LaunchedEffect(isScrolledEnough) {
+                            showScrollToTopButton = isScrolledEnough
+                        }
+
                         val playlist by viewModel.selectedPlaylist.collectAsState()
                         playlist?.let { playlist ->
+                            var sortedTrackList by remember {
+                                mutableStateOf(playlist.trackList)
+                            }
+                            val shouldShowLocateButton by remember {
+                                derivedStateOf {
+                                    currentTrack != null &&
+                                            listState.layoutInfo.visibleItemsInfo.find {
+                                                it.index == sortedTrackList.indexOf(currentTrack) + 1
+                                            } == null
+                                }
+                            }
+                            onLocateClick = remember(currentTrack) {
+                                {
+                                    listState.animateScrollToItem(
+                                        sortedTrackList.indexOf(currentTrack) + 1
+                                    )
+                                }
+                            }
+                            LaunchedEffect(shouldShowLocateButton) {
+                                showLocateButton = shouldShowLocateButton
+                            }
+
                             Playlist(
+                                listState = listState,
                                 playlist = playlist,
                                 currentTrack = currentTrack,
                                 onTrackClick = { track, playlist ->
@@ -333,6 +439,10 @@ fun PlayerScreen(
                                             order
                                         )
                                     )
+                                    sortedTrackList = sortedTrackList.sortedBy(
+                                        sort ?: trackSort,
+                                        order ?: trackSortOrder
+                                    )
                                 },
                                 onBackClick = {
                                     navController.navigateUp()
@@ -348,10 +458,48 @@ fun PlayerScreen(
                         var showDeleteDialog by remember {
                             mutableStateOf(false)
                         }
+
+                        val listState = rememberLazyListState()
+                        val isScrolledEnough by remember {
+                            derivedStateOf {
+                                listState.firstVisibleItemIndex >= 5
+                            }
+                        }
+                        onScrollToTopClick = {
+                            listState.animateScrollToItem(0)
+                        }
+
+                        LaunchedEffect(isScrolledEnough) {
+                            showScrollToTopButton = isScrolledEnough
+                        }
+
                         val playlists by viewModel.playlists.collectAsState()
                         val playlist by viewModel.selectedPlaylist.collectAsState()
                         playlist?.let { playlist ->
+                            var changedTrackList by remember {
+                                mutableStateOf(playlist.trackList)
+                            }
+                            val shouldShowLocateButton by remember {
+                                derivedStateOf {
+                                    currentTrack != null &&
+                                            listState.layoutInfo.visibleItemsInfo.find {
+                                                it.index == changedTrackList.indexOf(currentTrack) + 1
+                                            } == null
+                                }
+                            }
+                            onLocateClick = remember(currentTrack) {
+                                {
+                                    listState.animateScrollToItem(
+                                        changedTrackList.indexOf(currentTrack) + 1
+                                    )
+                                }
+                            }
+                            LaunchedEffect(shouldShowLocateButton) {
+                                showLocateButton = shouldShowLocateButton
+                            }
+
                             MutablePlaylist(
+                                listState = listState,
                                 playlist = playlist,
                                 currentTrack = currentTrack,
                                 onRenamePlaylistClick = {
@@ -397,6 +545,7 @@ fun PlayerScreen(
                                             playlist
                                         )
                                     )
+                                    changedTrackList = it
                                 },
                                 onBackClick = {
                                     navController.navigateUp()
@@ -441,78 +590,105 @@ fun PlayerScreen(
                     }
                 }
 
-                AnimatedVisibility(
-                    visible = currentTrack != null,
-                    enter = slideInVertically(initialOffsetY = { it }),
-                    exit = slideOutVertically(targetOffsetY = { it }),
+                Column(
                     modifier = Modifier
-                        .align(alignment = Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .align(Alignment.BottomCenter),
                 ) {
-                    currentTrack?.let {
+                    val isPlayerExpanded by remember {
+                        derivedStateOf { playbackState.isPlayerExpanded }
+                    }
+                    if (!isPlayerExpanded) {
+                        ScrollToTopAndLocateButtons(
+                            showScrollToTopButton = showScrollToTopButton,
+                            onScrollToTopClick = onScrollToTopClick,
+                            showLocateButton = showScrollToTopButton,
+                            onLocateClick = onLocateClick,
+                            modifier = Modifier.align(Alignment.End)
+                        )
+                    }
 
-                        if (useAlbumArtColor) {
-                            LaunchedEffect(coverArtBitmap) {
-                                coverArtBitmap?.let {
-                                    dominantColorState.updateFrom(it)
+                    AnimatedVisibility(
+                        visible = currentTrack != null,
+                        enter = slideInVertically(initialOffsetY = { it }),
+                        exit = slideOutVertically(targetOffsetY = { it }),
+                        modifier = Modifier
+                            .align(alignment = Alignment.CenterHorizontally)
+                    ) {
+                        currentTrack?.let {
+
+                            if (useAlbumArtColor) {
+                                LaunchedEffect(coverArtBitmap) {
+                                    coverArtBitmap?.let {
+                                        dominantColorState.updateFrom(it)
+                                    }
                                 }
                             }
-                        }
 
-                        PlayerSheet(
-                            playbackStateFlow = viewModel.playbackState,
-                            onPlayerExpandedChange = {
-                                viewModel.onEvent(PlayerScreenEvent.OnPlayerExpandedChange(it))
-                            },
-                            onPlayClick = {
-                                viewModel.onEvent(PlayerScreenEvent.OnPlayClick)
-                            },
-                            onPauseClick = {
-                                viewModel.onEvent(PlayerScreenEvent.OnPauseClick)
-                            },
-                            onSeekToNextClick = {
-                                viewModel.onEvent(PlayerScreenEvent.OnSeekToNextClick)
-                            },
-                            onSeekToPreviousClick = {
-                                viewModel.onEvent(PlayerScreenEvent.OnSeekToPreviousClick)
-                            },
-                            onSeekTo = {
-                                viewModel.onEvent(PlayerScreenEvent.OnSeekTo(it))
-                            },
-                            onPlaybackModeClick = {
-                                viewModel.onEvent(PlayerScreenEvent.OnPlaybackModeClick)
-                            },
-                            onCoverArtLoaded = {
-                                coverArtBitmap = it
-                            },
-                            onPlayNextClick = {
-                                viewModel.onEvent(PlayerScreenEvent.OnPlayNextClick(currentTrack!!))
-                            },
-                            onAddToQueueClick = {
-                                viewModel.onEvent(PlayerScreenEvent.OnAddToQueueClick(currentTrack!!))
-                            },
-                            onAddToPlaylistClick = {
-                                showAddToOrCreatePlaylistSheet = true
-                                showCreatePlaylistOnly = false
-                                trackToAddToPlaylist = it
-                            },
-                            onViewTrackInfoClick = {
-                                viewModel.onEvent(
-                                    PlayerScreenEvent.OnViewTrackInfoClick(
-                                        currentTrack!!
+                            PlayerSheet(
+                                playbackStateFlow = viewModel.playbackState,
+                                onPlayerExpandedChange = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnPlayerExpandedChange(it))
+                                },
+                                onPlayClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnPlayClick)
+                                },
+                                onPauseClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnPauseClick)
+                                },
+                                onSeekToNextClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnSeekToNextClick)
+                                },
+                                onSeekToPreviousClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnSeekToPreviousClick)
+                                },
+                                onSeekTo = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnSeekTo(it))
+                                },
+                                onPlaybackModeClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnPlaybackModeClick)
+                                },
+                                onCoverArtLoaded = {
+                                    coverArtBitmap = it
+                                },
+                                onPlayNextClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnPlayNextClick(currentTrack!!))
+                                },
+                                onAddToQueueClick = {
+                                    viewModel.onEvent(
+                                        PlayerScreenEvent.OnAddToQueueClick(
+                                            currentTrack!!
+                                        )
                                     )
-                                )
-                            },
-                            onLyricsSheetExpandedChange = {
-                                viewModel.onEvent(PlayerScreenEvent.OnLyricsSheetExpandedChange(it))
-                            },
-                            onLyricsClick = {
-                                viewModel.onEvent(PlayerScreenEvent.OnLyricsClick)
-                            },
-                            settings = viewModel.settings,
-                            modifier = Modifier
-                                .align(alignment = Alignment.BottomCenter)
-                                .fillMaxWidth()
-                        )
+                                },
+                                onAddToPlaylistClick = {
+                                    showAddToOrCreatePlaylistSheet = true
+                                    showCreatePlaylistOnly = false
+                                    trackToAddToPlaylist = it
+                                },
+                                onViewTrackInfoClick = {
+                                    viewModel.onEvent(
+                                        PlayerScreenEvent.OnViewTrackInfoClick(
+                                            currentTrack!!
+                                        )
+                                    )
+                                },
+                                onLyricsSheetExpandedChange = {
+                                    viewModel.onEvent(
+                                        PlayerScreenEvent.OnLyricsSheetExpandedChange(
+                                            it
+                                        )
+                                    )
+                                },
+                                onLyricsClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnLyricsClick)
+                                },
+                                settings = viewModel.settings,
+                                modifier = Modifier
+                                    .align(alignment = Alignment.CenterHorizontally)
+                                    .fillMaxWidth()
+                            )
+                        }
                     }
                 }
 
@@ -585,6 +761,8 @@ fun PlayerScreen(
 
 @Composable
 fun MainPlayerScreen(
+    gridState: LazyGridState = rememberLazyGridState(),
+    onTabChange: (Int) -> Unit = {},
     trackList: List<Track>,
     currentTrack: Track?,
     onTrackClick: (Track, Playlist) -> Unit,
@@ -632,8 +810,10 @@ fun MainPlayerScreen(
     }
 
     LazyGridWithCollapsibleTabsTopBar(
+        gridState = gridState,
         topBarTabTitles = topBarTabs,
         defaultSelectedTabIndex = 1,
+        onTabChange = onTabChange,
         tabTitleTextStyle = MaterialTheme.typography.titleLarge.copy(
             fontSize = lerp(
                 MaterialTheme.typography.titleLarge.fontSize,
@@ -843,6 +1023,72 @@ fun MainPlayerScreen(
                     onAddToQueueClick = onAddToQueueClick,
                     onAddToPlaylistClick = onAddToPlaylistClick,
                     onViewTrackInfoClick = onViewTrackInfoClick
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ScrollToTopAndLocateButtons(
+    showScrollToTopButton: Boolean,
+    onScrollToTopClick: suspend () -> Unit,
+    showLocateButton: Boolean,
+    onLocateClick: suspend () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .animateContentSize(),
+        horizontalArrangement = Arrangement.End
+    ) {
+        val context = LocalContext.current
+        val coroutineScope = rememberCoroutineScope()
+
+        AnimatedVisibility(
+            visible = showLocateButton,
+            enter = expandHorizontally() + fadeIn(),
+            exit = shrinkHorizontally() + fadeOut(),
+        ) {
+            FilledTonalIconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        onLocateClick()
+                    }
+                },
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.MyLocation,
+                    contentDescription = context.resources.getString(R.string.scroll_to_current_track)
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showScrollToTopButton,
+            enter = expandHorizontally() + fadeIn(),
+            exit = shrinkHorizontally() + fadeOut(),
+        ) {
+            FilledTonalIconButton(
+                onClick = {
+                    coroutineScope.launch {
+                        onScrollToTopClick()
+                    }
+                },
+                colors = IconButtonDefaults.iconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.KeyboardArrowUp,
+                    contentDescription = context.resources.getString(R.string.scroll_to_top)
                 )
             }
         }
