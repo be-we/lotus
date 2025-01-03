@@ -7,6 +7,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -139,58 +140,61 @@ fun ManualInfoEditSheet(
                     fadeIn() togetherWith fadeOut()
                 }
             ) { bytes ->
-                AsyncImage(
-                    model = bytes ?: track.coverArtUri,
-                    contentScale = ContentScale.Crop,
-                    contentDescription = context.resources.getString(R.string.new_cover_art),
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier
-                        .padding(horizontal = 12.dp)
-                        .requiredWidthIn(max = 400.dp)
-                        .fillMaxWidth(.7f)
-                        .aspectRatio(1f)
-                        .clip(ShapeDefaults.Medium)
-                )
-            }
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = onPickCoverArtClick,
-                    modifier = Modifier.weight(1f)
                 ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Collections,
-                        contentDescription = null
+                    AsyncImage(
+                        model = bytes ?: track.coverArtUri,
+                        contentScale = ContentScale.Crop,
+                        contentDescription = context.resources.getString(R.string.new_cover_art),
+                        modifier = Modifier
+                            .requiredWidthIn(max = 400.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 36.dp)
+                            .aspectRatio(1f)
+                            .clip(ShapeDefaults.Medium)
                     )
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    if (bytes == null) {
+                        Button(
+                            onClick = onPickCoverArtClick,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Collections,
+                                contentDescription = null
+                            )
 
-                    Text(
-                        text = context.resources.getString(R.string.pick_art)
-                    )
-                }
+                            Spacer(modifier = Modifier.width(8.dp))
 
-                Spacer(modifier = Modifier.width(16.dp))
+                            Text(
+                                text = context.resources.getString(R.string.pick_art)
+                            )
+                        }
+                    } else {
+                        FilledTonalButton(
+                            onClick = onRestoreCoverArtClick,
+                            enabled = state.pickedCoverArtBytes != null,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.RestartAlt,
+                                contentDescription = null
+                            )
 
-                FilledTonalButton(
-                    onClick = onRestoreCoverArtClick,
-                    enabled = state.pickedCoverArtBytes != null,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.RestartAlt,
-                        contentDescription = null
-                    )
+                            Spacer(modifier = Modifier.width(8.dp))
 
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Text(
-                        text = context.resources.getString(R.string.restore_art)
-                    )
+                            Text(
+                                text = context.resources.getString(R.string.restore_art)
+                            )
+                        }
+                    }
                 }
             }
 

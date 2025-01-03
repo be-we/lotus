@@ -16,7 +16,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,14 +23,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidthIn
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.TravelExplore
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,8 +52,8 @@ import androidx.navigation.compose.rememberNavController
 import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.metadata.Metadata
 import com.dn0ne.player.app.domain.metadata.MetadataSearchResult
-import com.dn0ne.player.app.presentation.components.topbar.ColumnWithCollapsibleTopBar
 import com.dn0ne.player.app.presentation.components.CoverArt
+import com.dn0ne.player.app.presentation.components.topbar.ColumnWithCollapsibleTopBar
 import java.util.Date
 import kotlin.math.roundToInt
 
@@ -118,6 +113,13 @@ fun TrackInfoSheet(
                         mutableFloatStateOf(0f)
                     }
 
+                    var showAlertDialog by remember {
+                        mutableStateOf(false)
+                    }
+                    var showEditDropdownMenu by remember {
+                        mutableStateOf(false)
+                    }
+
                     ColumnWithCollapsibleTopBar(
                         topBarContent = {
                             IconButton(
@@ -129,6 +131,40 @@ fun TrackInfoSheet(
                                 Icon(
                                     imageVector = Icons.Rounded.Close,
                                     contentDescription = context.resources.getString(R.string.close_track_info_sheet)
+                                )
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .padding(horizontal = 12.dp, vertical = 4.dp)
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        if (state.showRisksOfMetadataEditingDialog) {
+                                            showAlertDialog = true
+                                        } else {
+                                            showEditDropdownMenu = true
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Edit,
+                                        contentDescription = context.resources.getString(R.string.close_track_info_sheet)
+                                    )
+                                }
+
+                                EditDropdownMenu(
+                                    isExpanded = showEditDropdownMenu,
+                                    onLookForMetadataClick = {
+                                        navController.navigate(TrackInfoRoutes.InfoSearch)
+                                    },
+                                    onManualEditingClick = {
+                                        navController.navigate(TrackInfoRoutes.ManualEditing)
+                                    },
+                                    onDismissRequest = {
+                                        showEditDropdownMenu = false
+                                    }
                                 )
                             }
 
@@ -155,12 +191,6 @@ fun TrackInfoSheet(
                             .fillMaxSize()
                             .safeDrawingPadding()
                     ) {
-                        var showAlertDialog by remember {
-                            mutableStateOf(false)
-                        }
-                        var routeToNavigateIfAccepted: TrackInfoRoutes by remember {
-                            mutableStateOf(TrackInfoRoutes.InfoSearch)
-                        }
                         if (showAlertDialog && state.showRisksOfMetadataEditingDialog) {
                             RisksOfMetadataEditingDialog(
                                 onCancelClick = {
@@ -168,8 +198,8 @@ fun TrackInfoSheet(
                                 },
                                 onAcceptClick = {
                                     onRisksOfMetadataEditingAccept()
-                                    navController.navigate(routeToNavigateIfAccepted)
-                                },
+                                    showEditDropdownMenu = true
+                                }
                             )
                         }
 
@@ -178,64 +208,10 @@ fun TrackInfoSheet(
                                 uri = coverArtUri,
                                 modifier = Modifier
                                     .requiredWidthIn(max = 400.dp)
-                                    .fillMaxWidth(.7f)
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 36.dp)
                                     .clip(ShapeDefaults.Medium)
                             )
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.Center
-                            ) {
-                                Button(
-                                    onClick = {
-                                        if (state.showRisksOfMetadataEditingDialog) {
-                                            showAlertDialog = true
-                                            routeToNavigateIfAccepted = TrackInfoRoutes.InfoSearch
-                                        } else {
-                                            navController.navigate(TrackInfoRoutes.InfoSearch)
-                                        }
-                                    },
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.TravelExplore,
-                                        contentDescription = null
-                                    )
-
-                                    Spacer(modifier = Modifier.width(8.dp))
-
-                                    Text(
-                                        text = context.resources.getString(R.string.look_for_metadata)
-                                    )
-                                }
-
-                                Spacer(modifier = Modifier.width(16.dp))
-
-                                FilledTonalButton(
-                                    onClick = {
-                                        if (state.showRisksOfMetadataEditingDialog) {
-                                            showAlertDialog = true
-                                            routeToNavigateIfAccepted = TrackInfoRoutes.ManualEditing
-                                        } else {
-                                            navController.navigate(TrackInfoRoutes.ManualEditing)
-                                        }
-                                    },
-                                    modifier = Modifier.weight(1f)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Edit,
-                                        contentDescription = null
-                                    )
-
-                                    Spacer(modifier = Modifier.width(8.dp))
-
-                                    Text(
-                                        text = context.resources.getString(R.string.edit_manually)
-                                    )
-                                }
-                            }
 
                             HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
@@ -324,6 +300,9 @@ fun TrackInfoSheet(
                     }
                 }
                 composable<TrackInfoRoutes.InfoSearch> {
+                    BackHandler {
+                        navController.navigateUp()
+                    }
                     InfoSearchSheet(
                         state = state.infoSearchSheetState,
                         onBackClick = {
@@ -338,6 +317,9 @@ fun TrackInfoSheet(
                     )
                 }
                 composable<TrackInfoRoutes.Changes> {
+                    BackHandler {
+                        navController.navigateUp()
+                    }
                     ChangesSheet(
                         track = state.track!!,
                         state = state.changesSheetState,
@@ -356,6 +338,9 @@ fun TrackInfoSheet(
                 }
 
                 composable<TrackInfoRoutes.ManualEditing> {
+                    BackHandler {
+                        navController.navigateUp()
+                    }
                     ManualInfoEditSheet(
                         track = state.track!!,
                         state = state.manualInfoEditSheetState,
