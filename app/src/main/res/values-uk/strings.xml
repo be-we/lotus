@@ -16,7 +16,7 @@
     <string name="title">Назва</string>
     <string name="album">Альбом</string>
     <string name="artist">Виконавець</string>
-    <string name="album_artist">Виконавець альбому</string>
+    <string name="album_artist">Викон. альбому</string>
     <string name="genre">Жанр</string>
     <string name="year">Рік</string>
     <string name="track_number">Номер треку</string>
@@ -29,7 +29,7 @@
     <string name="unknown_title">Назва невідома</string>
     <string name="unknown_album">Альбом невідомий</string>
     <string name="unknown_artist">Виконавець невідомий</string>
-    <string name="unknown_album_artist">Виконавець альбому невідомий</string>
+    <string name="unknown_album_artist">Викон. альбому невідомий</string>
     <string name="unknown_genre">Жанр невідомий</string>
     <string name="unknown_year">Рік невідомий</string>
     <string name="unknown_track_number">Номер треку невідомий</string>
