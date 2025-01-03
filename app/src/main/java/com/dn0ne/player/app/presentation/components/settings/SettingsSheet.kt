@@ -38,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.navigation.compose.NavHost
@@ -119,7 +120,10 @@ fun SettingsSheet(
                                     MaterialTheme.typography.displaySmall.fontSize,
                                     collapseFraction
                                 ),
-                                modifier = Modifier.align(Alignment.Center)
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .padding(horizontal = 16.dp)
                             )
                         },
                         collapseFraction = {

@@ -72,7 +72,10 @@ fun LyricsSettings(
                     MaterialTheme.typography.displaySmall.fontSize,
                     collapseFraction
                 ),
-                modifier = Modifier.align(Alignment.Center)
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(horizontal = 16.dp)
             )
         },
         collapseFraction = {
