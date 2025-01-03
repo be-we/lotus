@@ -1,6 +1,5 @@
 package com.dn0ne.player.app.presentation.components.playlist
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.track.Playlist
@@ -45,19 +45,20 @@ fun RenamePlaylistBottomSheet(
         Column(
             modifier = Modifier
                 .padding(horizontal = 28.dp)
-                .padding(top = 16.dp, bottom = 28.dp)
+                .padding(top = 28.dp, bottom = 28.dp)
         ) {
             val context = LocalContext.current
-            Box(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = context.resources.getString(R.string.rename_playlist),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    modifier = Modifier.align(Alignment.Center)
-                )
-            }
+
+            Text(
+                text = context.resources.getString(R.string.rename_playlist),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             var playlistName by remember {
                 mutableStateOf(initialName)
