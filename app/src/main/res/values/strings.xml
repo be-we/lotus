@@ -1,81 +1,111 @@
 <resources>
-    <string name="app_name">Lotus</string>
+    <!-- App name -->
+    <string name="app_name" translatable="false">Lotus</string>
+
+    <!-- Links -->
+    <!-- Lyrics provider link -->
+    <string name="lrclib_uri" translatable="false">https://lrclib.net</string>
+    <!-- Metadata provider link -->
+    <string name="musicbrainz_uri" translatable="false">https://musicbrainz.org/</string>
+    <!-- Repository link -->
+    <string name="repo_url" translatable="false">https://github.com/dn0ne/lotus</string>
+    <!-- Feedback mail link -->
+    <string name="feedback_url" translatable="false">mailto:dev.dn0ne@gmail.com</string>
+
+    <!-- Common back button -->
+    <string name="back">Back</string>
+
+    <!-- Setup screens -->
     <string name="get_started">Get started</string>
     <string name="permissions">Permissions</string>
-    <string name="explain_audio_permission_requirement">MusicPlayer needs it to play your wonderful music"</string>
     <string name="audio">Audio</string>
+    <string name="explain_audio_permission_requirement">Lotus needs it to play your wonderful music</string>
     <string name="grant_permission">Grant permission</string>
     <string name="next">Next</string>
     <string name="grant_permission_in_settings">Please, grant permission in Settings</string>
-    <string name="metadata_source">Metadata source</string>
-    <string name="explain_metadata">If your track is missing some information (like cover art), we\'ll try to find and complete it using the preferred API:</string>
-    <string name="unknown_title">Unknown Title</string>
-    <string name="unknown_artist">Unknown Artist</string>
-    <string name="play_next">Play next</string>
-    <string name="add_to_queue">Add to queue</string>
-    <string name="track_info">Track info</string>
-    <string name="track_menu_button">Track menu button</string>
-    <string name="close_track_info_sheet">Close track info sheet</string>
+
+    <!-- Track metadata fields -->
     <string name="title">Title</string>
     <string name="album">Album</string>
     <string name="artist">Artist</string>
-    <string name="album_artist">Album Artist</string>
-    <string name="unknown_album">Unknown Album</string>
-    <string name="unknown_album_artist">Unknown Album Artist</string>
     <string name="genre">Genre</string>
-    <string name="unknown_genre">Unknown Genre</string>
     <string name="year">Year</string>
-    <string name="unknown_year">Unknown Year</string>
     <string name="track_number">Track Number</string>
-    <string name="unknown_track_number">Unknown Track Number</string>
     <string name="bitrate">Bitrate</string>
-    <string name="unknown_bitrate">Unknown Bitrate</string>
+    <string name="album_artist">Album Artist</string>
     <string name="duration">Duration</string>
     <string name="size">Size</string>
     <string name="path">Path</string>
     <string name="date_modified">Date Modified</string>
+
+    <string name="unknown_title">Unknown Title</string>
+    <string name="unknown_album">Unknown Album</string>
+    <string name="unknown_artist">Unknown Artist</string>
+    <string name="unknown_album_artist">Unknown Album Artist</string>
+    <string name="unknown_genre">Unknown Genre</string>
+    <string name="unknown_year">Unknown Year</string>
+    <string name="unknown_track_number">Unknown Track Number</string>
+    <string name="unknown_bitrate">Unknown Bitrate</string>
+    <string name="unknown">Unknown</string>
+
+    <!-- Track dropdown menu -->
+    <string name="track_menu_button">Track menu button</string>
+    <string name="play_next">Play next</string>
+    <string name="add_to_queue">Add to queue</string>
+    <string name="remove_from_playlist">Remove from playlist</string>
+
+    <!-- Tabs' names -->
+    <string name="tracks">Tracks</string>
+    <string name="albums">Albums</string>
+    <string name="artists">Artists</string>
+    <string name="genres">Genres</string>
+    <string name="playlists">Playlists</string>
+
+    <!-- Sorting dialog -->
+    <string name="sort_order">Sort order</string>
+    <string name="sort_ascending">Sort ascending</string>
+    <string name="sort_descending">Sort descending</string>
+    <string name="track_count">Track Count</string>
+
+    <!-- Track search -->
+    <string name="close_track_search">Close track search</string>
+    <string name="track_search">Track search</string>
+
+    <!-- Scroll to buttons -->
+    <string name="scroll_to_top">Scroll to top</string>
+    <string name="scroll_to_current_track">Scroll to current track</string>
+
+    <!-- Expanded player sheet -->
+    <string name="close_player_sheet">Close player sheet</string>
+    <string name="playback_mode_toggle">Toggle playback mode</string>
+    <string name="show_lyrics">Show lyrics</string>
+
+    <!-- Track info screen -->
+    <string name="track_info">Track info</string>
+    <string name="close_track_info_sheet">Close track info sheet</string>
     <string name="look_for_metadata">Look for metadata</string>
     <string name="edit_manually">Edit manually</string>
-    <string name="tracks">Tracks</string>
     <string name="back_to_track_info">Back to track info</string>
-    <string name="description">Description</string>
-    <string name="no_description">No description</string>
-    <string name="album_description">Album Description</string>
-    <string name="query_was_corrupted">Query was corrupted. Please try again.</string>
-    <string name="unknown_error_occurred">Unknown error occurred. Please try again.</string>
-    <string name="musicbrainz_server_error">MusicBrainz error occurred. Please try again.</string>
-    <string name="musicbrainz_is_unavailable">MusicBrainz is unavailable. Please try again later.</string>
-    <string name="failed_to_parse_response">Failed to parse response. Please try again.</string>
-    <string name="no_internet">Looks like you\'re offline. Connect to the internet and try again.</string>
-    <string name="changes">Changes</string>
-    <string name="old_cover_art">Old cover art</string>
-    <string name="new_cover_art">New cover art</string>
-    <string name="overwrite">Overwrite</string>
-    <string name="select_fields_to_overwrite">Select fields to overwrite:</string>
-    <string name="failed_to_load_cover_art_album_id_corrupted">Failed to load cover art. Looks like album id for this recording is corrupted.</string>
-    <string name="cover_art_not_found">Unfortunately, cover art for this recording was not found.</string>
-    <string name="cover_art_archive_is_unavailable">Failed to load cover art. Cover Art Archive is unavailable. Please try again later.</string>
-    <string name="failed_to_load_cover_art_request_timeout">Failed to load cover art in 3 minutes. Please check network quality and try again.</string>
-    <string name="write_permission_denied">Failed to overwrite metadata. Permission denied. Please try again.</string>
-    <string name="no_read_permission">No read permission. Please grant it or try again.</string>
-    <string name="no_write_permission">No write permission. Please grant it or try again.</string>
-    <string name="failed_to_read">Failed to read file. Please try again.</string>
-    <string name="failed_to_write">Failed to write file. Please try again.</string>
-    <string name="metadata_change_succeed">Track info changed successfully. Changes will take effect in a couple seconds.</string>
-    <string name="search">Search</string>
-    <string name="back_to_info_search">Back to info search</string>
-    <string name="edit">Edit</string>
-    <string name="pick_art">Pick art</string>
-    <string name="restore_art">Restore</string>
-    <string name="restore_tag">Restore tag value</string>
-    <string name="important_to_know">Important to know</string>
-    <string name="accept">Accept</string>
-    <string name="cancel">Cancel</string>
+
+    <!-- Risks of metadata editing dialog -->
     <string name="risks_of_metadata_editing">Risks of metadata editing</string>
     <string name="risks_of_metadata_editing_explain">Editing metadata is a powerful feature, but sometimes things can go sideways, and audio file tags might not behave as expected.\n\nWe recommend backing up your audio files before making changes — better safe than sorry!\n\nBy clicking \"Accept\", you\'re acknowledging that you\'re responsible for your files, have made the necessary backups, and understand that we can\'t be held accountable if something unexpected happens.\n\nClick \"Cancel\" if you\'d prefer not to proceed.</string>
+    <string name="accept">Accept</string>
+    <string name="cancel">Cancel</string>
+
+    <!-- Metadata search screen -->
+    <string name="search">Search</string>
+    <string name="description">Description</string>
+    <string name="album_description">Album Description</string>
+    <string name="no_description">No description</string>
+    <string name="back_to_info_search">Back to info search</string>
+    <string name="search_menu">Info search dropdown menu</string>
+    <string name="search_results_provided_by">Results provided by MusicBrainz</string>
+
+    <!-- Search tips dialog -->
     <string name="got_it">Got it</string>
     <string name="search_tips">Search tips</string>
-    <string name="search_explain">We use the MusicBrainz API to help you find song info. You can make your searches more precise using simple filters.</string>
+    <string name="search_explain">We use the MusicBrainz API to help you find track info. You can make your searches more precise using simple filters.</string>
     <string name="quotes_explain_header">Quotes for exact matches</string>
     <string name="quotes_explain">Use quotes to find specific words or phrases:</string>
     <string name="quotes_example_1">\"4:44\"</string>
@@ -87,64 +117,96 @@
     <string name="combine_explain_header">Combine searches</string>
     <string name="combine_explain">Use \"AND\" to connect different search terms:</string>
     <string name="combine_example">\"4:44\" AND artist:\"Jay-Z\" AND release:\"4:44\"</string>
-    <string name="back">back</string>
-    <string name="search_menu">Info search dropdown menu</string>
-    <string name="match_duration">Match duration</string>
+
+    <!-- Search errors -->
+    <string name="unknown_error_occurred">Unknown error occurred. Please try again.</string>
+    <string name="query_was_corrupted">Query was corrupted. Please try again.</string>
+    <string name="musicbrainz_server_error">MusicBrainz error occurred. Please try again.</string>
+    <string name="musicbrainz_is_unavailable">MusicBrainz is unavailable. Please try again later.</string>
+    <string name="failed_to_parse_response">Failed to parse response. Please try again.</string>
+    <string name="no_internet">Looks like you\'re offline. Connect to the internet and try again.</string>
+
+    <!-- Changes screen -->
+    <string name="changes">Changes</string>
+    <string name="old_cover_art">Old cover art</string>
+    <string name="new_cover_art">New cover art</string>
+    <string name="overwrite">Overwrite</string>
+    <string name="select_fields_to_overwrite">Select fields to overwrite:</string>
+    <string name="metadata_change_succeed">Track info changed successfully. Changes will take effect in a couple seconds.</string>
+    <string name="important_to_know">Important to know</string>
+    <string name="cover_art_from_gallery_note">To display cover art from the gallery you may need to restart the app or device</string>
+
+    <!-- Changes errors -->
+    <string name="failed_to_load_cover_art_album_id_corrupted">Failed to load cover art. Looks like album id for this recording is corrupted.</string>
+    <string name="cover_art_not_found">Unfortunately, cover art for this recording was not found.</string>
+    <string name="cover_art_archive_is_unavailable">Failed to load cover art. Cover Art Archive is unavailable. Please try again later.</string>
+    <string name="failed_to_load_cover_art_request_timeout">Failed to load cover art in 3 minutes. Please check network quality and try again.</string>
+
+    <!-- Metadata writing errors -->
+    <string name="write_permission_denied">Failed to overwrite metadata. Permission denied. Please try again.</string>
+    <string name="no_read_permission">No read permission. Please grant it or try again.</string>
+    <string name="no_write_permission">No write permission. Please grant it or try again.</string>
+    <string name="failed_to_read">Failed to read file. Please try again.</string>
+    <string name="failed_to_write">Failed to write file. Please try again.</string>
+
+    <!-- Manual editing screen -->
+    <string name="edit">Edit</string>
+    <string name="pick_art">Pick art</string>
+    <string name="restore_art">Restore</string>
+    <string name="restore_tag">Restore tag value</string>
+
+    <!-- Lyrics sheet -->
+    <string name="lyrics">Lyrics</string>
     <string name="close_lyrics_sheet">Close lyrics sheet</string>
+    <string name="loading_lyrics">Loading lyrics</string>
     <string name="synced">Synced</string>
     <string name="plain">Plain</string>
+
+    <!-- Lyrics screen errors -->
     <string name="cant_look_for_lyrics_title_or_artist_is_missing">Can\'t look for lyrics. Title or artist is not specified for this track.</string>
     <string name="lyrics_not_found">Unfortunately, lyrics for this track can\'t be found.</string>
-    <string name="close_player_sheet">Close player sheet</string>
-    <string name="lyrics">Lyrics</string>
-    <string name="playback_mode_toggle">Toggle playback mode</string>
-    <string name="show_lyrics">Show lyrics</string>
-    <string name="loading_lyrics">Loading lyrics</string>
     <string name="cant_find_lyrics">Can\'t find lyrics.</string>
     <string name="lyrics_provided_by">Lyrics provided by LRCLIB</string>
-    <string name="lrclib_uri">https://lrclib.net</string>
-    <string name="search_results_provided_by">Results provided by MusicBrainz</string>
-    <string name="musicbrainz_uri">https://musicbrainz.org/</string>
-    <string name="albums">Albums</string>
-    <string name="artists">Artists</string>
-    <string name="genres">Genres</string>
-    <string name="unknown">Unknown</string>
-    <string name="settings">Settings</string>
-    <string name="sort_order">Sort order</string>
-    <string name="sort_ascending">Sort ascending</string>
-    <string name="sort_descending">Sort descending</string>
-    <string name="track_count">Track Count</string>
-    <string name="close_track_search">Close track search</string>
-    <string name="track_search">Track search</string>
-    <string name="playlists">Playlists</string>
+
+    <!-- Playlists related -->
     <string name="create_playlist">Create playlist</string>
     <string name="add_to_playlist">Add to playlist</string>
     <string name="back_to_add_to_playlist">Back to add to playlist</string>
-    <string name="new_playlist_title_placeholder">e.g. Favourites</string>
     <string name="name">Name</string>
+    <string name="new_playlist_title_placeholder">e.g. Favourites</string>
     <string name="create">Create</string>
-    <string name="blank_playlist_name_error">Please name the playlist.</string>
-    <string name="playlist_already_exists_error">This name is already taken.</string>
-    <string name="nothing_yet">Nothing yet.</string>
     <string name="reorder_track">Reorder track</string>
-    <string name="remove_from_playlist">Remove from playlist</string>
-    <string name="track_is_already_on_playlist">This track is already on the playlist.</string>
     <string name="delete_playlist">Delete playlist</string>
     <string name="rename_playlist">Rename playlist</string>
     <string name="rename">Rename</string>
     <string name="delete">Delete</string>
     <string name="delete_playlist_dialog_title">Delete playlist?</string>
     <string name="delete_playlist_dialog_text">This won\'t affect the tracks in it.</string>
+    <string name="nothing_yet">Nothing yet.</string>
+
+    <!-- Playlists errors -->
+    <string name="blank_playlist_name_error">Please name the playlist.</string>
+    <string name="playlist_already_exists_error">This name is already taken.</string>
+    <string name="track_is_already_on_playlist">This track is already on the playlist.</string>
+
+    <!-- Settings sheet -->
+    <string name="settings">Settings</string>
     <string name="close_settings_sheet">Close settings sheet</string>
     <string name="theme">Theme</string>
     <string name="theme_supporting_text">Appearance, palette</string>
     <string name="lyrics_supporting_text">Font settings, alignment</string>
     <string name="playback">Playback</string>
     <string name="playback_supporting_text">Audio focus</string>
+    <string name="about_app">About app</string>
+    <string name="about_explain">Version, repository, feedback</string>
+
+    <!-- Theme settings -->
     <string name="appearance">Appearance</string>
     <string name="appearance_system">System</string>
     <string name="appearance_light">Light</string>
     <string name="appearance_dark">Dark</string>
+
+    <string name="palette_style">Palette style</string>
     <string name="palette_tonal_spot">Tonal Spot</string>
     <string name="palette_neutral">Neutral</string>
     <string name="palette_vibrant">Vibrant</string>
@@ -154,14 +216,18 @@
     <string name="palette_monochrome">Monochrome</string>
     <string name="palette_fidelity">Fidelity</string>
     <string name="palette_content">Content</string>
-    <string name="palette_style">Palette style</string>
+
     <string name="use_system_key_colors">System colors</string>
     <string name="use_system_key_colors_explain">Use system accent colors</string>
     <string name="use_album_art_color">Album art color</string>
     <string name="use_album_art_color_explain">Use dominant color of current track\'s cover art</string>
+
+    <!-- Playback settings -->
     <string name="audio_focus">Audio focus</string>
     <string name="audio_focus_explain">Pause playback when another app needs to play audio</string>
     <string name="changes_will_take_effect_on_next_launch">Changes will take effect on next launch.</string>
+
+    <!-- Lyrics settings -->
     <string name="dark_theme_for_lyrics">Dark theme for lyrics</string>
     <string name="dark_theme_for_lyrics_explain">Apply dark theme to the lyrics screen, even if light mode is active</string>
     <string name="lyrics_preview_string">This very very very long line shows how the lyrics of the song with these settings will look on the corresponding screen</string>
@@ -170,18 +236,14 @@
     <string name="line_height">Line height</string>
     <string name="letter_spacing">Letter spacing</string>
     <string name="alignment">Alignment</string>
+    <string name="start">Start</string>
     <string name="center">Center</string>
     <string name="end">End</string>
-    <string name="start">Start</string>
     <string name="reset">Reset</string>
+
+    <!-- About screen -->
     <string name="repo">Repository</string>
     <string name="repo_explain">Check out project\'s repo</string>
-    <string name="repo_url">https://github.com/dn0ne/music-player</string>
-    <string name="about">About</string>
-    <string name="about_explain">Version, repository, feedback</string>
     <string name="feedback">Feedback</string>
     <string name="feedback_explain">Contact to suggest a feature or report a problem</string>
-    <string name="feedback_url">mailto:dev.dn0ne@gmail.com</string>
-    <string name="scroll_to_top">Scroll to top</string>
-    <string name="scroll_to_current_track">Scroll to current track</string>
 </resources>
