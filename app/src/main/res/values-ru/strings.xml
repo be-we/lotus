@@ -4,7 +4,7 @@
     <string name="back">Назад</string>
 
     <!-- Setup screens -->
-    <string name="get_started">Начнём</string>
+    <string name="get_started">Начать</string>
     <string name="permissions">Разрешения</string>
     <string name="audio">Аудио</string>
     <string name="explain_audio_permission_requirement">Lotus требует его, чтобы воспроизводить вашу замечательную музыку</string>
