@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.track.Playlist
@@ -71,7 +72,6 @@ fun AddToOrCreatePlaylistBottomSheet(
                     .padding(horizontal = 28.dp)
                     .padding(top = 16.dp, bottom = 28.dp)
             ) {
-
                 when (state) {
                     true -> {
                         if (!createOnly) {
@@ -101,6 +101,7 @@ fun AddToOrCreatePlaylistBottomSheet(
                                 text = context.resources.getString(R.string.create_playlist),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.SemiBold,
+                                textAlign = TextAlign.Center,
                                 modifier = Modifier.align(Alignment.Center)
                             )
                         }
@@ -184,6 +185,7 @@ fun AddToOrCreatePlaylistBottomSheet(
                                 text = context.resources.getString(R.string.add_to_playlist),
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.SemiBold,
+                                textAlign = TextAlign.Center,
                                 modifier = Modifier.align(Alignment.Center)
                             )
 
