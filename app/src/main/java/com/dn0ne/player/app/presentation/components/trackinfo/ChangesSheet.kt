@@ -348,7 +348,7 @@ fun CoverArtChange(
                     .padding(horizontal = 12.dp)
                     .fillMaxWidth()
             ) {
-                Text(text = "To display cover art from the gallery you may need to restart the app or phone")
+                Text(text = context.resources.getString(R.string.cover_art_from_gallery_note))
             }
         }
     }

@@ -57,7 +57,7 @@ fun AboutPage(
             }
 
             Text(
-                text = context.resources.getString(R.string.about),
+                text = context.resources.getString(R.string.about_app),
                 fontSize = lerp(
                     MaterialTheme.typography.titleLarge.fontSize,
                     MaterialTheme.typography.displaySmall.fontSize,

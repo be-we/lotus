@@ -168,7 +168,7 @@ fun SettingsSheet(
                         SettingsGroup(
                             items = listOf(
                                 SettingsItem(
-                                    title = "${context.resources.getString(R.string.about)} ${context.resources.getString(R.string.app_name)}",
+                                    title = context.resources.getString(R.string.about_app),
                                     supportingText = context.resources.getString(R.string.about_explain),
                                     icon = Icons.Rounded.Info,
                                     onClick = {
