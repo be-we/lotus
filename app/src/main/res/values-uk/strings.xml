@@ -190,7 +190,7 @@
 
     <!-- Theme settings -->
     <string name="appearance">Оформлення</string>
-    <string name="appearance_system">Як у системи</string>
+    <string name="appearance_system">Системне</string>
     <string name="appearance_light">Світле</string>
     <string name="appearance_dark">Темне</string>
 
