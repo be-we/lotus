@@ -300,9 +300,6 @@ fun TrackInfoSheet(
                     }
                 }
                 composable<TrackInfoRoutes.InfoSearch> {
-                    BackHandler {
-                        navController.navigateUp()
-                    }
                     InfoSearchSheet(
                         state = state.infoSearchSheetState,
                         onBackClick = {
@@ -317,9 +314,6 @@ fun TrackInfoSheet(
                     )
                 }
                 composable<TrackInfoRoutes.Changes> {
-                    BackHandler {
-                        navController.navigateUp()
-                    }
                     ChangesSheet(
                         track = state.track!!,
                         state = state.changesSheetState,
@@ -338,9 +332,6 @@ fun TrackInfoSheet(
                 }
 
                 composable<TrackInfoRoutes.ManualEditing> {
-                    BackHandler {
-                        navController.navigateUp()
-                    }
                     ManualInfoEditSheet(
                         track = state.track!!,
                         state = state.manualInfoEditSheetState,
