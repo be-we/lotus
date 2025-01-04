@@ -57,7 +57,6 @@ import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import org.jaudiotagger.tag.TagOptionSingleton
 import org.koin.android.ext.android.get
 import org.koin.androidx.viewmodel.ext.android.getViewModel
 
@@ -67,8 +66,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         enableEdgeToEdge()
-
-        TagOptionSingleton.getInstance().isAndroid = true
 
         SingletonImageLoader.setSafe {
             ImageLoader.Builder(applicationContext)
