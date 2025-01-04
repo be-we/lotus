@@ -64,6 +64,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -386,7 +387,7 @@ fun PlayerScreen(
                                     val index = playlist.trackList.indexOf(currentTrack)
                                     currentTrack != null &&
                                             index >= 0 &&
-                                            listState.layoutInfo.visibleItemsInfo.find {
+                                            listState.layoutInfo.visibleItemsInfo.fastFirstOrNull {
                                                 it.index == index + 1
                                             } == null
                                 }
@@ -478,7 +479,7 @@ fun PlayerScreen(
                                     val index = changedTrackList.indexOf(currentTrack)
                                     currentTrack != null &&
                                             index >= 0 &&
-                                            listState.layoutInfo.visibleItemsInfo.find {
+                                            listState.layoutInfo.visibleItemsInfo.fastFirstOrNull {
                                                 it.index == index + 1
                                             } == null
                                 }
