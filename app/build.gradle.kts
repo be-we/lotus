@@ -72,7 +72,7 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.kmpalette.core)
     implementation(libs.materialkolor)
-    implementation(libs.jaudiotagger)
+    implementation(files("libs/jaudiotagger.jar"))
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
     implementation(libs.ktor.client.content.negotiation)

@@ -17,7 +17,6 @@ kotlinxSerializationJson = "1.7.3"
 coil = "3.0.1"
 kmpalette = "3.1.0"
 materialKolor = "2.0.0"
-jaudiotagger = "2.3.15"
 ktor = "3.0.1"
 realm = "2.3.0"
 reorderable = "2.4.2"
@@ -50,7 +49,6 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 coil = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 materialkolor = { group = "com.materialkolor", name = "material-kolor", version.ref = "materialKolor" }
 kmpalette-core = { module = "com.kmpalette:kmpalette-core", version.ref = "kmpalette" }
-jaudiotagger = { group = "com.github.Adonai", name = "jaudiotagger", version.ref = "jaudiotagger" }
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktor" }
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktor" }
 ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktor" }
