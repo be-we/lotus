@@ -93,6 +93,7 @@ import com.dn0ne.player.app.presentation.components.topbar.LazyGridWithCollapsib
 import com.dn0ne.player.app.presentation.components.trackList
 import com.dn0ne.player.app.presentation.components.trackinfo.SearchField
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheet
+import com.kmpalette.color
 import com.kmpalette.rememberDominantColorState
 import com.materialkolor.DynamicMaterialTheme
 import com.materialkolor.PaletteStyle
@@ -113,6 +114,24 @@ fun PlayerScreen(
     var coverArtBitmap by remember {
         mutableStateOf<ImageBitmap?>(null)
     }
+    val colorToApply by remember {
+        derivedStateOf {
+            dominantColorState.result
+                ?.paletteOrNull
+                ?.swatches
+                ?.sortedByDescending { it.population }
+                ?.let { swatches ->
+                    val firstSwatch = swatches.first()
+                    val firstSwatchColorHct = firstSwatch.color.toHct()
+                    val firstSwatchPopulation = firstSwatch.population
+                    val moreChromatic = swatches.fastFirstOrNull {
+                        it.color.toHct().chroma - firstSwatchColorHct.chroma >= 30 &&
+                                it.population.toFloat() / firstSwatchPopulation >= .1f
+                    }
+                    moreChromatic?.color ?: firstSwatch.color
+                } ?: dominantColorState.color
+        }
+    }
 
     LaunchedEffect(useAlbumArtColor, useDynamicColor) {
         if (useAlbumArtColor) {
@@ -125,8 +144,8 @@ fun PlayerScreen(
     val appearance by viewModel.settings.appearance.collectAsState()
     val paletteStyle by viewModel.settings.paletteStyle.collectAsState()
     DynamicMaterialTheme(
-        seedColor = dominantColorState.color,
-        primary = dominantColorState.color.takeIf { it.toHct().chroma <= 20 },
+        seedColor = colorToApply,
+        primary = colorToApply.takeIf { it.toHct().chroma <= 20 },
         useDarkTheme = when (appearance) {
             Theme.Appearance.System -> isSystemInDarkTheme()
             Theme.Appearance.Light -> false
