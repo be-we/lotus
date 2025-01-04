@@ -59,7 +59,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -810,7 +813,11 @@ fun MainPlayerScreen(
         gridState = gridState,
         topBarTabTitles = topBarTabs,
         defaultSelectedTabIndex = 1,
-        onTabChange = onTabChange,
+        onTabChange = {
+            showSearchField = false
+            searchFieldValue = ""
+            onTabChange(it)
+        },
         tabTitleTextStyle = MaterialTheme.typography.titleLarge.copy(
             fontSize = lerp(
                 MaterialTheme.typography.titleLarge.fontSize,
@@ -889,6 +896,9 @@ fun MainPlayerScreen(
                         Box(
                             modifier = Modifier.fillMaxWidth()
                         ) {
+                            val focusRequester = remember {
+                                FocusRequester()
+                            }
                             SearchField(
                                 value = searchFieldValue,
                                 onValueChange = {
@@ -898,6 +908,10 @@ fun MainPlayerScreen(
                                     .fillMaxWidth()
                                     .padding(horizontal = 48.dp)
                                     .align(Alignment.Center)
+                                    .focusRequester(focusRequester)
+                                    .onGloballyPositioned {
+                                        focusRequester.requestFocus()
+                                    }
                             )
                             IconButton(
                                 onClick = {
