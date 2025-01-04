@@ -75,6 +75,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.util.fastFirstOrNull
 import com.dn0ne.player.R
 import com.dn0ne.player.app.presentation.components.topbar.LazyColumnWithCollapsibleTopBar
 import com.dn0ne.player.app.presentation.components.ProviderText
@@ -260,7 +261,7 @@ fun LyricsSheet(
                                         onBecomeCurrent = { textHeight ->
                                             val isItemVisible = listState.layoutInfo
                                                 .visibleItemsInfo
-                                                .find { it.index == index } != null
+                                                .fastFirstOrNull { it.index == index } != null
 
                                             if (isItemVisible && !listState.isScrollInProgress) {
                                                 val offsetToCenterText =

@@ -1,6 +1,7 @@
 package com.dn0ne.player.app.presentation
 
 import android.util.Log
+import androidx.compose.ui.util.fastFirstOrNull
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -199,7 +200,7 @@ class PlayerViewModel(
                     if (_trackInfoSheetState.value.track != null) {
                         _trackInfoSheetState.update {
                             it.copy(
-                                track = _trackList.value.find { track -> it.track?.uri == track.uri }
+                                track = _trackList.value.fastFirstOrNull { track -> it.track?.uri == track.uri }
                             )
                         }
 
@@ -227,7 +228,7 @@ class PlayerViewModel(
                     _playbackState.update {
                         it.copy(
                             playlist = playlist,
-                            currentTrack = playlist.trackList.find { player!!.currentMediaItem == it.mediaItem },
+                            currentTrack = playlist.trackList.fastFirstOrNull { player!!.currentMediaItem == it.mediaItem },
                             isPlaying = player!!.isPlaying,
                             position = player!!.currentPosition
                         )
@@ -272,7 +273,7 @@ class PlayerViewModel(
 
                         _playbackState.update {
                             it.copy(
-                                currentTrack = it.playlist?.trackList?.find {
+                                currentTrack = it.playlist?.trackList?.fastFirstOrNull {
                                     it.mediaItem == mediaItem
                                 },
                                 isPlaying = true,
