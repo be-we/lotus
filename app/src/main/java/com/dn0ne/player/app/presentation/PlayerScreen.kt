@@ -229,20 +229,20 @@ fun PlayerScreen(
                 NavHost(
                     navController = navController,
                     enterTransition = {
-                        fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideInVertically(
-                            initialOffsetY = { it / 10 })
+                        fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)) +
+                                slideInVertically(initialOffsetY = { it / 10 })
                     },
                     exitTransition = {
-                        fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideOutVertically(
-                            targetOffsetY = { -it / 10 })
+                        fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) +
+                                slideOutVertically(targetOffsetY = { -it / 10 })
                     },
                     popEnterTransition = {
-                        fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideInVertically(
-                            initialOffsetY = { -it / 10 })
+                        fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)) +
+                                slideInVertically(initialOffsetY = { -it / 10 })
                     },
                     popExitTransition = {
-                        fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideOutVertically(
-                            targetOffsetY = { it / 10 })
+                        fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) +
+                                slideOutVertically(targetOffsetY = { it / 10 })
                     },
                     startDestination = PlayerRoutes.Main
                 ) {
@@ -261,7 +261,7 @@ fun PlayerScreen(
                             derivedStateOf {
                                 selectedTabIndex == 1 &&
                                         currentTrack != null &&
-                                        gridState.layoutInfo.visibleItemsInfo.find {
+                                        gridState.layoutInfo.visibleItemsInfo.fastFirstOrNull {
                                             it.index == trackList.indexOf(currentTrack) + 1
                                         } == null
                             }
