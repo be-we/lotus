@@ -77,6 +77,7 @@ import com.dn0ne.player.app.domain.sort.SortOrder
 import com.dn0ne.player.app.domain.sort.TrackSort
 import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
+import com.dn0ne.player.app.domain.track.filterPlaylists
 import com.dn0ne.player.app.domain.track.filterTracks
 import com.dn0ne.player.app.presentation.components.PlaylistSortButton
 import com.dn0ne.player.app.presentation.components.TrackSortButton
@@ -972,13 +973,7 @@ fun MainPlayerScreen(
         when (tabIndex) {
             0 -> {
                 playlistCards(
-                    playlists = playlists.filter {
-                        if (searchFieldValue.isBlank()) return@filter true
-                        it.name?.contains(
-                            searchFieldValue,
-                            ignoreCase = true
-                        ) == true
-                    },
+                    playlists = playlists.filterPlaylists(searchFieldValue),
                     sort = playlistSort,
                     sortOrder = playlistSortOrder,
                     fallbackPlaylistTitle = context.resources.getString(R.string.unknown),
@@ -989,13 +984,7 @@ fun MainPlayerScreen(
 
             2 -> {
                 playlistCards(
-                    playlists = albumPlaylists.filter {
-                        if (searchFieldValue.isBlank()) return@filter true
-                        it.name?.contains(
-                            searchFieldValue,
-                            ignoreCase = true
-                        ) == true
-                    },
+                    playlists = albumPlaylists.filterPlaylists(searchFieldValue),
                     sort = playlistSort,
                     sortOrder = playlistSortOrder,
                     fallbackPlaylistTitle = context.resources.getString(R.string.unknown_album),
@@ -1006,13 +995,7 @@ fun MainPlayerScreen(
 
             3 -> {
                 playlistCards(
-                    playlists = artistPlaylists.filter {
-                        if (searchFieldValue.isBlank()) return@filter true
-                        it.name?.contains(
-                            searchFieldValue,
-                            ignoreCase = true
-                        ) == true
-                    },
+                    playlists = artistPlaylists.filterPlaylists(searchFieldValue),
                     sort = playlistSort,
                     sortOrder = playlistSortOrder,
                     fallbackPlaylistTitle = context.resources.getString(R.string.unknown_artist),
@@ -1022,13 +1005,7 @@ fun MainPlayerScreen(
 
             4 -> {
                 playlistCards(
-                    playlists = genrePlaylists.filter {
-                        if (searchFieldValue.isBlank()) return@filter true
-                        it.name?.contains(
-                            searchFieldValue,
-                            ignoreCase = true
-                        ) == true
-                    },
+                    playlists = genrePlaylists.filterPlaylists(searchFieldValue),
                     sort = playlistSort,
                     sortOrder = playlistSortOrder,
                     fallbackPlaylistTitle = context.resources.getString(R.string.unknown_genre),
