@@ -35,7 +35,7 @@ class MetadataWriterImpl(
         try {
             var file: File? = null
             context.contentResolver.openInputStream(track.uri)?.use { input ->
-                val temp = File.createTempFile("temp_audio", ".mp3")
+                val temp = File.createTempFile("temp_audio", ".mp3", context.cacheDir)
                 FileOutputStream(temp).use { output ->
                     input.copyTo(output)
                 }
@@ -99,6 +99,7 @@ class MetadataWriterImpl(
                     }
                 }
                 MediaScannerConnection.scanFile(context, arrayOf(track.data), null, null)
+                context.cacheDir?.deleteRecursively()
                 return Result.Success(Unit)
             } catch (e: SecurityException) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
