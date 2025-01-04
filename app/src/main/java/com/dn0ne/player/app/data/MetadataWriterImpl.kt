@@ -49,8 +49,6 @@ class MetadataWriterImpl(
             val tag = audioFile.tag
                 ?: return Result.Error(DataError.Local.FailedToRead)
 
-            println("TITLE: ${tag.getValue(FieldKey.TITLE, 0)}")
-
             metadata.run {
                 title?.let {
                     tag.setField(FieldKey.TITLE, it)
