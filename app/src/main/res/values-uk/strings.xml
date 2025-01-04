@@ -122,7 +122,8 @@
     <string name="select_fields_to_overwrite">Виберіть поля для перезапису:</string>
     <string name="metadata_change_succeed">Інформацію про трек успішно змінено. Зміни набудуть чинності через кілька секунд.</string>
     <string name="important_to_know">Важливо знати</string>
-    <string name="cover_art_from_gallery_note">Для відображення обкладинки з галереї може знадобитися перезавантаження додатку або пристрою</string>
+    <string name="artwork_change_note">Якщо на вашому пристрої є обкладинка для альбому з цим треком, вона буде використовуватися незалежно від обраної обкладинки.</string>
+    <string name="cover_art_from_gallery_note">Для відображення обкладинки з галереї може знадобитися перезавантаження додатку або пристрою.</string>
 
     <!-- Changes errors -->
     <string name="failed_to_load_cover_art_album_id_corrupted">Не вдалося завантажити обкладинку. Схоже, ідентифікатор альбому для цього треку пошкоджено.</string>

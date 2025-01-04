@@ -340,19 +340,21 @@ fun CoverArtChange(
             }
         }
 
-        if (isArtFromGallery) {
-            Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            val context = LocalContext.current
-            NoteCard(
-                label = context.resources.getString(R.string.important_to_know),
-                leadingIcon = Icons.Rounded.Lightbulb,
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .fillMaxWidth()
-            ) {
-                Text(text = context.resources.getString(R.string.cover_art_from_gallery_note))
-            }
+        val context = LocalContext.current
+        NoteCard(
+            label = context.resources.getString(R.string.important_to_know),
+            leadingIcon = Icons.Rounded.Lightbulb,
+            modifier = Modifier
+                .padding(horizontal = 12.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = context.resources.getString(R.string.artwork_change_note) + if (isArtFromGallery) {
+                    "\n\n" + context.resources.getString(R.string.cover_art_from_gallery_note)
+                } else ""
+            )
         }
     }
 }
