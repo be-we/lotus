@@ -81,16 +81,20 @@ fun SettingsSheet(
                 navController = navController,
                 startDestination = SettingsRoutes.Main,
                 enterTransition = {
-                    fadeIn() + slideInHorizontally(initialOffsetX = { it / 5 })
+                    fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)) +
+                            slideInHorizontally(initialOffsetX = { it / 5 })
                 },
                 exitTransition = {
-                    fadeOut() + slideOutHorizontally(targetOffsetX = { -it / 5 })
+                    fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) +
+                            slideOutHorizontally(targetOffsetX = { -it / 5 })
                 },
                 popEnterTransition = {
-                    fadeIn() + slideInHorizontally(initialOffsetX = { -it / 5 })
+                    fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)) +
+                            slideInHorizontally(initialOffsetX = { -it / 5 })
                 },
                 popExitTransition = {
-                    fadeOut() + slideOutHorizontally(targetOffsetX = { it / 5 })
+                    fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) +
+                            slideOutHorizontally(targetOffsetX = { it / 5 })
                 }
             ) {
                 composable<SettingsRoutes.Main> {
