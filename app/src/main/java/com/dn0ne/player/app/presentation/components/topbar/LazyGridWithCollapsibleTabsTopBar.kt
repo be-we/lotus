@@ -71,6 +71,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirstOrNull
 import com.dn0ne.player.app.presentation.components.animatable.rememberAnimatable
 import com.dn0ne.player.app.presentation.components.isSystemInLandscapeOrientation
 import kotlinx.coroutines.launch
@@ -286,7 +287,7 @@ fun LazyGridWithCollapsibleTabsTopBar(
                                         scrollOffset = -viewportWidth / 2 + (tabListState
                                             .layoutInfo
                                             .visibleItemsInfo
-                                            .firstOrNull { it.index == selectedTabIndex + 1 }?.size ?: 0) / 2
+                                            .fastFirstOrNull { it.index == selectedTabIndex + 1 }?.size ?: 0) / 2
                                     )
                                 }
 
@@ -327,7 +328,7 @@ fun LazyGridWithCollapsibleTabsTopBar(
                                         scrollOffset = -viewportWidth / 2 + (tabListState
                                             .layoutInfo
                                             .visibleItemsInfo
-                                            .firstOrNull { it.index == selectedTabIndex + 1 }?.size ?: 0) / 2
+                                            .fastFirstOrNull { it.index == selectedTabIndex + 1 }?.size ?: 0) / 2
                                     )
                                 }
 
