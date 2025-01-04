@@ -57,10 +57,6 @@ fun SettingsSheet(
     dominantColorState: DominantColorState<ImageBitmap>,
     modifier: Modifier = Modifier
 ) {
-    BackHandler {
-        onCloseClick()
-    }
-
     AnimatedVisibility(
         visible = state.isShown,
         enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideInVertically(
@@ -68,6 +64,10 @@ fun SettingsSheet(
         exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideOutVertically(
             targetOffsetY = { it / 10 }),
     ) {
+        BackHandler {
+            onCloseClick()
+        }
+
         Box(
             modifier = modifier
                 .background(color = MaterialTheme.colorScheme.surface)
