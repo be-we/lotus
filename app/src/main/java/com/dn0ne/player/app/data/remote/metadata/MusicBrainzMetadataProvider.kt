@@ -2,6 +2,7 @@ package com.dn0ne.player.app.data.remote.metadata
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import com.dn0ne.player.app.domain.metadata.MetadataSearchResult
 import com.dn0ne.player.app.domain.result.DataError
@@ -180,7 +181,7 @@ private fun SearchResultDto.toMetadataSearchResultList(): List<MetadataSearchRes
         }.joinToString(separator = "")
         val genres = recording.tags?.map { it.name }
 
-        recording.releases?.filter { it.artistCredit != null && it.media != null }?.map { release ->
+        recording.releases?.fastFilter { it.artistCredit != null && it.media != null }?.map { release ->
             val albumArtist = release.artistCredit!!.map {
                 it.name + (it.joinphrase ?: "")
             }.joinToString(separator = "")

@@ -1,8 +1,10 @@
 package com.dn0ne.player.app.domain.track
 
+import androidx.compose.ui.util.fastFilter
+
 fun List<Track>.filterTracks(query: String): List<Track> {
-    return filter {
-        if (query.isBlank()) return@filter true
+    return fastFilter {
+        if (query.isBlank()) return@fastFilter true
 
         buildString {
             append(it.title + ' ')
