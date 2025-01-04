@@ -282,6 +282,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onStop() {
+        cacheDir?.deleteRecursively()
+        super.onStop()
+    }
+
     private fun checkAudioPermission(): Boolean =
         checkSelfPermission(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
