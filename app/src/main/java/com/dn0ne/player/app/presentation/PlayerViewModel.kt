@@ -29,7 +29,7 @@ import com.dn0ne.player.app.presentation.components.trackinfo.ChangesSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.InfoSearchSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.ManualInfoEditSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheetState
-import com.dn0ne.player.core.data.Settings
+import com.dn0ne.player.app.data.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel

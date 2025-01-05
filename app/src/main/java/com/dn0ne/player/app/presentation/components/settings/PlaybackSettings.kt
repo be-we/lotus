@@ -29,7 +29,7 @@ import com.dn0ne.player.R
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarController
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarEvent
 import com.dn0ne.player.app.presentation.components.topbar.ColumnWithCollapsibleTopBar
-import com.dn0ne.player.core.data.Settings
+import com.dn0ne.player.app.data.Settings
 import kotlinx.coroutines.launch
 
 @Composable

@@ -8,7 +8,7 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
-import com.dn0ne.player.core.data.Settings
+import com.dn0ne.player.app.data.Settings
 import org.koin.android.ext.android.get
 
 class PlaybackService : MediaSessionService() {

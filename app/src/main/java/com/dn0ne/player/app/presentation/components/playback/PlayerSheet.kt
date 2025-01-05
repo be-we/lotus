@@ -82,7 +82,7 @@ import com.dn0ne.player.app.presentation.components.CoverArt
 import com.dn0ne.player.app.presentation.components.TrackMenuButton
 import com.dn0ne.player.app.presentation.components.isSystemInLandscapeOrientation
 import com.dn0ne.player.app.presentation.components.settings.Theme
-import com.dn0ne.player.core.data.Settings
+import com.dn0ne.player.app.data.Settings
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
