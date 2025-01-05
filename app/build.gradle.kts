@@ -6,6 +6,10 @@ plugins {
     alias(libs.plugins.realm)
 }
 
+val splitApks = !project.hasProperty("noSplits")
+val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';').orEmpty()
+val abiCodes = mapOf("armeabi-v7a" to 1, "arm64-v8a" to 2, "x86" to 3, "x86_64" to 4)
+
 android {
     namespace = "com.dn0ne.player"
     compileSdk = 35
@@ -14,10 +18,49 @@ android {
         applicationId = "com.dn0ne.lotus"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0b"
+        versionCode = 1_000_000
+        versionName = "1.0.0"
+
+        if (splitApks) {
+            splits {
+                abi {
+                    isEnable = true
+                    reset()
+                    include("arm64-v8a", "armeabi-v7a", "x86", "x86_64")
+                    isUniversalApk = true
+                }
+            }
+        } else {
+            ndk {
+                abiFilters.addAll(abiFilterList)
+            }
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    androidComponents {
+        onVariants { variant ->
+            variant.outputs.forEach { output ->
+                val name =
+                    if (splitApks) {
+                        output.filters
+                            .find {
+                                it.filterType ==
+                                        com.android.build.api.variant.FilterConfiguration.FilterType.ABI
+                            }
+                            ?.identifier
+                    } else {
+                        abiFilterList.firstOrNull()
+                    }
+
+                val baseAbiCode = abiCodes[name]
+
+                if (baseAbiCode != null) {
+                    output.versionCode.set(baseAbiCode + (output.versionCode.getOrElse(0)))
+                }
+            }
+        }
     }
 
     buildTypes {
@@ -31,6 +74,14 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+
+    applicationVariants.all {
+        outputs.all {
+            (this as com.android.build.gradle.internal.api.BaseVariantOutputImpl).outputFileName =
+                "lotus-${defaultConfig.versionName}-${name}.apk"
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
