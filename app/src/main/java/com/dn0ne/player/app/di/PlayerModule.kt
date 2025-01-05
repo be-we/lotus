@@ -3,6 +3,7 @@ package com.dn0ne.player.app.di
 import com.dn0ne.player.app.data.MetadataWriter
 import com.dn0ne.player.app.data.MetadataWriterImpl
 import com.dn0ne.player.app.data.SavedPlayerState
+import com.dn0ne.player.app.data.Settings
 import com.dn0ne.player.app.data.remote.lyrics.LrclibLyricsProvider
 import com.dn0ne.player.app.data.remote.lyrics.LyricsProvider
 import com.dn0ne.player.app.data.remote.metadata.MetadataProvider
@@ -29,6 +30,12 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val playerModule = module {
+
+    single<Settings> {
+        Settings(
+            context = androidContext()
+        )
+    }
 
     single<TrackRepository> {
         TrackRepositoryImpl(
