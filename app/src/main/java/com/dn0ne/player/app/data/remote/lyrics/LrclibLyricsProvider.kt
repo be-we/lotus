@@ -29,7 +29,7 @@ class LrclibLyricsProvider(
     private val lrclibEndpoint = "https://lrclib.net/api"
     private val logTag = "LrclibLyricsProvider"
     private val userAgent =
-        "${context.resources.getString(R.string.app_name)}/${context.getAppVersionName()} ( mmmdanone04@gmail.com )"
+        "${context.resources.getString(R.string.app_name)}/${context.getAppVersionName()} ( dev.dn0ne@gmail.com )"
 
     override suspend fun getLyrics(track: Track): Result<Lyrics, DataError.Network> {
         if (track.title == null || track.artist == null) {
