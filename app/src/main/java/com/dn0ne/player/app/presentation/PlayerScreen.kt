@@ -929,10 +929,12 @@ fun MainPlayerScreen(
                                     .padding(horizontal = 48.dp)
                                     .align(Alignment.Center)
                                     .focusRequester(focusRequester)
-                                    .onGloballyPositioned {
-                                        focusRequester.requestFocus()
-                                    }
                             )
+
+                            LaunchedEffect(Unit) {
+                                focusRequester.requestFocus()
+                            }
+
                             IconButton(
                                 onClick = {
                                     showSearchField = false
