@@ -114,22 +114,24 @@ fun PlayerScreen(
     var coverArtBitmap by remember {
         mutableStateOf<ImageBitmap?>(null)
     }
-    val colorToApply by remember {
+    val colorToApply by remember(useAlbumArtColor, useDynamicColor) {
         derivedStateOf {
-            dominantColorState.result
-                ?.paletteOrNull
-                ?.swatches
-                ?.sortedByDescending { it.population }
-                ?.let { swatches ->
-                    val firstSwatch = swatches.first()
-                    val firstSwatchColorHct = firstSwatch.color.toHct()
-                    val firstSwatchPopulation = firstSwatch.population
-                    val moreChromatic = swatches.fastFirstOrNull {
-                        it.color.toHct().chroma - firstSwatchColorHct.chroma >= 30 &&
-                                it.population.toFloat() / firstSwatchPopulation >= .1f
-                    }
-                    moreChromatic?.color ?: firstSwatch.color
-                } ?: dominantColorState.color
+            if (useAlbumArtColor) {
+                dominantColorState.result
+                    ?.paletteOrNull
+                    ?.swatches
+                    ?.sortedByDescending { it.population }
+                    ?.let { swatches ->
+                        val firstSwatch = swatches.first()
+                        val firstSwatchColorHct = firstSwatch.color.toHct()
+                        val firstSwatchPopulation = firstSwatch.population
+                        val moreChromatic = swatches.fastFirstOrNull {
+                            it.color.toHct().chroma - firstSwatchColorHct.chroma >= 30 &&
+                                    it.population.toFloat() / firstSwatchPopulation >= .1f
+                        }
+                        moreChromatic?.color ?: firstSwatch.color
+                    } ?: dominantColorState.color
+            } else dominantColorState.color
         }
     }
 
