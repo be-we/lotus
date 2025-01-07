@@ -10,7 +10,6 @@ import com.dn0ne.player.app.domain.metadata.Metadata
 import com.dn0ne.player.app.domain.result.DataError
 import com.dn0ne.player.app.domain.result.Result
 import com.dn0ne.player.app.domain.track.Track
-import com.dn0ne.player.app.domain.track.format
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.audio.exceptions.CannotReadException
 import org.jaudiotagger.audio.exceptions.CannotWriteException
@@ -28,9 +27,6 @@ class MetadataWriterImpl(
 ) : MetadataWriter {
     private val logTag = "Metadata Writer"
 
-    override val unsupportedArtworkEditFormats: List<String>
-        get() = listOf("flac", "ogg")
-
     override fun writeMetadata(
         track: Track,
         metadata: Metadata,
@@ -39,7 +35,7 @@ class MetadataWriterImpl(
         try {
             var file: File? = null
             context.contentResolver.openInputStream(track.uri)?.use { input ->
-                val temp = File.createTempFile("temp_audio", ".${track.format}", context.cacheDir)
+                val temp = File.createTempFile("temp_audio", ".mp3", context.cacheDir)
                 FileOutputStream(temp).use { output ->
                     input.copyTo(output)
                 }
@@ -50,7 +46,7 @@ class MetadataWriterImpl(
 
             val audioFile =
                 AudioFileIO.read(file) ?: return Result.Error(DataError.Local.FailedToRead)
-            val tag = audioFile.tagAndConvertOrCreateAndSetDefault
+            val tag = audioFile.tag
                 ?: return Result.Error(DataError.Local.FailedToRead)
 
             metadata.run {
@@ -88,7 +84,8 @@ class MetadataWriterImpl(
                     cover.mimeType =
                         ImageFormats.getMimeTypeForBinarySignature(artBytes)
                     cover.pictureType = PictureTypes.DEFAULT_ID
-                    cover.description = ""
+                    cover.description = null
+
                     tag.deleteArtworkField()
                     tag.setField(cover)
                 }
