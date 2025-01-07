@@ -1,5 +1,6 @@
 package com.dn0ne.player.app.presentation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -914,6 +915,10 @@ fun MainPlayerScreen(
                     }
 
                     true -> {
+                        BackHandler {
+                            showSearchField = false
+                            searchFieldValue = ""
+                        }
                         Box(
                             modifier = Modifier.fillMaxWidth()
                         ) {

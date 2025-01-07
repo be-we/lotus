@@ -206,6 +206,10 @@ fun MutablePlaylist(
                     }
 
                     true -> {
+                        BackHandler {
+                            showSearchField = false
+                            searchFieldValue = ""
+                        }
                         Box(
                             modifier = Modifier.fillMaxWidth()
                         ) {
