@@ -9,6 +9,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import com.dn0ne.player.R
 import com.dn0ne.player.app.data.SavedPlayerState
+import com.dn0ne.player.app.data.Settings
 import com.dn0ne.player.app.data.remote.lyrics.LyricsProvider
 import com.dn0ne.player.app.data.remote.metadata.MetadataProvider
 import com.dn0ne.player.app.data.repository.LyricsRepository
@@ -22,6 +23,7 @@ import com.dn0ne.player.app.domain.result.Result
 import com.dn0ne.player.app.domain.sort.sortedBy
 import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
+import com.dn0ne.player.app.domain.track.format
 import com.dn0ne.player.app.presentation.components.playback.PlaybackState
 import com.dn0ne.player.app.presentation.components.settings.SettingsSheetState
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarController
@@ -30,8 +32,6 @@ import com.dn0ne.player.app.presentation.components.trackinfo.ChangesSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.InfoSearchSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.ManualInfoEditSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheetState
-import com.dn0ne.player.app.data.Settings
-import com.dn0ne.player.app.domain.track.format
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -304,7 +304,7 @@ class PlayerViewModel(
 
             _pendingTrackUris.receiveAsFlow().collectLatest { uri ->
                 val path = "/storage" + Uri.decode(uri.toString().substringAfter("storage"))
-                val track = _trackList.value.fastFirstOrNull { it.data == path }
+                val track = _trackList.value.fastFirstOrNull { it.data == path || it.uri == uri }
                 track?.let {
                     onEvent(
                         PlayerScreenEvent.OnTrackClick(
