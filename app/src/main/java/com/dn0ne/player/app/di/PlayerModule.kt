@@ -110,6 +110,7 @@ val playerModule = module {
             lyricsProvider = get(),
             lyricsRepository = get(),
             playlistRepository = get(),
+            unsupportedArtworkEditFormats = get<MetadataWriter>().unsupportedArtworkEditFormats,
             settings = get()
         )
     }

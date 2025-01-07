@@ -61,6 +61,7 @@ import com.dn0ne.player.app.presentation.components.topbar.ColumnWithCollapsible
 fun ManualInfoEditSheet(
     track: Track,
     state: ManualInfoEditSheetState,
+    isCoverArtEditable: Boolean,
     onPickCoverArtClick: () -> Unit,
     onRestoreCoverArtClick: () -> Unit,
     onNextClick: (Metadata) -> Unit,
@@ -133,72 +134,75 @@ fun ManualInfoEditSheet(
                 .safeDrawingPadding()
         ) {
             val context = LocalContext.current
-            AnimatedContent(
-                targetState = state.pickedCoverArtBytes,
-                label = "art fade animation",
-                transitionSpec = {
-                    fadeIn() togetherWith fadeOut()
-                }
-            ) { bytes ->
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier
-                ) {
-                    AsyncImage(
-                        model = bytes ?: track.coverArtUri,
-                        contentScale = ContentScale.Crop,
-                        contentDescription = context.resources.getString(R.string.new_cover_art),
+
+            if (isCoverArtEditable) {
+                AnimatedContent(
+                    targetState = state.pickedCoverArtBytes,
+                    label = "art fade animation",
+                    transitionSpec = {
+                        fadeIn() togetherWith fadeOut()
+                    }
+                ) { bytes ->
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier
-                            .requiredWidthIn(max = 400.dp)
-                            .fillMaxWidth()
-                            .padding(horizontal = 36.dp)
-                            .aspectRatio(1f)
-                            .clip(ShapeDefaults.Medium)
-                    )
-
-                    if (bytes == null) {
-                        Button(
-                            onClick = onPickCoverArtClick,
+                    ) {
+                        AsyncImage(
+                            model = bytes ?: track.coverArtUri,
+                            contentScale = ContentScale.Crop,
+                            contentDescription = context.resources.getString(R.string.new_cover_art),
                             modifier = Modifier
+                                .requiredWidthIn(max = 400.dp)
                                 .fillMaxWidth()
-                                .padding(horizontal = 8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.Collections,
-                                contentDescription = null
-                            )
+                                .padding(horizontal = 36.dp)
+                                .aspectRatio(1f)
+                                .clip(ShapeDefaults.Medium)
+                        )
 
-                            Spacer(modifier = Modifier.width(8.dp))
+                        if (bytes == null) {
+                            Button(
+                                onClick = onPickCoverArtClick,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.Collections,
+                                    contentDescription = null
+                                )
 
-                            Text(
-                                text = context.resources.getString(R.string.pick_art)
-                            )
-                        }
-                    } else {
-                        FilledTonalButton(
-                            onClick = onRestoreCoverArtClick,
-                            enabled = state.pickedCoverArtBytes != null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.RestartAlt,
-                                contentDescription = null
-                            )
+                                Spacer(modifier = Modifier.width(8.dp))
 
-                            Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = context.resources.getString(R.string.pick_art)
+                                )
+                            }
+                        } else {
+                            FilledTonalButton(
+                                onClick = onRestoreCoverArtClick,
+                                enabled = state.pickedCoverArtBytes != null,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.RestartAlt,
+                                    contentDescription = null
+                                )
 
-                            Text(
-                                text = context.resources.getString(R.string.restore_art)
-                            )
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                Text(
+                                    text = context.resources.getString(R.string.restore_art)
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+            }
 
             TagTextField(
                 value = title,

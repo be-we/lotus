@@ -30,6 +30,7 @@ import com.dn0ne.player.app.presentation.components.trackinfo.InfoSearchSheetSta
 import com.dn0ne.player.app.presentation.components.trackinfo.ManualInfoEditSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheetState
 import com.dn0ne.player.app.data.Settings
+import com.dn0ne.player.app.domain.track.format
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -51,6 +52,7 @@ class PlayerViewModel(
     private val lyricsProvider: LyricsProvider,
     private val lyricsRepository: LyricsRepository,
     private val playlistRepository: PlaylistRepository,
+    private val unsupportedArtworkEditFormats: List<String>,
     val settings: Settings
 ) : ViewModel() {
     var player: Player? = null
@@ -492,7 +494,14 @@ class PlayerViewModel(
                 _trackInfoSheetState.update {
                     it.copy(
                         isShown = true,
-                        track = event.track
+                        track = event.track,
+                        isCoverArtEditable = event.track.format !in unsupportedArtworkEditFormats
+                    )
+                }
+
+                _manualInfoEditSheetState.update {
+                    it.copy(
+                        pickedCoverArtBytes = null
                     )
                 }
             }
@@ -606,82 +615,84 @@ class PlayerViewModel(
 
             is PlayerScreenEvent.OnMetadataSearchResultPick -> {
                 viewModelScope.launch {
-                    _changesSheetState.update {
-                        it.copy(
-                            isLoadingArt = true
-                        )
-                    }
-                    val result = metadataProvider.getCoverArtBytes(event.searchResult)
-                    var coverArtBytes: ByteArray? = null
-                    when (result) {
-                        is Result.Success -> {
-                            coverArtBytes = result.data
-                            _changesSheetState.update {
-                                it.copy(
-                                    isLoadingArt = false,
-                                    metadata = it.metadata.copy(
-                                        coverArtBytes = coverArtBytes
-                                    )
-                                )
-                            }
+                    if (_trackInfoSheetState.value.isCoverArtEditable) {
+                        _changesSheetState.update {
+                            it.copy(
+                                isLoadingArt = true
+                            )
                         }
-
-                        is Result.Error -> {
-                            when (result.error) {
-                                DataError.Network.BadRequest -> {
-                                    SnackbarController.sendEvent(
-                                        SnackbarEvent(
-                                            message = R.string.failed_to_load_cover_art_album_id_corrupted,
-                                        )
-                                    )
-                                }
-
-                                DataError.Network.NotFound -> {
-                                    SnackbarController.sendEvent(
-                                        SnackbarEvent(
-                                            message = R.string.cover_art_not_found
-                                        )
-                                    )
-                                }
-
-                                DataError.Network.ServiceUnavailable -> {
-                                    SnackbarController.sendEvent(
-                                        SnackbarEvent(
-                                            message = R.string.cover_art_archive_is_unavailable
-                                        )
-                                    )
-                                }
-
-                                DataError.Network.NoInternet -> {
-                                    SnackbarController.sendEvent(
-                                        SnackbarEvent(
-                                            message = R.string.no_internet
-                                        )
-                                    )
-                                }
-
-                                DataError.Network.RequestTimeout -> {
-                                    SnackbarController.sendEvent(
-                                        SnackbarEvent(
-                                            message = R.string.failed_to_load_cover_art_request_timeout
-                                        )
-                                    )
-                                }
-
-                                else -> {
-                                    SnackbarController.sendEvent(
-                                        SnackbarEvent(
-                                            message = R.string.unknown_error_occurred
+                        val result = metadataProvider.getCoverArtBytes(event.searchResult)
+                        var coverArtBytes: ByteArray? = null
+                        when (result) {
+                            is Result.Success -> {
+                                coverArtBytes = result.data
+                                _changesSheetState.update {
+                                    it.copy(
+                                        isLoadingArt = false,
+                                        metadata = it.metadata.copy(
+                                            coverArtBytes = coverArtBytes
                                         )
                                     )
                                 }
                             }
-                            _changesSheetState.update {
-                                it.copy(
-                                    isLoadingArt = false
-                                )
+
+                            is Result.Error -> {
+                                when (result.error) {
+                                    DataError.Network.BadRequest -> {
+                                        SnackbarController.sendEvent(
+                                            SnackbarEvent(
+                                                message = R.string.failed_to_load_cover_art_album_id_corrupted,
+                                            )
+                                        )
+                                    }
+
+                                    DataError.Network.NotFound -> {
+                                        SnackbarController.sendEvent(
+                                            SnackbarEvent(
+                                                message = R.string.cover_art_not_found
+                                            )
+                                        )
+                                    }
+
+                                    DataError.Network.ServiceUnavailable -> {
+                                        SnackbarController.sendEvent(
+                                            SnackbarEvent(
+                                                message = R.string.cover_art_archive_is_unavailable
+                                            )
+                                        )
+                                    }
+
+                                    DataError.Network.NoInternet -> {
+                                        SnackbarController.sendEvent(
+                                            SnackbarEvent(
+                                                message = R.string.no_internet
+                                            )
+                                        )
+                                    }
+
+                                    DataError.Network.RequestTimeout -> {
+                                        SnackbarController.sendEvent(
+                                            SnackbarEvent(
+                                                message = R.string.failed_to_load_cover_art_request_timeout
+                                            )
+                                        )
+                                    }
+
+                                    else -> {
+                                        SnackbarController.sendEvent(
+                                            SnackbarEvent(
+                                                message = R.string.unknown_error_occurred
+                                            )
+                                        )
+                                    }
+                                }
+                                _changesSheetState.update {
+                                    it.copy(
+                                        isLoadingArt = false
+                                    )
+                                }
+                                return@launch
                             }
-                            return@launch
                         }
                     }
                 }
@@ -703,6 +714,11 @@ class PlayerViewModel(
             }
 
             is PlayerScreenEvent.OnOverwriteMetadataClick -> {
+                _manualInfoEditSheetState.update {
+                    it.copy(
+                        pickedCoverArtBytes = null
+                    )
+                }
                 viewModelScope.launch {
                     _trackInfoSheetState.value.track?.let { track ->
                         _pendingMetadata.send(track to event.metadata)
