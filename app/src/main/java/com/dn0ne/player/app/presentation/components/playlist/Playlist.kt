@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +29,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -159,6 +162,9 @@ fun Playlist(
                         Box(
                             modifier = Modifier.fillMaxWidth()
                         ) {
+                            val focusRequester = remember {
+                                FocusRequester()
+                            }
                             SearchField(
                                 value = searchFieldValue,
                                 onValueChange = {
@@ -168,7 +174,13 @@ fun Playlist(
                                     .fillMaxWidth()
                                     .padding(horizontal = 48.dp)
                                     .align(Alignment.Center)
+                                    .focusRequester(focusRequester)
                             )
+
+                            LaunchedEffect(Unit) {
+                                focusRequester.requestFocus()
+                            }
+
                             IconButton(
                                 onClick = {
                                     showSearchField = false

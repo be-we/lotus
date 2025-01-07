@@ -41,6 +41,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -213,6 +215,9 @@ fun MutablePlaylist(
                         Box(
                             modifier = Modifier.fillMaxWidth()
                         ) {
+                            val focusRequester = remember {
+                                FocusRequester()
+                            }
                             SearchField(
                                 value = searchFieldValue,
                                 onValueChange = {
@@ -222,7 +227,13 @@ fun MutablePlaylist(
                                     .fillMaxWidth()
                                     .padding(horizontal = 48.dp)
                                     .align(Alignment.Center)
+                                    .focusRequester(focusRequester)
                             )
+
+                            LaunchedEffect(Unit) {
+                                focusRequester.requestFocus()
+                            }
+
                             IconButton(
                                 onClick = {
                                     showSearchField = false
