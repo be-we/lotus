@@ -132,7 +132,7 @@
     <string name="new_cover_art">New cover art</string>
     <string name="overwrite">Overwrite</string>
     <string name="select_fields_to_overwrite">Select fields to overwrite:</string>
-    <string name="metadata_change_succeed">Track info changed successfully. Changes will take effect in a couple seconds.</string>
+    <string name="metadata_change_succeed">Track info was changed successfully. Changes will take effect in a couple seconds.</string>
     <string name="important_to_know">Important to know</string>
     <string name="artwork_change_note">If the artwork for the album of this track is present on your device, it will be used regardless of the selected artwork.</string>
     <string name="cover_art_from_gallery_note">To display cover art from the gallery you may need to restart the app or device.</string>
