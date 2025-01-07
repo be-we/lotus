@@ -4,9 +4,11 @@ import android.Manifest
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -177,6 +179,8 @@ class MainActivity : ComponentActivity() {
                         }
 
                         composable<Routes.Player> {
+                            scanMedia()
+
                             val viewModel = getViewModel<PlayerViewModel>()
                             val mediaSessionToken =
                                 SessionToken(
@@ -381,5 +385,14 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun scanMedia() {
+        MediaScannerConnection.scanFile(
+            this,
+            arrayOf("file://${Environment.getExternalStorageDirectory()}"),
+            arrayOf("audio/*"),
+            null
+        )
     }
 }
