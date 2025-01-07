@@ -311,13 +311,13 @@ fun ManualInfoEditSheet(
                 onClick = {
                     onNextClick(
                         Metadata(
-                            title = title.takeIf { it.isNotBlank() && it != track.title },
-                            album = album.takeIf { it.isNotBlank() && it != track.album },
-                            artist = artist.takeIf { it.isNotBlank() && it != track.artist },
-                            albumArtist = albumArtist.takeIf { it.isNotBlank() && it != track.albumArtist },
-                            genre = genre.takeIf { it.isNotBlank() && it != track.genre },
-                            year = year.takeIf { it.isNotBlank() && it != track.year },
-                            trackNumber = trackNumber.takeIf { it.isNotBlank() && it != track.trackNumber },
+                            title = title.trim().takeIf { it.isNotBlank() && it != track.title },
+                            album = album.trim().takeIf { it.isNotBlank() && it != track.album },
+                            artist = artist.trim().takeIf { it.isNotBlank() && it != track.artist },
+                            albumArtist = albumArtist.trim().takeIf { it.isNotBlank() && it != track.albumArtist },
+                            genre = genre.trim().takeIf { it.isNotBlank() && it != track.genre },
+                            year = year.trim().takeIf { it.isNotBlank() && it != track.year },
+                            trackNumber = trackNumber.trim().takeIf { it.isNotBlank() && it != track.trackNumber },
                             coverArtBytes = state.pickedCoverArtBytes
                         )
                     )
