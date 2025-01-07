@@ -1,5 +1,6 @@
 package com.dn0ne.player.app.presentation
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.lifecycle.ViewModel
@@ -37,6 +38,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -189,6 +191,8 @@ class PlayerViewModel(
     private val _pendingMetadata = Channel<Pair<Track, Metadata>>()
     val pendingMetadata = _pendingMetadata.receiveAsFlow()
 
+    private val _pendingTrackUris = Channel<Uri>()
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             while (true) {
@@ -293,6 +297,32 @@ class PlayerViewModel(
                 }
             )
 
+        }
+
+        viewModelScope.launch {
+            while (_trackList.value.isEmpty() || player == null) delay(500)
+
+            _pendingTrackUris.receiveAsFlow().collectLatest { uri ->
+                val path = "/storage" + Uri.decode(uri.toString().substringAfter("storage"))
+                val track = _trackList.value.fastFirstOrNull { it.data == path }
+                track?.let {
+                    onEvent(
+                        PlayerScreenEvent.OnTrackClick(
+                            track = it,
+                            playlist = Playlist(
+                                name = null,
+                                trackList = _trackList.value
+                            )
+                        )
+                    )
+                } ?: run {
+                    SnackbarController.sendEvent(
+                        SnackbarEvent(
+                            message = R.string.track_is_not_found_in_media_store
+                        )
+                    )
+                }
+            }
         }
     }
 
@@ -905,6 +935,12 @@ class PlayerViewModel(
                     )
                 }
             }
+        }
+    }
+
+    fun playTrackFromUri(uri: Uri) {
+        viewModelScope.launch {
+            _pendingTrackUris.send(uri)
         }
     }
 

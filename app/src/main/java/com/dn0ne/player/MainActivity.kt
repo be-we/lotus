@@ -275,9 +275,27 @@ class MainActivity : ComponentActivity() {
                             ObserveAsEvents(pickedCoverArtChannel.receiveAsFlow()) { bytes ->
                                 viewModel.setPickedCoverArtBytes(bytes)
                             }
+
+                            if (intent.action == Intent.ACTION_VIEW) {
+                                val trackUri = intent.data
+                                trackUri?.let {
+                                    viewModel.playTrackFromUri(it)
+                                }
+                            }
                         }
                     }
                 }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+
+        if (intent.action == Intent.ACTION_VIEW) {
+            val trackUri = intent.data
+            trackUri?.let {
+                getViewModel<PlayerViewModel>().playTrackFromUri(it)
             }
         }
     }

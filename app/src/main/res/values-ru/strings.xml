@@ -235,4 +235,7 @@
     <string name="repo_explain">Ознакомьтесь с репозиторием проекта</string>
     <string name="feedback">Обратная связь</string>
     <string name="feedback_explain">Свяжитесь с нами, чтобы предложить функцию или сообщить о проблеме</string>
+
+    <!-- Open a track with "Open with..." dialog -->
+    <string name="track_is_not_found_in_media_store">К сожалению, этот трек недоступен для плеера, поскольку его не удалось найти в MediaStore.</string>
 </resources>
