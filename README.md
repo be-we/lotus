@@ -62,7 +62,7 @@ Lyrics UI is inspired by [Beautiful Lyrics](https://github.com/surfbryce/beautif
 
 [Reorderable](https://github.com/Calvin-LL/Reorderable)
 
-[jaudiotagger-android](https://github.com/hexise/jaudiotagger-android)
+[jaudiotagger](https://bitbucket.org/ijabz/jaudiotagger/src/master/)
 
 ## License
 Lotus is licensed under [GPLv3](LICENSE.md)
