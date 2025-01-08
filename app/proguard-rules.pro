@@ -20,6 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+-dontobfuscate
+
 -keep class org.jaudiotagger.** { *; }
 
 -dontwarn java.awt.Graphics2D
