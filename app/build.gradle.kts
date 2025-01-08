@@ -99,6 +99,10 @@ android {
     }
 }
 
+tasks.withType<com.android.build.gradle.internal.tasks.CompileArtProfileTask> {
+    enabled = false
+}
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
