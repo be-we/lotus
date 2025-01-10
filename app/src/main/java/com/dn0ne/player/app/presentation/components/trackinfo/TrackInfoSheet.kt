@@ -261,7 +261,7 @@ fun TrackInfoSheet(
 
                             TagRow(
                                 tag = context.resources.getString(R.string.bitrate),
-                                value = bitrate?.let { it.dropLast(3) + " kbps" }
+                                value = bitrate?.let { "$it kbps" }
                                     ?: context.resources.getString(
                                         R.string.unknown_bitrate
                                     )

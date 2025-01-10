@@ -39,27 +39,20 @@ class TrackRepositoryImpl(
             MediaStore.Audio.Media.ALBUM_ARTIST,
             MediaStore.Audio.Media.YEAR,
             MediaStore.Audio.Media.TRACK,
-        ).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                add(MediaStore.Audio.Media.BITRATE)
-            }
-        }.toTypedArray()
+        ).toTypedArray()
 
         val selection = "${MediaStore.Audio.Media.DURATION} >= ?"
         val selectionArgs = arrayOf(
             TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS).toString()
         )
 
-        val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
-
         val query = context.contentResolver.query(
             collection,
             projection,
             selection,
             selectionArgs,
-            sortOrder
+            null
         )
-
 
         val tracks = mutableListOf<Track>()
         query?.use { cursor ->
@@ -77,9 +70,6 @@ class TrackRepositoryImpl(
             val albumArtistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ARTIST)
             val yearColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR)
             val trackNumberColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK)
-            val bitrateColumn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.BITRATE)
-            } else -1
 
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idColumn)
@@ -96,9 +86,7 @@ class TrackRepositoryImpl(
                 val year = cursor.getString(yearColumn)
                 val trackNumber = cursor.getString(trackNumberColumn)
                 val genre = trackIdToGenre.getOrDefault(id, null)
-                val bitrate = if (bitrateColumn >= 0) {
-                    cursor.getString(bitrateColumn)
-                } else null
+                val bitrate = calcBitrate(size = size, duration = duration)?.toString()
 
                 val uri: Uri = ContentUris.withAppendedId(
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -219,6 +207,11 @@ class TrackRepositoryImpl(
         }
 
         return trackIdToGenreMap
+    }
+
+    fun calcBitrate(size: Long, duration: Int): Int? {
+        if (duration <= 0) return null
+        return ((size * 8) / duration).toInt()
     }
 }
 
