@@ -54,7 +54,7 @@ import com.dn0ne.player.R
 import com.dn0ne.player.app.presentation.components.settings.Theme.Appearance
 import com.dn0ne.player.app.presentation.components.settings.Theme.PaletteStyle
 import com.dn0ne.player.app.presentation.components.topbar.ColumnWithCollapsibleTopBar
-import com.dn0ne.player.app.data.Settings
+import com.dn0ne.player.core.data.Settings
 import com.kmpalette.DominantColorState
 import com.materialkolor.DynamicMaterialTheme
 

@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.sp
 import com.dn0ne.player.R
 import com.dn0ne.player.app.presentation.components.playback.PlainLyricsLine
 import com.dn0ne.player.app.presentation.components.topbar.ColumnWithCollapsibleTopBar
-import com.dn0ne.player.app.data.Settings
+import com.dn0ne.player.core.data.Settings
 
 @Composable
 fun LyricsSettings(

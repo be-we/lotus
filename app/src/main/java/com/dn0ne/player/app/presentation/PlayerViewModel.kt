@@ -9,7 +9,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import com.dn0ne.player.R
 import com.dn0ne.player.app.data.SavedPlayerState
-import com.dn0ne.player.app.data.Settings
+import com.dn0ne.player.core.data.Settings
 import com.dn0ne.player.app.data.remote.lyrics.LyricsProvider
 import com.dn0ne.player.app.data.remote.metadata.MetadataProvider
 import com.dn0ne.player.app.data.repository.LyricsRepository
