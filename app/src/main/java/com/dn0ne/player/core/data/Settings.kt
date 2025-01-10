@@ -1,4 +1,4 @@
-package com.dn0ne.player.app.data
+package com.dn0ne.player.core.data
 
 import android.content.Context
 import androidx.compose.ui.text.style.TextAlign
