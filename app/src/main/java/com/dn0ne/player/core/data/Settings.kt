@@ -16,22 +16,33 @@ class Settings(context: Context) {
     private val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
 
     private val handleAudioFocusKey = "audio-focus"
+
     private val appearanceKey = "appearance"
     private val useDynamicColorKey = "use-dynamic-color"
     private val useAlbumArtColorKey = "use-album-art-color"
     private val paletteStyleKey = "palette-style"
+
     private val lyricsFontSizeKey = "lyrics-font-size"
     private val lyricsFontWeightKey = "lyrics-font-weight"
     private val lyricsLineHeightKey = "lyrics-line-height"
     private val lyricsLetterSpacingKey = "lyrics-letter-spacing"
     private val lyricsAlignmentKey = "lyrics-alignment"
     private val useDarkPaletteOnLyricsSheetKey = "dark-palette-on-lyrics-sheet"
+
     private val areRisksOfMetadataEditingAcceptedKey = "metadata-editing-dialog"
+
     private val matchDurationWhenSearchMetadataKey = "match-duration"
+
     private val trackSortKey = "track-sort-key"
     private val trackSortOrderKey = "track-sort-order-key"
     private val playlistSortKey = "playlist-sort-key"
     private val playlistSortOrderKey = "playlist-sort-order-key"
+
+    private val isScanModeInclusiveKey = "is-scan-mode-inclusive"
+    private val scanMusicFolderKey = "scan-music-in-music"
+    private val scanDownloadFolderKey = "scan-music-in-downloads"
+    private val extraScanFoldersKey = "extra-scan-folders"
+    private val excludedScanFoldersKey = "excluded-scan-folders"
 
     var handleAudioFocus: Boolean
         get() = sharedPreferences.getBoolean(handleAudioFocusKey, true)
@@ -42,7 +53,7 @@ class Settings(context: Context) {
             }
         }
 
-    private var _appearance = MutableStateFlow(
+    private val _appearance = MutableStateFlow(
         Theme.Appearance.entries[sharedPreferences.getInt(appearanceKey, 0)]
     )
     val appearance = _appearance.asStateFlow()
@@ -56,7 +67,7 @@ class Settings(context: Context) {
         }
     }
 
-    private var _useDynamicColor = MutableStateFlow(
+    private val _useDynamicColor = MutableStateFlow(
         sharedPreferences.getBoolean(useDynamicColorKey, true)
     )
     val useDynamicColor = _useDynamicColor.asStateFlow()
@@ -68,7 +79,7 @@ class Settings(context: Context) {
         }
     }
 
-    private var _useAlbumArtColor = MutableStateFlow(
+    private val _useAlbumArtColor = MutableStateFlow(
         sharedPreferences.getBoolean(useAlbumArtColorKey, true)
     )
     val useAlbumArtColor = _useAlbumArtColor.asStateFlow()

@@ -6,6 +6,8 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.compose.ui.util.fastForEach
+import androidx.core.database.getIntOrNull
+import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import androidx.media3.common.MediaItem
 import com.dn0ne.player.app.domain.track.Track
@@ -57,35 +59,35 @@ class TrackRepositoryImpl(
 
         val tracks = mutableListOf<Track>()
         query?.use { cursor ->
-            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
-            val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-            val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-            val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
-            val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
+            val idColumn = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
+            val dataColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+            val durationColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION)
+            val albumIdColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID)
+            val sizeColumn = cursor.getColumnIndex(MediaStore.Audio.Media.SIZE)
             val dateModifiedColumn =
-                cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_MODIFIED)
+                cursor.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED)
 
-            val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
-            val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
-            val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
-            val albumArtistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ARTIST)
-            val yearColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.YEAR)
-            val trackNumberColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK)
+            val titleColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+            val albumColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)
+            val artistColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)
+            val albumArtistColumn = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ARTIST)
+            val yearColumn = cursor.getColumnIndex(MediaStore.Audio.Media.YEAR)
+            val trackNumberColumn = cursor.getColumnIndex(MediaStore.Audio.Media.TRACK)
 
             while (cursor.moveToNext()) {
-                val id = cursor.getLong(idColumn)
-                val data = cursor.getString(dataColumn)
-                val duration = cursor.getInt(durationColumn)
-                val albumId = cursor.getLong(albumIdColumn)
-                val size = cursor.getLong(sizeColumn)
-                val dateModified = cursor.getLong(dateModifiedColumn)
+                val id = cursor.getLongOrNull(idColumn) ?: continue
+                val data = cursor.getStringOrNull(dataColumn) ?: continue
+                val duration = cursor.getIntOrNull(durationColumn) ?: continue
+                val albumId = cursor.getLongOrNull(albumIdColumn) ?: continue
+                val size = cursor.getLongOrNull(sizeColumn) ?: continue
+                val dateModified = cursor.getLongOrNull(dateModifiedColumn) ?: continue
 
-                val title = cursor.getString(titleColumn)
-                val album = cursor.getString(albumColumn)
-                val artist = cursor.getString(artistColumn)
-                val albumArtist = cursor.getString(albumArtistColumn)
-                val year = cursor.getString(yearColumn)
-                val trackNumber = cursor.getString(trackNumberColumn)
+                val title = cursor.getStringOrNull(titleColumn)
+                val album = cursor.getStringOrNull(albumColumn)
+                val artist = cursor.getStringOrNull(artistColumn)
+                val albumArtist = cursor.getStringOrNull(albumArtistColumn)
+                val year = cursor.getStringOrNull(yearColumn)
+                val trackNumber = cursor.getStringOrNull(trackNumberColumn)
                 val genre = trackIdToGenre.getOrDefault(id, null)
                 val bitrate = calcBitrate(size = size, duration = duration)?.toString()
 
