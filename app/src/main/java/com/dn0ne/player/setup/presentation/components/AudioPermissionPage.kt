@@ -53,27 +53,9 @@ fun AudioPermissionPage(
             modifier = Modifier.align(alignment = Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            Box(
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape)
-                    .background(color = MaterialTheme.colorScheme.secondary),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Security,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSecondary,
-                    modifier = Modifier.size(75.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = context.resources.getString(R.string.permissions),
-                style = MaterialTheme.typography.headlineLarge
+            SetupPageHeader(
+                title = context.resources.getString(R.string.permissions),
+                icon = Icons.Rounded.Security
             )
 
             Spacer(modifier = Modifier.height(16.dp))
