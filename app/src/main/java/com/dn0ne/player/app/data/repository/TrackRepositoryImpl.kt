@@ -4,6 +4,7 @@ import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
 import androidx.compose.ui.util.fastForEach
 import androidx.core.database.getIntOrNull
@@ -11,11 +12,13 @@ import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import androidx.media3.common.MediaItem
 import com.dn0ne.player.app.domain.track.Track
+import com.dn0ne.player.core.data.Settings
 import java.util.concurrent.TimeUnit
 
 class TrackRepositoryImpl(
-    private val context: Context
-): TrackRepository {
+    private val context: Context,
+    private val settings: Settings,
+) : TrackRepository {
     override fun getTracks(): List<Track> {
         val trackIdToGenre = getTrackIdToGenreMap()
 
@@ -28,7 +31,7 @@ class TrackRepositoryImpl(
                 MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
             }
 
-        val projection = mutableListOf(
+        val projection = arrayOf(
             MediaStore.Audio.Media._ID,
             MediaStore.Audio.Media.DATA,
             MediaStore.Audio.Media.DURATION,
@@ -42,12 +45,45 @@ class TrackRepositoryImpl(
             MediaStore.Audio.Media.ALBUM_ARTIST,
             MediaStore.Audio.Media.YEAR,
             MediaStore.Audio.Media.TRACK,
-        ).toTypedArray()
-
-        val selection = "${MediaStore.Audio.Media.DURATION} >= ?"
-        val selectionArgs = arrayOf(
-            TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS).toString()
         )
+
+        val isScanModeInclusive = settings.isScanModeInclusive.value
+        val scanMusicFolder = settings.scanMusicFolder.value
+        val scanDownloadFolder = settings.scanDownloadFolder.value
+        val extraScanFolders = settings.extraScanFolders.value
+        val excludedScanFolders = settings.excludedScanFolders.value
+
+        val selection =
+            "${MediaStore.Audio.Media.DURATION} >= ? AND " + (if (isScanModeInclusive) {
+                (listOf(
+                    scanMusicFolder,
+                    scanDownloadFolder
+                ).filter { it } + extraScanFolders).joinToString(" OR ") {
+                    "${MediaStore.Audio.Media.DATA} LIKE ?"
+                }
+            } else {
+                excludedScanFolders.joinToString(" AND ") { "${MediaStore.Audio.Media.DATA} NOT LIKE ?" }
+            }).let { "(${it.ifBlank { if (isScanModeInclusive) 0 else 1 }})" }
+
+        val selectionArgs = mutableListOf(
+            TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS).toString()
+        ).apply {
+            if (isScanModeInclusive) {
+                if (scanMusicFolder) {
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)?.path?.let {
+                        add("$it/%")
+                    }
+                }
+                if (scanDownloadFolder) {
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)?.path?.let {
+                        add("$it/%")
+                    }
+                }
+                addAll(extraScanFolders.map { "$it/%" })
+            } else {
+                addAll(excludedScanFolders.map { "$it/%" })
+            }
+        }.toTypedArray()
 
         val query = context.contentResolver.query(
             collection,

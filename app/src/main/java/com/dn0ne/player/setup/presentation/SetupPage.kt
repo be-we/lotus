@@ -9,7 +9,5 @@ sealed interface SetupPage {
     @Serializable
     data object AudioPermission : SetupPage
     @Serializable
-    data object LyricsProvider : SetupPage
-    @Serializable
-    data object MetadataProvider : SetupPage
+    data object MusicScan: SetupPage
 }

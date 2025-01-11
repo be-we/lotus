@@ -32,7 +32,8 @@ val playerModule = module {
 
     single<TrackRepository> {
         TrackRepositoryImpl(
-            context = androidContext()
+            context = androidContext(),
+            settings = get()
         )
     }
 

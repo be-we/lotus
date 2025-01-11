@@ -107,6 +107,7 @@ import kotlinx.serialization.Serializable
 fun PlayerScreen(
     viewModel: PlayerViewModel,
     onCoverArtPick: () -> Unit,
+    onFolderPick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val useDynamicColor by viewModel.settings.useDynamicColor.collectAsState()
@@ -770,6 +771,10 @@ fun PlayerScreen(
                 val settingsSheetState by viewModel.settingsSheetState.collectAsState()
                 SettingsSheet(
                     state = settingsSheetState,
+                    onFolderPick = onFolderPick,
+                    onScanFoldersClick = {
+                        viewModel.onEvent(PlayerScreenEvent.OnScanFoldersClick)
+                    },
                     onCloseClick = {
                         viewModel.onEvent(PlayerScreenEvent.OnCloseSettingsClick)
                     },

@@ -9,7 +9,6 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import com.dn0ne.player.R
 import com.dn0ne.player.app.data.SavedPlayerState
-import com.dn0ne.player.core.data.Settings
 import com.dn0ne.player.app.data.remote.lyrics.LyricsProvider
 import com.dn0ne.player.app.data.remote.metadata.MetadataProvider
 import com.dn0ne.player.app.data.repository.LyricsRepository
@@ -32,6 +31,7 @@ import com.dn0ne.player.app.presentation.components.trackinfo.ChangesSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.InfoSearchSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.ManualInfoEditSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheetState
+import com.dn0ne.player.core.data.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -198,7 +198,7 @@ class PlayerViewModel(
             while (true) {
                 val tracks = trackRepository.getTracks()
 
-                if (!_trackList.value.containsAll(tracks)) {
+                if (_trackList.value.size != tracks.size || !_trackList.value.containsAll(tracks)) {
                     _trackList.update {
                         tracks.sortedBy(_trackSort.value, _trackSortOrder.value)
                     }
@@ -935,6 +935,14 @@ class PlayerViewModel(
                     )
                 }
             }
+
+            PlayerScreenEvent.OnScanFoldersClick -> {
+                _settingsSheetState.update {
+                    it.copy(
+                        foldersWithAudio = trackRepository.getFoldersWithAudio()
+                    )
+                }
+            }
         }
     }
 
@@ -949,6 +957,14 @@ class PlayerViewModel(
             it.copy(
                 pickedCoverArtBytes = bytes
             )
+        }
+    }
+
+    fun onFolderPicked(path: String) {
+        if (settings.isScanModeInclusive.value) {
+            settings.updateExtraScanFolders(settings.extraScanFolders.value + path)
+        } else {
+            settings.updateExcludedScanFolders(settings.extraScanFolders.value + path)
         }
     }
 

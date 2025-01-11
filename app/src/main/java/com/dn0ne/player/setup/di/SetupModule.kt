@@ -1,5 +1,6 @@
 package com.dn0ne.player.setup.di
 
+import com.dn0ne.player.app.data.repository.TrackRepository
 import com.dn0ne.player.setup.data.SetupState
 import com.dn0ne.player.setup.presentation.SetupViewModel
 import org.koin.android.ext.koin.androidContext
@@ -13,7 +14,9 @@ val setupModule = module {
 
     viewModel<SetupViewModel> {
         SetupViewModel(
-            setupState = get()
+            setupState = get(),
+            settings = get(),
+            getFoldersWithAudio = get<TrackRepository>()::getFoldersWithAudio
         )
     }
 }

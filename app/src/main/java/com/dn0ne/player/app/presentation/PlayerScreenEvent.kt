@@ -55,4 +55,5 @@ sealed interface PlayerScreenEvent {
 
     data object OnSettingsClick: PlayerScreenEvent
     data object OnCloseSettingsClick: PlayerScreenEvent
+    data object OnScanFoldersClick: PlayerScreenEvent
 }

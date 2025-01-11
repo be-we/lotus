@@ -4,11 +4,9 @@ import android.Manifest
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -19,7 +17,6 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -134,13 +131,25 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+        val pickedFolderChannel = Channel<String>()
+        val pickFolder =
+            registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+                uri?.let {
+                    lifecycleScope.launch {
+                        pickedFolderChannel.send(
+                            getPathFromFolderUri(it)
+                        )
+                    }
+                }
+            }
+
         val startDestination = if (checkAudioPermission() && setupState.isComplete) {
             Routes.Player
         } else Routes.Setup
 
         setContent {
             MusicPlayerTheme {
-                ScaffoldWithSnackbarEvents(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                ScaffoldWithSnackbarEvents(modifier = Modifier.fillMaxSize()) {
 
                     val navController = rememberNavController()
                     NavHost(
@@ -165,6 +174,9 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 },
+                                onFolderPick = {
+                                    pickFolder.launch(null)
+                                },
                                 onFinishSetupClick = {
                                     navController.navigate(Routes.Player) {
                                         popUpTo(Routes.Setup) {
@@ -174,13 +186,14 @@ class MainActivity : ComponentActivity() {
                                 },
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .padding(innerPadding)
                             )
+
+                            ObserveAsEvents(pickedFolderChannel.receiveAsFlow()) { path ->
+                                setupViewModel.onFolderPicked(path)
+                            }
                         }
 
                         composable<Routes.Player> {
-                            scanMedia()
-
                             val viewModel = getViewModel<PlayerViewModel>()
                             val mediaSessionToken =
                                 SessionToken(
@@ -198,7 +211,7 @@ class MainActivity : ComponentActivity() {
                             )
 
                             val appearance by viewModel.settings.appearance.collectAsState()
-                            val isDarkTheme = when(appearance) {
+                            val isDarkTheme = when (appearance) {
                                 Theme.Appearance.System -> isSystemInDarkTheme()
                                 Theme.Appearance.Light -> false
                                 Theme.Appearance.Dark -> true
@@ -206,8 +219,8 @@ class MainActivity : ComponentActivity() {
                             LaunchedEffect(appearance) {
                                 WindowCompat.getInsetsController(window, window.decorView)
                                     .apply {
-                                            isAppearanceLightStatusBars = !isDarkTheme
-                                            isAppearanceLightNavigationBars = !isDarkTheme
+                                        isAppearanceLightStatusBars = !isDarkTheme
+                                        isAppearanceLightNavigationBars = !isDarkTheme
                                     }
 
                             }
@@ -224,6 +237,9 @@ class MainActivity : ComponentActivity() {
                                                 ActivityResultContracts.PickVisualMedia.ImageOnly
                                             )
                                         )
+                                    },
+                                    onFolderPick = {
+                                        pickFolder.launch(null)
                                     },
                                     modifier = Modifier.fillMaxSize()
                                 )
@@ -278,6 +294,10 @@ class MainActivity : ComponentActivity() {
 
                             ObserveAsEvents(pickedCoverArtChannel.receiveAsFlow()) { bytes ->
                                 viewModel.setPickedCoverArtBytes(bytes)
+                            }
+
+                            ObserveAsEvents(pickedFolderChannel.receiveAsFlow()) { path ->
+                                viewModel.onFolderPicked(path)
                             }
 
                             if (intent.action == Intent.ACTION_VIEW) {
@@ -387,12 +407,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun scanMedia() {
-        MediaScannerConnection.scanFile(
-            this,
-            arrayOf("file://${Environment.getExternalStorageDirectory()}"),
-            arrayOf("audio/*"),
-            null
-        )
+    private fun getPathFromFolderUri(uri: Uri): String {
+        val decoded = Uri.decode(uri.toString())
+        val sd = decoded.substringAfter("tree/").substringBefore(':').takeIf { it != "primary" } ?: "emulated/0"
+        val path = decoded.substringAfterLast(':')
+        return "/storage/$sd/$path"
     }
 }

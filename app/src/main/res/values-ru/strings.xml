@@ -188,6 +188,8 @@
     <string name="playback_supporting_text">Фокус аудио</string>
     <string name="about_app">О приложении</string>
     <string name="about_explain">Версия, репозиторий, обратная связь</string>
+    <string name="music_scan">Сканирование музыки</string>
+    <string name="music_scan_supporting_text">Режим сканирования, управление папками</string>
 
     <!-- Theme settings -->
     <string name="appearance">Оформление</string>
@@ -229,6 +231,26 @@
     <string name="center">По центру</string>
     <string name="end">По правому краю</string>
     <string name="reset">Сбросить</string>
+
+    <!-- Music scan settings -->
+    <string name="scan_music_folder">Сканировать папку Музыка</string>
+    <string name="scan_music_folder_explain">Искать музыку в папке "Музыка" по умолчанию</string>
+    <string name="scan_download_folder">Сканировать папку Загрузки</string>
+    <string name="scan_download_folder_explain">Искать музыку в папке "Загрузки" по умолчанию</string>
+    <string name="extra_scan_folders">Доп. папки для сканирования</string>
+    <string name="pick_folder_to_include_in_scanning">Выберите папку, которую нужно включить в сканирование</string>
+    <string name="remove_folder_from_included_in_scanning">Удалить папку из числа включенных в сканирование</string>
+    <string name="folders_with_audio">Папки с аудио</string>
+    <string name="include_folder_in_scanning">Включить папку в сканирование</string>
+    <string name="scan_for_folders_with_audio">Найти папки со звуком</string>
+    <string name="scan_mode">Режим сканирования</string>
+    <string name="scan_mode_explain">Искать только в указанных папках или везде, кроме них</string>
+    <string name="inclusive">Включение</string>
+    <string name="exclusive">Исключение</string>
+    <string name="excluded_folders">Исключенные папки</string>
+    <string name="pick_folder_to_exclude_from_scanning">Выберите папку, которую нужно исключить из сканирования</string>
+    <string name="remove_folder_from_excluded_from_scanning">Удаление папки из исключенных из сканирования</string>
+    <string name="exclude_folder_from_scanning">Исключить папку из сканирования</string>
 
     <!-- About screen -->
     <string name="repo">Репозиторий</string>

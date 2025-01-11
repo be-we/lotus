@@ -200,6 +200,8 @@
     <string name="playback_supporting_text">Audio focus</string>
     <string name="about_app">About app</string>
     <string name="about_explain">Version, repository, feedback</string>
+    <string name="music_scan">Music scan</string>
+    <string name="music_scan_supporting_text">Scan mode, folder management</string>
 
     <!-- Theme settings -->
     <string name="appearance">Appearance</string>
@@ -241,6 +243,26 @@
     <string name="center">Center</string>
     <string name="end">End</string>
     <string name="reset">Reset</string>
+
+    <!-- Music scan settings -->
+    <string name="scan_music_folder">Scan Music folder</string>
+    <string name="scan_music_folder_explain">Look for music in default Music folder</string>
+    <string name="scan_download_folder">Scan Download folder</string>
+    <string name="scan_download_folder_explain">Look for music in default Download folder</string>
+    <string name="extra_scan_folders">Extra scan folders</string>
+    <string name="pick_folder_to_include_in_scanning">Pick folder to include in scanning</string>
+    <string name="remove_folder_from_included_in_scanning">Remove folder from included in scanning</string>
+    <string name="folders_with_audio">Folders with audio</string>
+    <string name="include_folder_in_scanning">Include folder in scanning</string>
+    <string name="scan_for_folders_with_audio">Scan for folders with audio</string>
+    <string name="scan_mode">Scan mode</string>
+    <string name="scan_mode_explain">Search only in specified folders or everywhere except them</string>
+    <string name="inclusive">Inclusive</string>
+    <string name="exclusive">Exclusive</string>
+    <string name="excluded_folders">Excluded folders</string>
+    <string name="pick_folder_to_exclude_from_scanning">Pick folder to exclude from scanning</string>
+    <string name="remove_folder_from_excluded_from_scanning">Remove folder from excluded from scanning</string>
+    <string name="exclude_folder_from_scanning">Exclude folder from scanning</string>
 
     <!-- About screen -->
     <string name="repo">Repository</string>

@@ -234,4 +234,64 @@ class Settings(context: Context) {
                 apply()
             }
         }
+
+    private val _isScanModeInclusive = MutableStateFlow(
+        sharedPreferences.getBoolean(isScanModeInclusiveKey, true)
+    )
+    val isScanModeInclusive = _isScanModeInclusive.asStateFlow()
+    fun updateIsScanModeInclusive(value: Boolean) {
+        _isScanModeInclusive.update { value }
+        with(sharedPreferences.edit()) {
+            putBoolean(isScanModeInclusiveKey, value)
+            apply()
+        }
+    }
+
+    private val _scanMusicFolder = MutableStateFlow(
+        sharedPreferences.getBoolean(scanMusicFolderKey, true)
+    )
+    val scanMusicFolder = _scanMusicFolder.asStateFlow()
+    fun updateScanMusicFolder(value: Boolean) {
+        _scanMusicFolder.update { value }
+        with(sharedPreferences.edit()) {
+            putBoolean(scanMusicFolderKey, value)
+            apply()
+        }
+    }
+
+    private val _scanDownloadFolder = MutableStateFlow(
+        sharedPreferences.getBoolean(scanDownloadFolderKey, true)
+    )
+    val scanDownloadFolder = _scanDownloadFolder.asStateFlow()
+    fun updateScanDownloadsFolder(value: Boolean) {
+        _scanDownloadFolder.update { value }
+        with(sharedPreferences.edit()) {
+            putBoolean(scanDownloadFolderKey, value)
+            apply()
+        }
+    }
+
+    private val _extraScanFolders = MutableStateFlow(
+        sharedPreferences.getStringSet(extraScanFoldersKey, setOf<String>()) ?: setOf<String>()
+    )
+    val extraScanFolders = _extraScanFolders.asStateFlow()
+    fun updateExtraScanFolders(value: Set<String>) {
+        _extraScanFolders.update { value }
+        with(sharedPreferences.edit()) {
+            putStringSet(extraScanFoldersKey, value)
+            apply()
+        }
+    }
+
+    private val _excludedScanFolders = MutableStateFlow(
+        sharedPreferences.getStringSet(excludedScanFoldersKey, setOf<String>()) ?: setOf<String>()
+    )
+    val excludedScanFolders = _excludedScanFolders.asStateFlow()
+    fun updateExcludedScanFolders(value: Set<String>) {
+        _excludedScanFolders.update { value }
+        with(sharedPreferences.edit()) {
+            putStringSet(excludedScanFoldersKey, value)
+            apply()
+        }
+    }
 }

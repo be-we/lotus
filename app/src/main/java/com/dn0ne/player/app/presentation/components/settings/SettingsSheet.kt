@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.ColorLens
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Lyrics
 import androidx.compose.material.icons.rounded.MusicNote
+import androidx.compose.material.icons.rounded.Radar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -53,6 +54,8 @@ import kotlinx.serialization.Serializable
 @Composable
 fun SettingsSheet(
     state: SettingsSheetState,
+    onFolderPick: () -> Unit,
+    onScanFoldersClick: () -> Unit,
     onCloseClick: () -> Unit,
     dominantColorState: DominantColorState<ImageBitmap>,
     modifier: Modifier = Modifier
@@ -151,6 +154,14 @@ fun SettingsSheet(
                                     }
                                 ),
                                 SettingsItem(
+                                    title = context.resources.getString(R.string.music_scan),
+                                    supportingText = context.resources.getString(R.string.music_scan_supporting_text),
+                                    icon = Icons.Rounded.Radar,
+                                    onClick = {
+                                        navController.navigate(SettingsRoutes.MusicScan)
+                                    }
+                                ),
+                                SettingsItem(
                                     title = context.resources.getString(R.string.theme),
                                     supportingText = context.resources.getString(R.string.theme_supporting_text),
                                     icon = Icons.Rounded.ColorLens,
@@ -191,6 +202,19 @@ fun SettingsSheet(
                 composable<SettingsRoutes.Playback> {
                     PlaybackSettings(
                         settings = state.settings,
+                        onBackClick = {
+                            navController.navigateUp()
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                composable<SettingsRoutes.MusicScan> {
+                    MusicScanSettings(
+                        settings = state.settings,
+                        foldersWithAudio = state.foldersWithAudio,
+                        onFolderPick = onFolderPick,
+                        onScanFoldersClick = onScanFoldersClick,
                         onBackClick = {
                             navController.navigateUp()
                         },
@@ -241,11 +265,14 @@ sealed interface SettingsRoutes {
     data object Playback : SettingsRoutes
 
     @Serializable
+    data object MusicScan : SettingsRoutes
+
+    @Serializable
     data object Theme : SettingsRoutes
 
     @Serializable
-    data object Lyrics: SettingsRoutes
+    data object Lyrics : SettingsRoutes
 
     @Serializable
-    data object About: SettingsRoutes
+    data object About : SettingsRoutes
 }
