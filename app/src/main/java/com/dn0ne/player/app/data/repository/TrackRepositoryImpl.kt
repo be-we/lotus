@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.compose.ui.util.fastForEach
+import androidx.core.database.getStringOrNull
 import androidx.media3.common.MediaItem
 import com.dn0ne.player.app.domain.track.Track
 import java.util.concurrent.TimeUnit
@@ -127,6 +128,48 @@ class TrackRepositoryImpl(
         }
 
         return tracks
+    }
+
+    override fun getFoldersWithAudio(): Set<String> {
+        val collection =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Audio.Media.getContentUri(
+                    MediaStore.VOLUME_EXTERNAL
+                )
+            } else {
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            }
+
+        val projection = arrayOf(
+            MediaStore.Audio.Media.DATA
+        )
+
+        val selection = "${MediaStore.Audio.Media.DURATION} >= ?"
+
+        val selectionArgs = arrayOf(
+            TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS).toString()
+        )
+
+        val query = context.contentResolver.query(
+            collection,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )
+
+        val paths = mutableSetOf<String>()
+        query?.use { cursor ->
+            val dataColumn = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+            if (dataColumn < 0) return emptySet()
+
+            while (cursor.moveToNext()) {
+                val data = cursor.getStringOrNull(dataColumn) ?: continue
+                paths += data.substringBeforeLast('/')
+            }
+        }
+
+        return paths
     }
 
     fun getGenres(): List<Genre> {
