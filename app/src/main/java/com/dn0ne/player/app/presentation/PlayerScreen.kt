@@ -267,15 +267,20 @@ fun PlayerScreen(
                                 selectedTabIndex == 1 &&
                                         currentTrack != null &&
                                         gridState.layoutInfo.visibleItemsInfo.fastFirstOrNull {
-                                            it.index == trackList.indexOf(currentTrack) + 1
+                                            it.index == trackList.indexOf(currentTrack)
                                         } == null
                             }
                         }
                         onLocateClick = remember(currentTrack, trackList) {
                             {
-                                gridState.animateScrollToItem(
-                                    trackList.indexOf(currentTrack) + 1
-                                )
+                                val currentTrackIndex = trackList.indexOf(currentTrack)
+                                val preAnimateItemIndex = if (
+                                    gridState.firstVisibleItemIndex < currentTrackIndex
+                                ) {
+                                    (currentTrackIndex - 5).coerceAtLeast(0)
+                                } else currentTrackIndex + 5
+                                gridState.scrollToItem(preAnimateItemIndex)
+                                gridState.animateScrollToItem(currentTrackIndex)
                             }
                         }
                         LaunchedEffect(shouldShowLocateButton) {
@@ -288,6 +293,7 @@ fun PlayerScreen(
                             }
                         }
                         onScrollToTopClick = {
+                            gridState.scrollToItem(5)
                             gridState.animateScrollToItem(0)
                         }
 
@@ -401,6 +407,7 @@ fun PlayerScreen(
                             }
                         }
                         onScrollToTopClick = {
+                            listState.scrollToItem(5)
                             listState.animateScrollToItem(0)
                         }
 
@@ -416,15 +423,20 @@ fun PlayerScreen(
                                     currentTrack != null &&
                                             index >= 0 &&
                                             listState.layoutInfo.visibleItemsInfo.fastFirstOrNull {
-                                                it.index == index + 1
+                                                it.index == index
                                             } == null
                                 }
                             }
                             onLocateClick = remember(currentTrack, playlist) {
                                 {
-                                    listState.animateScrollToItem(
-                                        playlist.trackList.indexOf(currentTrack) + 1
-                                    )
+                                    val currentTrackIndex = playlist.trackList.indexOf(currentTrack)
+                                    val preAnimateItemIndex = if (
+                                        listState.firstVisibleItemIndex < currentTrackIndex
+                                    ) {
+                                        (currentTrackIndex - 5).coerceAtLeast(0)
+                                    } else currentTrackIndex + 5
+                                    listState.scrollToItem(preAnimateItemIndex)
+                                    listState.animateScrollToItem(currentTrackIndex)
                                 }
                             }
                             LaunchedEffect(shouldShowLocateButton) {
@@ -489,6 +501,7 @@ fun PlayerScreen(
                             }
                         }
                         onScrollToTopClick = {
+                            listState.scrollToItem(5)
                             listState.animateScrollToItem(0)
                         }
 
@@ -508,15 +521,20 @@ fun PlayerScreen(
                                     currentTrack != null &&
                                             index >= 0 &&
                                             listState.layoutInfo.visibleItemsInfo.fastFirstOrNull {
-                                                it.index == index + 1
+                                                it.index == index
                                             } == null
                                 }
                             }
                             onLocateClick = remember(currentTrack, changedTrackList) {
                                 {
-                                    listState.animateScrollToItem(
-                                        changedTrackList.indexOf(currentTrack) + 1
-                                    )
+                                    val currentTrackIndex = changedTrackList.indexOf(currentTrack)
+                                    val preAnimateItemIndex = if (
+                                        listState.firstVisibleItemIndex < currentTrackIndex
+                                    ) {
+                                        (currentTrackIndex - 5).coerceAtLeast(0)
+                                    } else currentTrackIndex + 5
+                                    listState.scrollToItem(preAnimateItemIndex)
+                                    listState.animateScrollToItem(currentTrackIndex)
                                 }
                             }
                             LaunchedEffect(shouldShowLocateButton) {

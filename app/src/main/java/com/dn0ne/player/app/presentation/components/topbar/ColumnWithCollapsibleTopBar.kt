@@ -25,6 +25,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -40,6 +42,9 @@ import androidx.compose.ui.unit.dp
 import com.dn0ne.player.app.presentation.components.animatable.rememberAnimatable
 import com.dn0ne.player.app.presentation.components.isSystemInLandscapeOrientation
 import kotlinx.coroutines.launch
+import my.nanihadesuka.compose.LazyColumnScrollbar
+import my.nanihadesuka.compose.ScrollbarSelectionMode
+import my.nanihadesuka.compose.ScrollbarSettings
 
 @Composable
 fun ColumnWithCollapsibleTopBar(
@@ -168,6 +173,7 @@ fun LazyColumnWithCollapsibleTopBar(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     contentHorizontalAlignment: Alignment.Horizontal = Alignment.Start,
     contentVerticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    enableScrollbar: Boolean = true,
     modifier: Modifier = Modifier,
     content: LazyListScope.() -> Unit
 ) {
@@ -211,7 +217,10 @@ fun LazyColumnWithCollapsibleTopBar(
                         minTopBarHeight,
                         maxTopBarHeight
                     )
-                } else if (listState.firstVisibleItemIndex == 0) {
+                } else if (
+                    listState.firstVisibleItemIndex == 0 &&
+                    listState.layoutInfo.visibleItemsInfo.firstOrNull()?.offset == 0
+                ) {
                     (previousHeight + available.y).coerceIn(
                         minTopBarHeight,
                         maxTopBarHeight
@@ -248,26 +257,33 @@ fun LazyColumnWithCollapsibleTopBar(
                     .height(with(density) { topBarHeight.value.toDp() })
             )
 
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(contentPadding),
-                horizontalAlignment = contentHorizontalAlignment,
-                verticalArrangement = contentVerticalArrangement
-            ) {
-                item(key = "spacer") {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                    )
+            val totalItemsCount by remember {
+                derivedStateOf {
+                    listState.layoutInfo.totalItemsCount
                 }
+            }
+            LazyColumnScrollbar(
+                state = listState,
+                settings = ScrollbarSettings(
+                    enabled = enableScrollbar && totalItemsCount > 10,
+                    thumbUnselectedColor = MaterialTheme.colorScheme.surfaceContainer,
+                    thumbSelectedColor = MaterialTheme.colorScheme.primaryContainer,
+                    selectionMode = ScrollbarSelectionMode.Full
+                )
+            ) {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(contentPadding),
+                    horizontalAlignment = contentHorizontalAlignment,
+                    verticalArrangement = contentVerticalArrangement
+                ) {
+                    content()
 
-                content()
-
-                item {
-                    Spacer(modifier = Modifier.height(200.dp))
+                    item {
+                        Spacer(modifier = Modifier.height(200.dp))
+                    }
                 }
             }
         }

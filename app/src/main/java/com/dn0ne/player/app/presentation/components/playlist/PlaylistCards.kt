@@ -48,7 +48,7 @@ fun LazyGridScope.playlistCards(
                 .clickable {
                     onCardClick(playlist)
                 }
-                .animateItem()
+                .animateItem(fadeInSpec = null, fadeOutSpec = null)
         )
     }
 }

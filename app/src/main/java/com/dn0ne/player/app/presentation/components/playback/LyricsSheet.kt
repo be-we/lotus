@@ -195,6 +195,7 @@ fun LyricsSheet(
             },
             listState = listState,
             contentPadding = PaddingValues(horizontal = 24.dp),
+            enableScrollbar = false,
             modifier = modifier
                 .background(color = containerColor)
                 .clickable(enabled = false, onClick = {})

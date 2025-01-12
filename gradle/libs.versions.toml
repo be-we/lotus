@@ -22,6 +22,7 @@ realm = "2.3.0"
 reorderable = "2.4.2"
 splashScreen = "1.0.1"
 jaudiotagger = "3.0.1"
+scrollbars = "2.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -57,6 +58,7 @@ ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serializatio
 realm-library-base = { group = "io.realm.kotlin", name = "library-base", version.ref = "realm" }
 reorderable = { group = "sh.calvin.reorderable", name = "reorderable", version.ref = "reorderable" }
 jaudiotagger = { group = "net.jthink", name = "jaudiotagger", version.ref = "jaudiotagger" }
+scrollbars = { group = "com.github.nanihadesuka", name = "LazyColumnScrollbar", version.ref = "scrollbars" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -40,6 +40,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ShapeDefaults
@@ -75,8 +76,14 @@ import androidx.compose.ui.util.fastFirstOrNull
 import com.dn0ne.player.app.presentation.components.animatable.rememberAnimatable
 import com.dn0ne.player.app.presentation.components.isSystemInLandscapeOrientation
 import kotlinx.coroutines.launch
+import my.nanihadesuka.compose.LazyVerticalGridScrollbar
+import my.nanihadesuka.compose.ScrollbarSelectionMode
+import my.nanihadesuka.compose.ScrollbarSettings
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class)
+@OptIn(
+    ExperimentalFoundationApi::class, ExperimentalSharedTransitionApi::class,
+    ExperimentalMaterial3Api::class
+)
 @Composable
 fun LazyGridWithCollapsibleTabsTopBar(
     topBarTabTitles: List<String>,
@@ -94,6 +101,7 @@ fun LazyGridWithCollapsibleTabsTopBar(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     contentHorizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     contentVerticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    enableScrollbar: Boolean = true,
     modifier: Modifier = Modifier,
     gridCells: (tabIndex: Int) -> GridCells = { GridCells.Fixed(1) },
     tabContent: LazyGridScope.(tabIndex: Int) -> Unit
@@ -138,7 +146,10 @@ fun LazyGridWithCollapsibleTabsTopBar(
                         minTopBarHeight,
                         maxTopBarHeight
                     )
-                } else if (gridState.firstVisibleItemIndex == 0) {
+                } else if (
+                    gridState.firstVisibleItemIndex == 0 &&
+                    gridState.layoutInfo.visibleItemsInfo.firstOrNull()?.offset?.y == 0
+                ) {
                     (previousHeight + available.y).coerceIn(
                         minTopBarHeight,
                         maxTopBarHeight
@@ -203,39 +214,42 @@ fun LazyGridWithCollapsibleTabsTopBar(
                     }
                 }
 
-                LazyVerticalGrid(
-                    columns = gridCells(tabIndex),
-                    state = gridState,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(contentPadding),
-                    horizontalArrangement = contentHorizontalArrangement,
-                    verticalArrangement = contentVerticalArrangement
-                ) {
-                    item(
-                        span = {
-                            GridItemSpan(this.maxLineSpan)
-                        }
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                        )
+                val totalItemsCount by remember {
+                    derivedStateOf {
+                        gridState.layoutInfo.totalItemsCount
                     }
-
-                    tabContent(tabIndex)
-
-                    item(
-                        span = {
-                            GridItemSpan(this.maxLineSpan)
-                        }
+                }
+                LazyVerticalGridScrollbar(
+                    state = gridState,
+                    settings = ScrollbarSettings(
+                        enabled = enableScrollbar && totalItemsCount > 10,
+                        thumbUnselectedColor = MaterialTheme.colorScheme.surfaceContainer,
+                        thumbSelectedColor = MaterialTheme.colorScheme.primaryContainer,
+                        selectionMode = ScrollbarSelectionMode.Full
+                    )
+                ) {
+                    LazyVerticalGrid(
+                        columns = gridCells(tabIndex),
+                        state = gridState,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(contentPadding),
+                        horizontalArrangement = contentHorizontalArrangement,
+                        verticalArrangement = contentVerticalArrangement
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                        )
+                        tabContent(tabIndex)
+
+                        item(
+                            span = {
+                                GridItemSpan(this.maxLineSpan)
+                            }
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(200.dp)
+                            )
+                        }
                     }
                 }
             }

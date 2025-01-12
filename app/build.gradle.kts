@@ -140,4 +140,5 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.realm.library.base)
     implementation(libs.reorderable)
+    implementation(libs.scrollbars)
 }

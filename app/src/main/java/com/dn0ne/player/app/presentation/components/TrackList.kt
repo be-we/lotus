@@ -42,7 +42,7 @@ fun LazyListScope.trackList(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .animateItem()
+                .animateItem(fadeInSpec = null, fadeOutSpec = null)
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -78,7 +78,7 @@ fun LazyGridScope.trackList(
             onViewTrackInfoClick = { onViewTrackInfoClick(track) },
             modifier = Modifier
                 .fillMaxWidth()
-                .animateItem()
+                .animateItem(fadeInSpec = null, fadeOutSpec = null)
         )
     }
 }
