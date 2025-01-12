@@ -338,9 +338,9 @@ fun BottomPlayer(
                 targetState = currentTrack,
                 transitionSpec = {
                     fadeIn() + slideInHorizontally(
-                        initialOffsetX = { it / 2 }
+                        initialOffsetX = { it / 5 }
                     ) togetherWith fadeOut() + slideOutHorizontally(
-                        targetOffsetX = { -it / 2 }
+                        targetOffsetX = { -it / 5 }
                     )
                 },
                 label = "bottom-player-track-change-animation"

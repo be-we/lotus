@@ -6,6 +6,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -166,6 +167,7 @@ fun PlayerScreen(
             Theme.PaletteStyle.Fidelity -> PaletteStyle.Fidelity
             Theme.PaletteStyle.Content -> PaletteStyle.Content
         },
+        animationSpec = tween(300, 200),
         animate = true
     ) {
         val rippleColor = MaterialTheme.colorScheme.primaryContainer

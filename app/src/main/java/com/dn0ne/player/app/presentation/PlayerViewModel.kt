@@ -3,6 +3,7 @@ package com.dn0ne.player.app.presentation
 import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
@@ -257,8 +258,6 @@ class PlayerViewModel(
             player?.addListener(
                 object : Player.Listener {
                     override fun onIsPlayingChanged(isPlaying: Boolean) {
-                        super.onIsPlayingChanged(isPlaying)
-
                         _playbackState.update {
                             it.copy(
                                 isPlaying = isPlaying
@@ -275,14 +274,11 @@ class PlayerViewModel(
                         mediaItem: MediaItem?,
                         reason: Int
                     ) {
-                        super.onMediaItemTransition(mediaItem, reason)
-
                         _playbackState.update {
                             it.copy(
                                 currentTrack = it.playlist?.trackList?.fastFirstOrNull {
                                     it.mediaItem == mediaItem
                                 },
-                                isPlaying = true,
                                 position = 0L
                             )
                         }
@@ -334,29 +330,26 @@ class PlayerViewModel(
                     if (_playbackState.value.playlist != event.playlist) {
                         player.clearMediaItems()
                         player.addMediaItems(
-                            event.playlist.trackList.map { track -> track.mediaItem }
+                            event.playlist.trackList.fastMap { track -> track.mediaItem }
                         )
+                        player.prepare()
                     }
+                    player.seekTo(
+                        event.playlist.trackList.indexOfFirst { it == event.track },
+                        0L
+                    )
+                    player.play()
 
                     _playbackState.update {
                         it.copy(
                             playlist = event.playlist,
                             currentTrack = event.track,
+                            position = 0
                         )
                     }
-                    savedPlayerState.playlist = event.playlist
 
-                    player.seekTo(
-                        _playbackState.value.playlist!!.trackList.indexOfFirst { it == event.track },
-                        0L
-                    )
-                    player.prepare()
-                    player.play()
-
-                    _playbackState.update {
-                        it.copy(
-                            position = 0L
-                        )
+                    viewModelScope.launch(Dispatchers.IO) {
+                        savedPlayerState.playlist = event.playlist
                     }
                 }
             }
@@ -371,7 +364,6 @@ class PlayerViewModel(
                 player?.let { player ->
                     if (player.currentMediaItem == null) return
 
-                    player.prepare()
                     player.play()
                 }
             }
@@ -381,9 +373,6 @@ class PlayerViewModel(
                     if (!player.hasNextMediaItem()) return
 
                     player.seekToNextMediaItem()
-
-                    player.prepare()
-                    player.play()
                 }
             }
 
@@ -391,9 +380,6 @@ class PlayerViewModel(
                 player?.let { player ->
                     if (player.hasPreviousMediaItem()) {
                         player.seekToPreviousMediaItem()
-
-                        player.prepare()
-                        player.play()
                     } else {
                         player.seekTo(0L)
                         _playbackState.update {
