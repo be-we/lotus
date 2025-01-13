@@ -147,6 +147,7 @@ fun PlayerScreen(
     }
 
     val appearance by viewModel.settings.appearance.collectAsState()
+    val amoledDarkTheme by viewModel.settings.amoledDarkTheme.collectAsState()
     val paletteStyle by viewModel.settings.paletteStyle.collectAsState()
     DynamicMaterialTheme(
         seedColor = colorToApply,
@@ -156,6 +157,7 @@ fun PlayerScreen(
             Theme.Appearance.Light -> false
             Theme.Appearance.Dark -> true
         },
+        withAmoled = amoledDarkTheme,
         style = when (paletteStyle) {
             Theme.PaletteStyle.TonalSpot -> PaletteStyle.TonalSpot
             Theme.PaletteStyle.Neutral -> PaletteStyle.Neutral

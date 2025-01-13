@@ -219,7 +219,8 @@ fun PlayerSheet(
 
             true -> {
                 val appearance by settings.appearance.collectAsState()
-                val isDarkTheme = when(appearance) {
+                val amoledDarkTheme by settings.amoledDarkTheme.collectAsState()
+                val isDarkTheme = when (appearance) {
                     Theme.Appearance.System -> isSystemInDarkTheme()
                     Theme.Appearance.Light -> false
                     Theme.Appearance.Dark -> true
@@ -259,7 +260,14 @@ fun PlayerSheet(
                         settings.useDarkPaletteOnLyricsSheet && !isDarkTheme -> {
                             MaterialTheme.colorScheme.primary
                         }
-                        else -> MaterialTheme.colorScheme.inversePrimary
+
+                        else -> {
+                            if (!amoledDarkTheme) {
+                                MaterialTheme.colorScheme.inversePrimary
+                            } else {
+                                MaterialTheme.colorScheme.background
+                            }
+                        }
                     },
                     lyricsContentColor = when {
                         settings.useDarkPaletteOnLyricsSheet && !isDarkTheme -> {

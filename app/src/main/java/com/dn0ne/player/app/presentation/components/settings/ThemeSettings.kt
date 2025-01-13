@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.Contrast
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.PhonelinkSetup
@@ -349,6 +350,20 @@ fun ThemeSettings(
                 )
             }
         }
+
+        val amoledDarkTheme by settings.amoledDarkTheme.collectAsState()
+        SettingSwitch(
+            title = context.resources.getString(R.string.black_theme),
+            supportingText = context.resources.getString(R.string.black_theme_explain),
+            icon = Icons.Rounded.Contrast,
+            isChecked = amoledDarkTheme,
+            onCheckedChange = {
+                settings.updateAmoledDarkTheme(it)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp)
+        )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val useDynamicColor by settings.useDynamicColor.collectAsState()

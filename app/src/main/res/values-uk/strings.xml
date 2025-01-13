@@ -210,6 +210,8 @@
     <string name="palette_fidelity">Вірність</string>
     <string name="palette_content">Вміст</string>
 
+    <string name="black_theme">Чорна тема</string>
+    <string name="black_theme_explain">Зробити темну тему справді темною</string>
     <string name="use_system_key_colors">Системні кольори</string>
     <string name="use_system_key_colors_explain">Використовувати акцентні кольори системи</string>
     <string name="use_album_art_color">Колір обкладинки</string>

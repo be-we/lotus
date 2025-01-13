@@ -222,6 +222,8 @@
     <string name="palette_fidelity">Fidelity</string>
     <string name="palette_content">Content</string>
 
+    <string name="black_theme">Black theme</string>
+    <string name="black_theme_explain">Make dark theme truly dark</string>
     <string name="use_system_key_colors">System colors</string>
     <string name="use_system_key_colors_explain">Use system accent colors</string>
     <string name="use_album_art_color">Album art color</string>
