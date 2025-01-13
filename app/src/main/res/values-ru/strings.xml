@@ -227,6 +227,12 @@
     <string name="audio_focus_explain">Приостановить воспроизведение, когда другому приложению нужно воспроизвести аудио</string>
     <string name="changes_will_take_effect_on_next_launch">Изменения вступят в силу со следующего запуска.</string>
 
+    <!-- Playlists settings -->
+    <string name="filter_instead_of_search">Фильтр вместо поиска</string>
+    <string name="filter_instead_of_search_explain">Заменить поиск в плейлисте на фильтр</string>
+    <string name="playlists_supporting_text">Поле поиска</string>
+    <string name="filter">Фильтр</string>
+
     <!-- Lyrics settings -->
     <string name="dark_theme_for_lyrics">Тёмное оформление для текста</string>
     <string name="dark_theme_for_lyrics_explain">Применять темную тему к тексту, даже если активен светлый режим</string>

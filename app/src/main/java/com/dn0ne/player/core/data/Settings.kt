@@ -17,6 +17,8 @@ class Settings(context: Context) {
 
     private val handleAudioFocusKey = "audio-focus"
 
+    private val replaceSearchWithFilterKey = "replace-search-with-filter"
+
     private val appearanceKey = "appearance"
     private val useDynamicColorKey = "use-dynamic-color"
     private val useAlbumArtColorKey = "use-album-art-color"
@@ -53,6 +55,18 @@ class Settings(context: Context) {
                 apply()
             }
         }
+
+    private val _replaceSearchWithFilter = MutableStateFlow(
+        sharedPreferences.getBoolean(replaceSearchWithFilterKey, false)
+    )
+    val replaceSearchWithFilter = _replaceSearchWithFilter.asStateFlow()
+    fun updateReplaceSearchWithFilter(value: Boolean) {
+        _replaceSearchWithFilter.update { value  }
+        with(sharedPreferences.edit()) {
+            putBoolean(replaceSearchWithFilterKey, value)
+            apply()
+        }
+    }
 
     private val _appearance = MutableStateFlow(
         Theme.Appearance.entries[sharedPreferences.getInt(appearanceKey, 0)]

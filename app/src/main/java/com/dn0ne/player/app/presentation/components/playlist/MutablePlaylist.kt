@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -81,6 +82,7 @@ fun MutablePlaylist(
     onViewTrackInfoClick: (Track) -> Unit,
     onTrackListReorder: (List<Track>) -> Unit,
     onBackClick: () -> Unit,
+    replaceSearchWithFilter: Boolean
 ) {
     val context = LocalContext.current
     val view = LocalView.current
@@ -202,7 +204,9 @@ fun MutablePlaylist(
                                     }
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Rounded.Search,
+                                        imageVector = if (replaceSearchWithFilter) {
+                                            Icons.Rounded.FilterList
+                                        } else Icons.Rounded.Search,
                                         contentDescription = context.resources.getString(
                                             R.string.track_search
                                         )
@@ -228,6 +232,12 @@ fun MutablePlaylist(
                                 onValueChange = {
                                     searchFieldValue = it.trimStart()
                                 },
+                                icon = if (replaceSearchWithFilter) {
+                                    Icons.Rounded.FilterList
+                                } else Icons.Rounded.Search,
+                                placeholder = if (replaceSearchWithFilter) {
+                                    context.resources.getString(R.string.filter)
+                                } else context.resources.getString(R.string.search),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 48.dp)
@@ -298,7 +308,11 @@ fun MutablePlaylist(
                     onClick = {
                         onTrackClick(
                             track,
-                            playlist
+                            if (replaceSearchWithFilter) {
+                                playlist.copy(
+                                    trackList = playlist.trackList.filterTracks(searchFieldValue)
+                                )
+                            } else playlist
                         )
                     },
                     onPlayNextClick = { onPlayNextClick(track) },

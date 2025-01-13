@@ -239,6 +239,12 @@
     <string name="audio_focus_explain">Pause playback when another app needs to play audio</string>
     <string name="changes_will_take_effect_on_next_launch">Changes will take effect on next launch.</string>
 
+    <!-- Playlists settings -->
+    <string name="filter_instead_of_search">Filter instead of search</string>
+    <string name="filter_instead_of_search_explain">Replace playlist search with filter</string>
+    <string name="playlists_supporting_text">Search field</string>
+    <string name="filter">Filter</string>
+
     <!-- Lyrics settings -->
     <string name="dark_theme_for_lyrics">Dark theme for lyrics</string>
     <string name="dark_theme_for_lyrics_explain">Apply dark theme to the lyrics screen, even if light mode is active</string>

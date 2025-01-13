@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -61,6 +62,7 @@ fun Playlist(
     trackSortOrder: SortOrder,
     onTrackSortChange: (TrackSort?, SortOrder?) -> Unit,
     onBackClick: () -> Unit,
+    replaceSearchWithFilter: Boolean
 ) {
     val context = LocalContext.current
 
@@ -145,7 +147,9 @@ fun Playlist(
                                 }
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Search,
+                                    imageVector = if (replaceSearchWithFilter) {
+                                        Icons.Rounded.FilterList
+                                    } else Icons.Rounded.Search,
                                     contentDescription = context.resources.getString(
                                         R.string.track_search
                                     )
@@ -170,6 +174,12 @@ fun Playlist(
                                 onValueChange = {
                                     searchFieldValue = it.trimStart()
                                 },
+                                icon = if (replaceSearchWithFilter) {
+                                    Icons.Rounded.FilterList
+                                } else Icons.Rounded.Search,
+                                placeholder = if (replaceSearchWithFilter) {
+                                    context.resources.getString(R.string.filter)
+                                } else context.resources.getString(R.string.search),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 48.dp)
@@ -212,7 +222,14 @@ fun Playlist(
             trackList = playlist.trackList.filterTracks(searchFieldValue),
             currentTrack = currentTrack,
             onTrackClick = { track ->
-                onTrackClick(track, playlist)
+                onTrackClick(
+                    track,
+                    if (replaceSearchWithFilter) {
+                        playlist.copy(
+                            trackList = playlist.trackList.filterTracks(searchFieldValue)
+                        )
+                    } else playlist
+                )
             },
             onPlayNextClick = onPlayNextClick,
             onAddToQueueClick = onAddToQueueClick,

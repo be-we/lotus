@@ -52,8 +52,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
@@ -290,6 +292,8 @@ fun SearchField(
 fun SearchField(
     value: String,
     onValueChange: (String) -> Unit,
+    icon: ImageVector = Icons.Rounded.Search,
+    placeholder: String = stringResource(R.string.search),
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -300,7 +304,7 @@ fun SearchField(
             .padding(12.dp)
     ) {
         Icon(
-            imageVector = Icons.Rounded.Search,
+            imageVector = icon,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(20.dp)
@@ -320,10 +324,9 @@ fun SearchField(
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
             )
 
-            val context = LocalContext.current
             value.ifEmpty {
                 Text(
-                    text = context.resources.getString(R.string.search),
+                    text = placeholder,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium,
                     modifier = Modifier.align(alignment = Alignment.CenterStart)

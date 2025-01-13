@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.MyLocation
 import androidx.compose.material.icons.rounded.Search
@@ -207,6 +208,9 @@ fun PlayerScreen(
                 val trackSortOrder by viewModel.trackSortOrder.collectAsState()
                 val playlistSort by viewModel.playlistSort.collectAsState()
                 val playlistSortOrder by viewModel.playlistSortOrder.collectAsState()
+
+                val replaceSearchWithFilter by viewModel.settings
+                    .replaceSearchWithFilter.collectAsState()
 
                 var showAddToOrCreatePlaylistSheet by rememberSaveable {
                     mutableStateOf(false)
@@ -407,7 +411,8 @@ fun PlayerScreen(
                             },
                             onSettingsClick = {
                                 viewModel.onEvent(PlayerScreenEvent.OnSettingsClick)
-                            }
+                            },
+                            replaceSearchWithFilter = replaceSearchWithFilter
                         )
                     }
 
@@ -493,7 +498,8 @@ fun PlayerScreen(
                                 },
                                 onBackClick = {
                                     navController.navigateUp()
-                                }
+                                },
+                                replaceSearchWithFilter = replaceSearchWithFilter
                             )
                         }
                     }
@@ -604,7 +610,8 @@ fun PlayerScreen(
                                 },
                                 onBackClick = {
                                     navController.navigateUp()
-                                }
+                                },
+                                replaceSearchWithFilter = replaceSearchWithFilter
                             )
 
                             if (showRenameSheet) {
@@ -859,6 +866,7 @@ fun MainPlayerScreen(
     onArtistPlaylistSelection: (Playlist) -> Unit,
     onGenrePlaylistSelection: (Playlist) -> Unit,
     onFolderPlaylistSelection: (Playlist) -> Unit,
+    replaceSearchWithFilter: Boolean,
     onSettingsClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -959,7 +967,9 @@ fun MainPlayerScreen(
                                 }
                             ) {
                                 Icon(
-                                    imageVector = Icons.Rounded.Search,
+                                    imageVector = if (replaceSearchWithFilter && tabIndex == 1) {
+                                        Icons.Rounded.FilterList
+                                    } else Icons.Rounded.Search,
                                     contentDescription = context.resources.getString(
                                         R.string.track_search
                                     )
@@ -984,6 +994,12 @@ fun MainPlayerScreen(
                                 onValueChange = {
                                     searchFieldValue = it.trimStart()
                                 },
+                                icon = if (replaceSearchWithFilter && tabIndex == 1) {
+                                    Icons.Rounded.FilterList
+                                } else Icons.Rounded.Search,
+                                placeholder = if (replaceSearchWithFilter && tabIndex == 1) {
+                                    context.resources.getString(R.string.filter)
+                                } else context.resources.getString(R.string.search),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 48.dp)
@@ -1094,7 +1110,9 @@ fun MainPlayerScreen(
                             it,
                             Playlist(
                                 name = null,
-                                trackList = trackList
+                                trackList = if (replaceSearchWithFilter) {
+                                    trackList.filterTracks(searchFieldValue)
+                                } else trackList
                             )
                         )
                     },

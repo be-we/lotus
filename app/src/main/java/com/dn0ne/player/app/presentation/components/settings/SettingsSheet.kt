@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.ColorLens
 import androidx.compose.material.icons.rounded.Info
@@ -162,6 +163,14 @@ fun SettingsSheet(
                                     }
                                 ),
                                 SettingsItem(
+                                    title = context.resources.getString(R.string.playlists),
+                                    supportingText = context.resources.getString(R.string.playlists_supporting_text),
+                                    icon = Icons.AutoMirrored.Rounded.PlaylistPlay,
+                                    onClick = {
+                                        navController.navigate(SettingsRoutes.Playlists)
+                                    }
+                                ),
+                                SettingsItem(
                                     title = context.resources.getString(R.string.theme),
                                     supportingText = context.resources.getString(R.string.theme_supporting_text),
                                     icon = Icons.Rounded.ColorLens,
@@ -222,6 +231,16 @@ fun SettingsSheet(
                     )
                 }
 
+                composable<SettingsRoutes.Playlists> {
+                    PlaylistsSettings(
+                        settings = state.settings,
+                        onBackClick = {
+                            navController.navigateUp()
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
                 composable<SettingsRoutes.Theme> {
                     ThemeSettings(
                         settings = state.settings,
@@ -266,6 +285,9 @@ sealed interface SettingsRoutes {
 
     @Serializable
     data object MusicScan : SettingsRoutes
+
+    @Serializable
+    data object Playlists : SettingsRoutes
 
     @Serializable
     data object Theme : SettingsRoutes
