@@ -214,15 +214,10 @@ fun LazyGridWithCollapsibleTabsTopBar(
                     }
                 }
 
-                val totalItemsCount by remember {
-                    derivedStateOf {
-                        gridState.layoutInfo.totalItemsCount
-                    }
-                }
                 LazyVerticalGridScrollbar(
                     state = gridState,
                     settings = ScrollbarSettings(
-                        enabled = enableScrollbar && totalItemsCount > 10,
+                        enabled = enableScrollbar,
                         thumbUnselectedColor = MaterialTheme.colorScheme.surfaceContainer,
                         thumbSelectedColor = MaterialTheme.colorScheme.primaryContainer,
                         selectionMode = ScrollbarSelectionMode.Full
