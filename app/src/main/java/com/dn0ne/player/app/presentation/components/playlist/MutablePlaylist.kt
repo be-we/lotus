@@ -105,14 +105,19 @@ fun MutablePlaylist(
     }
     val reorderableListState = rememberReorderableLazyListState(listState) { from, to ->
         trackList = trackList.toMutableList().apply {
-            add(to.index - 1, removeAt(from.index - 1))
+            add(to.index, removeAt(from.index))
         }
     }
 
+    var wasTriggered by remember {
+        mutableStateOf(false)
+    }
     LaunchedEffect(reorderableListState.isAnyItemDragging) {
-        if (!reorderableListState.isAnyItemDragging) {
-            onTrackListReorder(trackList)
-        }
+        if (wasTriggered) {
+            if (!reorderableListState.isAnyItemDragging) {
+                onTrackListReorder(trackList)
+            }
+        } else wasTriggered = true
     }
 
     LazyColumnWithCollapsibleTopBar(
@@ -274,6 +279,7 @@ fun MutablePlaylist(
             ReorderableItem(
                 state = reorderableListState,
                 key = "${track.uri}",
+                animateItemModifier = Modifier.animateItem(fadeInSpec = null),
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) { isDragging ->
                 val scale by animateFloatAsState(

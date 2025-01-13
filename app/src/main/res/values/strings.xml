@@ -81,6 +81,11 @@
     <string name="playback_mode_toggle">Toggle playback mode</string>
     <string name="show_lyrics">Show lyrics</string>
 
+    <!-- Play queue -->
+    <string name="remove_from_queue">Remove from queue</string>
+    <string name="queue">Queue</string>
+    <string name="show_queue">Show queue</string>
+
     <!-- Track info screen -->
     <string name="track_info">Track info</string>
     <string name="close_track_info_sheet">Close track info sheet</string>

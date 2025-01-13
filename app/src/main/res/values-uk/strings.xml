@@ -69,6 +69,11 @@
     <string name="playback_mode_toggle">Перемкнути режим відтворення</string>
     <string name="show_lyrics">Показати текст треку</string>
 
+    <!-- Play queue -->
+    <string name="remove_from_queue">Прибрати з черги</string>
+    <string name="queue">Черга</string>
+    <string name="show_queue">Показати чергу</string>
+
     <!-- Track info screen -->
     <string name="track_info">Про трек</string>
     <string name="close_track_info_sheet">Закрити екран про трек</string>

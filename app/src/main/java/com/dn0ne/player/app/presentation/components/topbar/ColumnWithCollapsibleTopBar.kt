@@ -25,8 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -257,15 +255,10 @@ fun LazyColumnWithCollapsibleTopBar(
                     .height(with(density) { topBarHeight.value.toDp() })
             )
 
-            val totalItemsCount by remember {
-                derivedStateOf {
-                    listState.layoutInfo.totalItemsCount
-                }
-            }
             LazyColumnScrollbar(
                 state = listState,
                 settings = ScrollbarSettings(
-                    enabled = enableScrollbar && totalItemsCount > 10,
+                    enabled = enableScrollbar,
                     thumbUnselectedColor = MaterialTheme.colorScheme.surfaceContainer,
                     thumbSelectedColor = MaterialTheme.colorScheme.primaryContainer,
                     selectionMode = ScrollbarSelectionMode.Full

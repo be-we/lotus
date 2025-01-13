@@ -739,6 +739,20 @@ fun PlayerScreen(
                                     viewModel.onEvent(PlayerScreenEvent.OnLyricsClick)
                                 },
                                 settings = viewModel.settings,
+                                onRemoveFromQueueClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnRemoveFromQueueClick(it))
+                                },
+                                onReorderingQueue = { from, to ->
+                                    viewModel.onEvent(PlayerScreenEvent.OnReorderingQueue(from, to))
+                                },
+                                onTrackClick = { track, playlist ->
+                                    viewModel.onEvent(
+                                        PlayerScreenEvent.OnTrackClick(
+                                            track = track,
+                                            playlist = playlist
+                                        )
+                                    )
+                                },
                                 modifier = Modifier
                                     .align(alignment = Alignment.CenterHorizontally)
                                     .fillMaxWidth()

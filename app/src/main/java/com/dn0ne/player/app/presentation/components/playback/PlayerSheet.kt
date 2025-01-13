@@ -10,9 +10,11 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
@@ -42,8 +44,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material.icons.rounded.Lyrics
 import androidx.compose.material.icons.rounded.Pause
@@ -62,8 +66,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -78,6 +84,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.playback.PlaybackMode
+import com.dn0ne.player.app.domain.track.Playlist
+import com.dn0ne.player.app.domain.track.Track
 import com.dn0ne.player.app.presentation.components.CoverArt
 import com.dn0ne.player.app.presentation.components.TrackMenuButton
 import com.dn0ne.player.app.presentation.components.isSystemInLandscapeOrientation
@@ -105,6 +113,9 @@ fun PlayerSheet(
     onAddToPlaylistClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
     onLyricsClick: () -> Unit,
+    onRemoveFromQueueClick: (Int) -> Unit,
+    onReorderingQueue: (Int, Int) -> Unit,
+    onTrackClick: (Track, Playlist) -> Unit,
     settings: Settings,
     modifier: Modifier = Modifier
 ) {
@@ -275,6 +286,9 @@ fun PlayerSheet(
                         }
                         else -> MaterialTheme.colorScheme.inverseSurface
                     },
+                    onRemoveFromQueueClick = onRemoveFromQueueClick,
+                    onReorderingQueue = onReorderingQueue,
+                    onTrackClick = onTrackClick,
                     modifier = Modifier.clickable(
                         onClick = {},
                         interactionSource = null,
@@ -450,6 +464,9 @@ fun ExpandedPlayer(
     lyricsTextStyle: TextStyle,
     lyricsContainerColor: Color,
     lyricsContentColor: Color,
+    onRemoveFromQueueClick: (Int) -> Unit,
+    onReorderingQueue: (Int, Int) -> Unit,
+    onTrackClick: (Track, Playlist) -> Unit,
     modifier: Modifier = Modifier
 ) {
     BackHandler {
@@ -461,6 +478,9 @@ fun ExpandedPlayer(
         derivedStateOf {
             playbackState.isLyricsSheetExpanded
         }
+    }
+    var showQueue by remember {
+        mutableStateOf(false)
     }
 
     Box {
@@ -500,6 +520,26 @@ fun ExpandedPlayer(
 
 
                     Row {
+                        AnimatedVisibility(
+                            visible = playbackState.playbackMode != PlaybackMode.Shuffle,
+                            enter = expandHorizontally(),
+                            exit = shrinkHorizontally()
+                        ) {
+                            IconButton(
+                                onClick = {
+                                    if (playbackState.playbackMode != PlaybackMode.Shuffle) {
+                                        showQueue = true
+                                    }
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Rounded.QueueMusic,
+                                    contentDescription = context.resources.getString(R.string.show_queue),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
                         IconButton(
                             onClick = {
                                 onLyricsSheetExpandedChange(true)
@@ -664,6 +704,26 @@ fun ExpandedPlayer(
 
 
                             Row {
+                                AnimatedVisibility(
+                                    visible = playbackState.playbackMode != PlaybackMode.Shuffle,
+                                    enter = expandHorizontally(),
+                                    exit = shrinkHorizontally()
+                                ) {
+                                    IconButton(
+                                        onClick = {
+                                            if (playbackState.playbackMode != PlaybackMode.Shuffle) {
+                                                showQueue = true
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Rounded.QueueMusic,
+                                            contentDescription = context.resources.getString(R.string.show_queue),
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+
                                 IconButton(
                                     onClick = {
                                         onLyricsSheetExpandedChange(true)
@@ -776,6 +836,39 @@ fun ExpandedPlayer(
                 contentColor = lyricsContentColor,
                 onSeekTo = onSeekTo,
                 modifier = Modifier.fillMaxSize()
+            )
+        }
+
+        AnimatedVisibility(
+            visible = showQueue,
+            enter = fadeIn(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideInVertically(
+                initialOffsetY = { it / 10 }),
+            exit = fadeOut(animationSpec = spring(stiffness = Spring.StiffnessMedium)) + slideOutVertically(
+                targetOffsetY = { it / 10 }),
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            val playlist by remember {
+                derivedStateOf {
+                    playbackState.playlist
+                }
+            }
+            val currentTrack by remember {
+                derivedStateOf {
+                    playbackState.currentTrack
+                }
+            }
+
+            val listState = rememberLazyListState()
+            Queue(
+                listState = listState,
+                playlist = playlist,
+                currentTrack = currentTrack,
+                onRemoveFromQueueClick = onRemoveFromQueueClick,
+                onReorderingQueue = onReorderingQueue,
+                onTrackClick = onTrackClick,
+                onBackClick = {
+                    showQueue = false
+                }
             )
         }
     }

@@ -452,69 +452,156 @@ class PlayerViewModel(
                 loadLyrics()
             }
 
-            is PlayerScreenEvent.OnPlayNextClick -> {
-                if (_playbackState.value.playlist == null || _playbackState.value.playlist?.trackList?.isEmpty() == true) {
+            is PlayerScreenEvent.OnRemoveFromQueueClick -> {
+                player?.let { player ->
+                    if (event.index == player.currentMediaItemIndex) {
+                        onEvent(PlayerScreenEvent.OnSeekToNextClick)
+                    }
+
+                    player.removeMediaItem(event.index)
+
                     _playbackState.update {
                         it.copy(
-                            playlist = Playlist(null, listOf(event.track)),
-                            currentTrack = event.track
+                            playlist = it.playlist?.copy(
+                                trackList = it.playlist.trackList.toMutableList().apply {
+                                    removeAt(event.index)
+                                }
+                            )
                         )
                     }
 
-                    player?.run {
-                        addMediaItem(event.track.mediaItem)
-                        prepare()
-                        play()
-                    }
-                } else {
-                    _playbackState.value.playlist?.let { playlist ->
-                        if (!playlist.trackList.contains(event.track)) {
-                            _playbackState.update {
-                                it.copy(
-                                    playlist = playlist.copy(
-                                        trackList = playlist.trackList.toMutableList() + event.track
-                                    )
-                                )
-                            }
+                    if (_playbackState.value.playlist?.trackList?.isEmpty() == true) {
+                        _playbackState.update {
+                            it.copy(
+                                isPlayerExpanded = false,
+                                isLyricsSheetExpanded = false
+                            )
                         }
                     }
 
-                    player?.run {
-                        addMediaItem(currentMediaItemIndex + 1, event.track.mediaItem)
+                    viewModelScope.launch(Dispatchers.IO) {
+                        savedPlayerState.playlist = _playbackState.value.playlist
                     }
                 }
             }
 
-            is PlayerScreenEvent.OnAddToQueueClick -> {
-                if (_playbackState.value.playlist == null || _playbackState.value.playlist?.trackList?.isEmpty() == true) {
+            is PlayerScreenEvent.OnReorderingQueue -> {
+                player?.let { player ->
+                    player.moveMediaItem(event.from, event.to)
+
                     _playbackState.update {
                         it.copy(
-                            playlist = Playlist(null, listOf(event.track)),
-                            currentTrack = event.track
+                            playlist = it.playlist?.copy(
+                                trackList = it.playlist.trackList.toMutableList().apply {
+                                    add(event.to, removeAt(event.from))
+                                }
+                            )
                         )
                     }
 
-                    player?.run {
-                        addMediaItem(event.track.mediaItem)
-                        prepare()
-                        play()
+                    viewModelScope.launch(Dispatchers.IO) {
+                        savedPlayerState.playlist = _playbackState.value.playlist
                     }
-                } else {
-                    _playbackState.value.playlist?.let { playlist ->
-                        if (!playlist.trackList.contains(event.track)) {
+                }
+            }
+
+            is PlayerScreenEvent.OnPlayNextClick -> {
+                if (_playbackState.value.currentTrack == event.track) return
+
+                _playbackState.value.playlist?.let { playlist ->
+                    val trackIndex = playlist.trackList.indexOf(event.track)
+                    val currentTrackIndex = _playbackState.value.currentTrack?.let {
+                        playlist.trackList.indexOf(it)
+                    } ?: 0
+
+                    if (trackIndex >= 0) {
+                        onEvent(
+                            PlayerScreenEvent.OnReorderingQueue(
+                                trackIndex,
+                                (currentTrackIndex).coerceAtMost(playlist.trackList.lastIndex)
+                            )
+                        )
+                        return
+                    } else {
+                        player?.let { player ->
+                            player.addMediaItem(
+                                player.currentMediaItemIndex + 1,
+                                event.track.mediaItem
+                            )
+
                             _playbackState.update {
                                 it.copy(
                                     playlist = playlist.copy(
-                                        trackList = playlist.trackList.toMutableList() + event.track
+                                        trackList = playlist.trackList.toMutableList().apply {
+                                            add(currentTrackIndex + 1, event.track)
+                                        }
                                     )
                                 )
                             }
                         }
-                    }
 
-                    player?.run {
-                        addMediaItem(event.track.mediaItem)
                     }
+                } ?: run {
+                    onEvent(
+                        PlayerScreenEvent.OnTrackClick(
+                            track = event.track,
+                            playlist = Playlist(
+                                name = null,
+                                trackList = listOf(event.track)
+                            )
+                        )
+                    )
+                }
+
+                viewModelScope.launch(Dispatchers.IO) {
+                    savedPlayerState.playlist = _playbackState.value.playlist
+                }
+            }
+
+            is PlayerScreenEvent.OnAddToQueueClick -> {
+                if (_playbackState.value.currentTrack == event.track) return
+
+                _playbackState.value.playlist?.let { playlist ->
+                    val trackIndex = playlist.trackList.indexOf(event.track)
+
+                    if (trackIndex >= 0) {
+                        onEvent(
+                            PlayerScreenEvent.OnReorderingQueue(
+                                trackIndex,
+                                playlist.trackList.lastIndex
+                            )
+                        )
+                        return
+                    } else {
+                        player?.let { player ->
+                            player.addMediaItem(event.track.mediaItem)
+
+                            _playbackState.update {
+                                it.copy(
+                                    playlist = playlist.copy(
+                                        trackList = playlist.trackList.toMutableList().apply {
+                                            add(event.track)
+                                        }
+                                    )
+                                )
+                            }
+                        }
+
+                    }
+                } ?: run {
+                    onEvent(
+                        PlayerScreenEvent.OnTrackClick(
+                            track = event.track,
+                            playlist = Playlist(
+                                name = null,
+                                trackList = listOf(event.track)
+                            )
+                        )
+                    )
+                }
+
+                viewModelScope.launch(Dispatchers.IO) {
+                    savedPlayerState.playlist = _playbackState.value.playlist
                 }
             }
 
