@@ -48,6 +48,7 @@
     <string name="artists">Виконавці</string>
     <string name="genres">Жанри</string>
     <string name="playlists">Плейлисти</string>
+    <string name="folders">Папки</string>
 
     <!-- Sorting dialog -->
     <string name="sort_order">Порядок сортування</string>
@@ -172,6 +173,7 @@
     <string name="delete_playlist_dialog_title">Видалити плейлист?</string>
     <string name="delete_playlist_dialog_text">Це не вплине на треки в ньому.</string>
     <string name="nothing_yet">Поки нічого немає.</string>
+    <string name="unknown_folder">Невідома папка</string>
 
     <!-- Playlists errors -->
     <string name="blank_playlist_name_error">Будь ласка, дайте назву плейлисту.</string>

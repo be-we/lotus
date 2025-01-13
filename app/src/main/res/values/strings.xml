@@ -60,6 +60,7 @@
     <string name="artists">Artists</string>
     <string name="genres">Genres</string>
     <string name="playlists">Playlists</string>
+    <string name="folders">Folders</string>
 
     <!-- Sorting dialog -->
     <string name="sort_order">Sort order</string>
@@ -184,6 +185,7 @@
     <string name="delete_playlist_dialog_title">Delete playlist?</string>
     <string name="delete_playlist_dialog_text">This won\'t affect the tracks in it.</string>
     <string name="nothing_yet">Nothing yet.</string>
+    <string name="unknown_folder">Unknown Folder</string>
 
     <!-- Playlists errors -->
     <string name="blank_playlist_name_error">Please name the playlist.</string>

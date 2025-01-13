@@ -257,6 +257,7 @@ fun PlayerScreen(
                         val albumPlaylists by viewModel.albumPlaylists.collectAsState()
                         val artistPlaylists by viewModel.artistPlaylists.collectAsState()
                         val genrePlaylists by viewModel.genrePlaylists.collectAsState()
+                        val folderPlaylists by viewModel.folderPlaylists.collectAsState()
 
                         val gridState = rememberLazyGridState()
                         var selectedTabIndex by rememberSaveable {
@@ -334,6 +335,7 @@ fun PlayerScreen(
                             albumPlaylists = albumPlaylists,
                             artistPlaylists = artistPlaylists,
                             genrePlaylists = genrePlaylists,
+                            folderPlaylists = folderPlaylists,
                             trackSort = trackSort,
                             trackSortOrder = trackSortOrder,
                             playlistSort = playlistSort,
@@ -389,6 +391,14 @@ fun PlayerScreen(
                                             name = playlist.name
                                                 ?: context.resources.getString(R.string.unknown_genre)
                                         )
+                                    )
+                                )
+                                navController.navigate(PlayerRoutes.Playlist)
+                            },
+                            onFolderPlaylistSelection = { playlist ->
+                                viewModel.onEvent(
+                                    PlayerScreenEvent.OnPlaylistSelection(
+                                        playlist
                                     )
                                 )
                                 navController.navigate(PlayerRoutes.Playlist)
@@ -821,6 +831,7 @@ fun MainPlayerScreen(
     albumPlaylists: List<Playlist>,
     artistPlaylists: List<Playlist>,
     genrePlaylists: List<Playlist>,
+    folderPlaylists: List<Playlist>,
     trackSort: TrackSort,
     trackSortOrder: SortOrder,
     playlistSort: PlaylistSort,
@@ -831,6 +842,7 @@ fun MainPlayerScreen(
     onAlbumPlaylistSelection: (Playlist) -> Unit,
     onArtistPlaylistSelection: (Playlist) -> Unit,
     onGenrePlaylistSelection: (Playlist) -> Unit,
+    onFolderPlaylistSelection: (Playlist) -> Unit,
     onSettingsClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -842,6 +854,7 @@ fun MainPlayerScreen(
             context.resources.getString(R.string.albums),
             context.resources.getString(R.string.artists),
             context.resources.getString(R.string.genres),
+            context.resources.getString(R.string.folders)
         )
     }
 
@@ -1043,6 +1056,16 @@ fun MainPlayerScreen(
                     sortOrder = playlistSortOrder,
                     fallbackPlaylistTitle = context.resources.getString(R.string.unknown_genre),
                     onCardClick = onGenrePlaylistSelection,
+                )
+            }
+
+            5 -> {
+                playlistCards(
+                    playlists = folderPlaylists.filterPlaylists(searchFieldValue),
+                    sort = playlistSort,
+                    sortOrder = playlistSortOrder,
+                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_folder),
+                    onCardClick = onFolderPlaylistSelection
                 )
             }
 

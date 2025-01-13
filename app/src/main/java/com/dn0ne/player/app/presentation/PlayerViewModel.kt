@@ -142,6 +142,18 @@ class PlayerViewModel(
         started = SharingStarted.WhileSubscribed(5000L),
         initialValue = emptyList()
     )
+    val folderPlaylists = _trackList.map {
+        it.groupBy { it.data.substringBeforeLast('/') }.entries.map {
+            Playlist(
+                name = it.key.substringAfterLast('/'),
+                trackList = it.value
+            )
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
+        initialValue = emptyList()
+    )
 
     val playlists = playlistRepository.getPlaylists().stateIn(
         scope = viewModelScope,
