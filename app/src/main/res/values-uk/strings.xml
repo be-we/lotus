@@ -268,5 +268,5 @@
     <string name="feedback_explain">Зв\'яжіться з нами, щоб запропонувати функцію або повідомити про проблему</string>
 
     <!-- Open a track with "Open with..." dialog -->
-    <string name="track_is_not_found_in_media_store">На жаль, цей трек недоступний для плеєра, оскільки його не вдалося знайти в MediaStore.</string>
+    <string name="track_is_not_found_in_media_store">На жаль, цей трек недоступний для плеєра. Можливо, це тому, що він знаходиться в папці, яку не було включено до сканування.</string>
 </resources>

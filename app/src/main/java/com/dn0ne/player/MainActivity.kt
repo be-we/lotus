@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -302,8 +303,20 @@ class MainActivity : ComponentActivity() {
 
                             if (intent.action == Intent.ACTION_VIEW) {
                                 val trackUri = intent.data
-                                trackUri?.let {
-                                    viewModel.playTrackFromUri(it)
+                                trackUri?.let { uri ->
+                                    MediaScannerConnection.scanFile(
+                                        this@MainActivity,
+                                        arrayOf(uri.path),
+                                        null,
+                                        object : MediaScannerConnection.OnScanCompletedListener {
+                                            override fun onScanCompleted(
+                                                p0: String?,
+                                                p1: Uri?
+                                            ) {
+                                                viewModel.playTrackFromUri(uri)
+                                            }
+                                        }
+                                    )
                                 }
                             }
                         }
@@ -318,8 +331,20 @@ class MainActivity : ComponentActivity() {
 
         if (intent.action == Intent.ACTION_VIEW) {
             val trackUri = intent.data
-            trackUri?.let {
-                getViewModel<PlayerViewModel>().playTrackFromUri(it)
+            trackUri?.let { uri ->
+                MediaScannerConnection.scanFile(
+                    this@MainActivity,
+                    arrayOf(uri.path),
+                    null,
+                    object : MediaScannerConnection.OnScanCompletedListener {
+                        override fun onScanCompleted(
+                            p0: String?,
+                            p1: Uri?
+                        ) {
+                            getViewModel<PlayerViewModel>().playTrackFromUri(uri)
+                        }
+                    }
+                )
             }
         }
     }
@@ -409,7 +434,8 @@ class MainActivity : ComponentActivity() {
 
     private fun getPathFromFolderUri(uri: Uri): String {
         val decoded = Uri.decode(uri.toString())
-        val sd = decoded.substringAfter("tree/").substringBefore(':').takeIf { it != "primary" } ?: "emulated/0"
+        val sd = decoded.substringAfter("tree/").substringBefore(':').takeIf { it != "primary" }
+            ?: "emulated/0"
         val path = decoded.substringAfterLast(':')
         return "/storage/$sd/$path"
     }
