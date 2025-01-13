@@ -116,6 +116,14 @@ fun TrackSortButton(
             )
 
             SortButton(
+                isSelected = sort == TrackSort.TrackNumber,
+                text = context.resources.getString(R.string.track_number),
+                onClick = {
+                    onSortChange(TrackSort.TrackNumber)
+                }
+            )
+
+            SortButton(
                 isSelected = sort == TrackSort.DateModified,
                 text = context.resources.getString(R.string.date_modified),
                 onClick = {

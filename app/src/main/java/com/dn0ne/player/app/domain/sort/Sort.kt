@@ -8,7 +8,7 @@ enum class SortOrder {
 }
 
 enum class TrackSort {
-    Title, Album, Artist, Genre, Year, DateModified
+    Title, Album, Artist, Genre, Year, TrackNumber, DateModified
 }
 
 fun List<Track>.sortedBy(sort: TrackSort, order: SortOrder): List<Track> {
@@ -20,6 +20,7 @@ fun List<Track>.sortedBy(sort: TrackSort, order: SortOrder): List<Track> {
                 TrackSort.Artist -> sortedBy { it.artist }
                 TrackSort.Genre -> sortedBy { it.genre?.take(10) }
                 TrackSort.Year -> sortedBy { it.year }
+                TrackSort.TrackNumber -> sortedBy { it.trackNumber?.takeLast(2)?.toIntOrNull() }
                 TrackSort.DateModified -> sortedBy { it.dateModified }
             }
         }
@@ -31,6 +32,7 @@ fun List<Track>.sortedBy(sort: TrackSort, order: SortOrder): List<Track> {
                 TrackSort.Artist -> sortedByDescending { it.artist }
                 TrackSort.Genre -> sortedByDescending { it.genre?.take(10) }
                 TrackSort.Year -> sortedByDescending { it.year }
+                TrackSort.TrackNumber -> sortedByDescending { it.trackNumber?.takeLast(2)?.toIntOrNull() }
                 TrackSort.DateModified -> sortedByDescending { it.dateModified }
             }
         }
