@@ -229,7 +229,7 @@
 
     <!-- Playlists settings -->
     <string name="filter_instead_of_search">Фільтр замість пошуку</string>
-    <string name="filter_instead_of_search_explain">Замінити пошук у плейлисті на фильтр</string>
+    <string name="filter_instead_of_search_explain">Замінити пошук у плейлисті на фільтр</string>
     <string name="playlists_supporting_text">Поле пошуку</string>
     <string name="filter">Фільтр</string>
 
