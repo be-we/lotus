@@ -204,7 +204,7 @@
     <string name="theme_supporting_text">Appearance, palette</string>
     <string name="lyrics_supporting_text">Font settings, alignment</string>
     <string name="playback">Playback</string>
-    <string name="playback_supporting_text">Audio focus</string>
+    <string name="playback_supporting_text">Audio focus, equalizer</string>
     <string name="about_app">About app</string>
     <string name="about_explain">Version, repository, feedback</string>
     <string name="music_scan">Music scan</string>
@@ -238,6 +238,8 @@
     <string name="audio_focus">Audio focus</string>
     <string name="audio_focus_explain">Pause playback when another app needs to play audio</string>
     <string name="changes_will_take_effect_on_next_launch">Changes will take effect on next launch.</string>
+    <string name="equalizer">Equalizer</string>
+    <string name="equalizer_explain">Manually adjust sound</string>
 
     <!-- Playlists settings -->
     <string name="filter_instead_of_search">Filter instead of search</string>

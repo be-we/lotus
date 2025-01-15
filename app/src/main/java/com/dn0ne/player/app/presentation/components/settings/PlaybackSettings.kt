@@ -1,18 +1,24 @@
 package com.dn0ne.player.app.presentation.components.settings
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material.icons.rounded.Equalizer
 import androidx.compose.material.icons.rounded.FilterCenterFocus
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -25,6 +31,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import androidx.compose.ui.util.fastForEachIndexed
+import com.dn0ne.player.EqualizerController
 import com.dn0ne.player.R
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarController
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarEvent
@@ -35,6 +43,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun PlaybackSettings(
     settings: Settings,
+    equalizerController: EqualizerController,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -75,7 +84,7 @@ fun PlaybackSettings(
         },
         contentPadding = PaddingValues(horizontal = 28.dp),
         contentHorizontalAlignment = Alignment.CenterHorizontally,
-        contentVerticalArrangement = Arrangement.spacedBy(16.dp),
+        contentVerticalArrangement = Arrangement.spacedBy(20.dp),
         modifier = modifier
             .fillMaxSize()
             .safeDrawingPadding()
@@ -101,5 +110,67 @@ fun PlaybackSettings(
                 }
             }
         )
+
+        val isEqEnabled by equalizerController.isEqEnabled.collectAsState()
+        SettingSwitch(
+            title = context.resources.getString(R.string.equalizer),
+            supportingText = context.resources.getString(R.string.equalizer_explain),
+            icon = Icons.Rounded.Equalizer,
+            isChecked = isEqEnabled,
+            onCheckedChange = equalizerController::updateIsEqEnabled,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        AnimatedVisibility(
+            visible = isEqEnabled
+        ) {
+            EqualizerSettings(
+                equalizerController = equalizerController,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+fun EqualizerSettings(
+    equalizerController: EqualizerController,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val lowerLevelLimit by equalizerController.lowerLevelLimit.collectAsState()
+        val upperLevelLimit by equalizerController.upperLevelLimit.collectAsState()
+        val bandFrequencies by equalizerController.bandFrequencies.collectAsState()
+        val bandLevels by equalizerController.bandLevels.collectAsState()
+        bandLevels?.fastForEachIndexed { index, level ->
+            SettingSlider(
+                title = bandFrequencies?.get(index) ?: "",
+                value = level.toFloat(),
+                valueToShow = "${level / 100f}dB",
+                onValueChange = {
+                    bandLevels?.let { bandLevels ->
+                        equalizerController.updateBandLevels(
+                            bandLevels.toMutableList().apply {
+                                set(index, it.toInt().toShort())
+                            }
+                        )
+                    }
+                },
+                onValueChangeFinished = {},
+                valueRange = lowerLevelLimit.toFloat()..upperLevelLimit.toFloat(),
+            )
+        }
+
+        val context = LocalContext.current
+        FilledTonalButton(
+            onClick = equalizerController::resetBandLevels
+        ) {
+            Text(text = context.resources.getString(R.string.reset))
+        }
     }
 }

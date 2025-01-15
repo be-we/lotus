@@ -192,7 +192,7 @@
     <string name="theme_supporting_text">Оформление, палитра</string>
     <string name="lyrics_supporting_text">Параметры шрифта, выравнивание</string>
     <string name="playback">Воспроизведение</string>
-    <string name="playback_supporting_text">Фокус аудио</string>
+    <string name="playback_supporting_text">Фокус аудио, эквалайзер</string>
     <string name="about_app">О приложении</string>
     <string name="about_explain">Версия, репозиторий, обратная связь</string>
     <string name="music_scan">Сканирование музыки</string>
@@ -226,6 +226,8 @@
     <string name="audio_focus">Фокус аудио</string>
     <string name="audio_focus_explain">Приостановить воспроизведение, когда другому приложению нужно воспроизвести аудио</string>
     <string name="changes_will_take_effect_on_next_launch">Изменения вступят в силу со следующего запуска.</string>
+    <string name="equalizer">Эквалайзер</string>
+    <string name="equalizer_explain">Ручное регулирование звука</string>
 
     <!-- Playlists settings -->
     <string name="filter_instead_of_search">Фильтр вместо поиска</string>

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import com.dn0ne.player.EqualizerController
 import com.dn0ne.player.R
 import com.dn0ne.player.app.data.SavedPlayerState
 import com.dn0ne.player.app.data.remote.lyrics.LyricsProvider
@@ -56,13 +57,15 @@ class PlayerViewModel(
     private val lyricsRepository: LyricsRepository,
     private val playlistRepository: PlaylistRepository,
     private val unsupportedArtworkEditFormats: List<String>,
-    val settings: Settings
+    val settings: Settings,
+    private val equalizerController: EqualizerController
 ) : ViewModel() {
     var player: Player? = null
 
     private val _settingsSheetState = MutableStateFlow(
         SettingsSheetState(
-            settings = settings
+            settings = settings,
+            equalizerController = equalizerController
         )
     )
     val settingsSheetState = _settingsSheetState.stateIn(

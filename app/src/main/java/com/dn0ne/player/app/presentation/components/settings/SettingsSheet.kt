@@ -211,6 +211,7 @@ fun SettingsSheet(
                 composable<SettingsRoutes.Playback> {
                     PlaybackSettings(
                         settings = state.settings,
+                        equalizerController = state.equalizerController,
                         onBackClick = {
                             navController.navigateUp()
                         },
