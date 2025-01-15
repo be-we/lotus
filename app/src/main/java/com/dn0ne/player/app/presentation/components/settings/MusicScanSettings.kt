@@ -161,17 +161,6 @@ fun MusicScanSettingsContent(
                             }
                         )
 
-                        val isScanDownloadsFolderChecked by settings.scanDownloadFolder.collectAsState()
-                        SettingSwitch(
-                            title = context.resources.getString(R.string.scan_download_folder),
-                            supportingText = context.resources.getString(R.string.scan_download_folder_explain),
-                            icon = Icons.Rounded.DownloadForOffline,
-                            isChecked = isScanDownloadsFolderChecked,
-                            onCheckedChange = {
-                                settings.updateScanDownloadsFolder(it)
-                            }
-                        )
-
                         val includedScanFolders by settings.extraScanFolders.collectAsState()
                         SettingFoldersPicked(
                             title = context.resources.getString(R.string.extra_scan_folders),

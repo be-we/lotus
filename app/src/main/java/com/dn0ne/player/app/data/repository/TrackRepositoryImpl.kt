@@ -49,7 +49,6 @@ class TrackRepositoryImpl(
 
         val isScanModeInclusive = settings.isScanModeInclusive.value
         val scanMusicFolder = settings.scanMusicFolder.value
-        val scanDownloadFolder = settings.scanDownloadFolder.value
         val extraScanFolders = settings.extraScanFolders.value
         val excludedScanFolders = settings.excludedScanFolders.value
 
@@ -57,7 +56,6 @@ class TrackRepositoryImpl(
             "${MediaStore.Audio.Media.DURATION} >= ? AND " + (if (isScanModeInclusive) {
                 (listOf(
                     scanMusicFolder,
-                    scanDownloadFolder
                 ).filter { it } + extraScanFolders).joinToString(" OR ") {
                     "${MediaStore.Audio.Media.DATA} LIKE ?"
                 }
@@ -71,11 +69,6 @@ class TrackRepositoryImpl(
             if (isScanModeInclusive) {
                 if (scanMusicFolder) {
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)?.path?.let {
-                        add("$it/%")
-                    }
-                }
-                if (scanDownloadFolder) {
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)?.path?.let {
                         add("$it/%")
                     }
                 }

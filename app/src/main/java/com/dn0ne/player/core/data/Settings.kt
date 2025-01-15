@@ -288,18 +288,6 @@ class Settings(context: Context) {
         }
     }
 
-    private val _scanDownloadFolder = MutableStateFlow(
-        sharedPreferences.getBoolean(scanDownloadFolderKey, true)
-    )
-    val scanDownloadFolder = _scanDownloadFolder.asStateFlow()
-    fun updateScanDownloadsFolder(value: Boolean) {
-        _scanDownloadFolder.update { value }
-        with(sharedPreferences.edit()) {
-            putBoolean(scanDownloadFolderKey, value)
-            apply()
-        }
-    }
-
     private val _extraScanFolders = MutableStateFlow(
         sharedPreferences.getStringSet(extraScanFoldersKey, setOf<String>()) ?: setOf<String>()
     )
