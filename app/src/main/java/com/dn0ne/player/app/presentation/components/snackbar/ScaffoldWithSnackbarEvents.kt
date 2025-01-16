@@ -30,7 +30,7 @@ fun ScaffoldWithSnackbarEvents(
 
             val result = snackbarHostState.showSnackbar(
                 message = context.resources.getString(event.message),
-                actionLabel = event.action?.name
+                actionLabel = event.action?.let { context.resources.getString(it.name) }
             )
 
             if (result == SnackbarResult.ActionPerformed) {
