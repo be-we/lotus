@@ -132,6 +132,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+        var shouldScanPickedFolder = false
         val pickedFolderChannel = Channel<String>()
         val pickFolder =
             registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
@@ -175,7 +176,8 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 },
-                                onFolderPick = {
+                                onFolderPick = { shouldScan ->
+                                    shouldScanPickedFolder = shouldScan
                                     pickFolder.launch(null)
                                 },
                                 onFinishSetupClick = {
@@ -190,6 +192,13 @@ class MainActivity : ComponentActivity() {
                             )
 
                             ObserveAsEvents(pickedFolderChannel.receiveAsFlow()) { path ->
+                                if (shouldScanPickedFolder) {
+                                    lifecycleScope.launch {
+                                        get<MusicScanner>().scanFolder(path)
+                                        shouldScanPickedFolder = false
+                                    }
+                                    return@ObserveAsEvents
+                                }
                                 setupViewModel.onFolderPicked(path)
                             }
                         }
@@ -239,7 +248,8 @@ class MainActivity : ComponentActivity() {
                                             )
                                         )
                                     },
-                                    onFolderPick = {
+                                    onFolderPick = { shouldScan ->
+                                        shouldScanPickedFolder = shouldScan
                                         pickFolder.launch(null)
                                     },
                                     modifier = Modifier.fillMaxSize()
@@ -298,6 +308,13 @@ class MainActivity : ComponentActivity() {
                             }
 
                             ObserveAsEvents(pickedFolderChannel.receiveAsFlow()) { path ->
+                                if (shouldScanPickedFolder) {
+                                    lifecycleScope.launch {
+                                        get<MusicScanner>().scanFolder(path)
+                                        shouldScanPickedFolder = false
+                                    }
+                                    return@ObserveAsEvents
+                                }
                                 viewModel.onFolderPicked(path)
                             }
 

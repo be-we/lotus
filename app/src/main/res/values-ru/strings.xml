@@ -273,6 +273,7 @@
     <string name="scan_on_app_launch">Сканирование при запуске</string>
     <string name="scan_on_app_launch_explain">Сканировать аудио файлы при запуске приложения</string>
     <string name="scan">Сканировать</string>
+    <string name="scan_folder">Сканировать папку</string>
     <string name="failed_to_scan">Сканирование не удалось</string>
 
     <!-- About screen -->

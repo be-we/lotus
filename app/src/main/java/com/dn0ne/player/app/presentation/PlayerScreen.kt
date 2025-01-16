@@ -109,7 +109,7 @@ import kotlinx.serialization.Serializable
 fun PlayerScreen(
     viewModel: PlayerViewModel,
     onCoverArtPick: () -> Unit,
-    onFolderPick: () -> Unit,
+    onFolderPick: (scan: Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val useDynamicColor by viewModel.settings.useDynamicColor.collectAsState()

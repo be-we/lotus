@@ -55,7 +55,7 @@ import kotlinx.serialization.Serializable
 @Composable
 fun SettingsSheet(
     state: SettingsSheetState,
-    onFolderPick: () -> Unit,
+    onFolderPick: (scan: Boolean) -> Unit,
     onScanFoldersClick: () -> Unit,
     onCloseClick: () -> Unit,
     dominantColorState: DominantColorState<ImageBitmap>,

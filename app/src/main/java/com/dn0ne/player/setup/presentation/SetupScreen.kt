@@ -21,7 +21,7 @@ import com.dn0ne.player.setup.presentation.components.WelcomePage
 fun SetupScreen(
     viewModel: SetupViewModel,
     requestAudioPermission: () -> Unit,
-    onFolderPick: () -> Unit,
+    onFolderPick: (scan: Boolean) -> Unit,
     onFinishSetupClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {

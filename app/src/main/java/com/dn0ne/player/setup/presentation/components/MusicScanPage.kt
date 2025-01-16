@@ -26,7 +26,7 @@ fun MusicScanPage(
     musicScanner: MusicScanner,
     foldersWithAudio: Set<String>,
     onScanFoldersClick: () -> Unit,
-    onFolderPick: () -> Unit,
+    onFolderPick: (scan: Boolean) -> Unit,
     onNextClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {

@@ -285,6 +285,7 @@
     <string name="scan_on_app_launch">Scan on app launch</string>
     <string name="scan_on_app_launch_explain">Scan audio files at launch</string>
     <string name="scan">Scan</string>
+    <string name="scan_folder">Scan folder</string>
     <string name="failed_to_scan">Failed to scan</string>
 
     <!-- About screen -->

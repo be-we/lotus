@@ -8,11 +8,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
@@ -51,7 +54,7 @@ fun MusicScanSettings(
     settings: Settings,
     musicScanner: MusicScanner,
     foldersWithAudio: Set<String>,
-    onFolderPick: () -> Unit,
+    onFolderPick: (scan: Boolean) -> Unit,
     onScanFoldersClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -113,7 +116,7 @@ fun MusicScanSettingsContent(
     settings: Settings,
     musicScanner: MusicScanner,
     foldersWithAudio: Set<String>,
-    onFolderPick: () -> Unit,
+    onFolderPick: (scan: Boolean) -> Unit,
     onScanFoldersClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -189,7 +192,7 @@ fun MusicScanSettingsContent(
                             addFolderContentDescription = context.resources.getString(R.string.pick_folder_to_include_in_scanning),
                             removeFolderContentDescription = context.resources.getString(R.string.remove_folder_from_included_in_scanning),
                             onPickFolderClick = {
-                                onFolderPick()
+                                onFolderPick(false)
                             },
                             onRemoveFolderClick = {
                                 settings.updateExtraScanFolders(
@@ -220,7 +223,7 @@ fun MusicScanSettingsContent(
                             addFolderContentDescription = context.resources.getString(R.string.pick_folder_to_exclude_from_scanning),
                             removeFolderContentDescription = context.resources.getString(R.string.remove_folder_from_excluded_from_scanning),
                             onPickFolderClick = {
-                                onFolderPick()
+                                onFolderPick(false)
                             },
                             onRemoveFolderClick = {
                                 settings.updateExcludedScanFolders(
@@ -265,18 +268,34 @@ fun MusicScanSettingsContent(
                 contentAlignment = Alignment.Center
             ) {
                 when(state) {
-                    true -> LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                    false -> FilledTonalButton(
-                        onClick = {
-                            coroutineScope.launch {
-                                isScanInProgress = true
-                                musicScanner.scanMedia {
-                                    isScanInProgress = false
+                    true -> {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    }
+                    false -> {
+                        Row {
+                            FilledTonalButton(
+                                onClick = {
+                                    coroutineScope.launch {
+                                        isScanInProgress = true
+                                        musicScanner.scanMedia {
+                                            isScanInProgress = false
+                                        }
+                                    }
                                 }
+                            ) {
+                                Text(text = context.resources.getString(R.string.scan))
+                            }
+
+                            Spacer(modifier = Modifier.width(16.dp))
+
+                            FilledTonalButton(
+                                onClick = {
+                                    onFolderPick(true)
+                                }
+                            ) {
+                                Text(text = context.resources.getString(R.string.scan_folder))
                             }
                         }
-                    ) {
-                        Text(text = context.resources.getString(R.string.scan))
                     }
                 }
             }

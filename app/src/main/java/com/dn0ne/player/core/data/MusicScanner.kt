@@ -18,6 +18,8 @@ class MusicScanner(
     private val context: Context,
     private val settings: Settings
 ) {
+    private val allowedExtensions = setOf("mp3", "wav", "aac", "flac", "ogg", "m4a")
+
     suspend fun scanMedia(showMessages: Boolean = true, onComplete: () -> Unit = {}) {
         withContext(Dispatchers.IO) {
             try {
@@ -40,7 +42,6 @@ class MusicScanner(
 
                 val excludedFromScan = settings.excludedScanFolders.value
 
-                val allowedExtensions = setOf("mp3", "wav", "aac", "flac", "ogg", "m4a")
 
                 val paths = directoriesToScan.flatMap { directory ->
                     directory.walkTopDown()
@@ -84,7 +85,10 @@ class MusicScanner(
                                 val clipboardManager =
                                     context.getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager
                                 val clip =
-                                    ClipData.newPlainText(null, e.message + "\n" + e.stackTrace.joinToString("\n"))
+                                    ClipData.newPlainText(
+                                        null,
+                                        e.message + "\n" + e.stackTrace.joinToString("\n")
+                                    )
                                 clipboardManager?.setPrimaryClip(clip)
                             }
                         )
@@ -92,6 +96,61 @@ class MusicScanner(
                 )
             } catch (e: java.lang.Exception) {
                 if (!showMessages) return@withContext
+                SnackbarController.sendEvent(
+                    SnackbarEvent(
+                        message = R.string.failed_to_scan,
+                        action = SnackbarAction(
+                            name = R.string.copy_error,
+                            action = {
+                                val clipboardManager =
+                                    context.getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager
+                                val clip =
+                                    ClipData.newPlainText(null, e.stackTrace.joinToString("\n"))
+                                clipboardManager?.setPrimaryClip(clip)
+                            }
+                        )
+                    )
+                )
+            }
+            onComplete()
+        }
+    }
+
+    suspend fun scanFolder(path: String, onComplete: () -> Unit = {}) {
+        withContext(Dispatchers.IO) {
+            try {
+                MediaScannerConnection.scanFile(
+                    context,
+                    arrayOf(path),
+                    arrayOf("audio/*"),
+                    null
+                )
+
+                SnackbarController.sendEvent(
+                    event = SnackbarEvent(
+                        message = R.string.scanned_successfully
+                    )
+                )
+            } catch (e: Exception) {
+                SnackbarController.sendEvent(
+                    SnackbarEvent(
+                        message = R.string.failed_to_scan,
+                        action = SnackbarAction(
+                            name = R.string.copy_error,
+                            action = {
+                                val clipboardManager =
+                                    context.getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager
+                                val clip =
+                                    ClipData.newPlainText(
+                                        null,
+                                        e.message + "\n" + e.stackTrace.joinToString("\n")
+                                    )
+                                clipboardManager?.setPrimaryClip(clip)
+                            }
+                        )
+                    )
+                )
+            } catch (e: java.lang.Exception) {
                 SnackbarController.sendEvent(
                     SnackbarEvent(
                         message = R.string.failed_to_scan,
