@@ -16,6 +16,7 @@ val setupModule = module {
         SetupViewModel(
             setupState = get(),
             settings = get(),
+            musicScanner = get(),
             getFoldersWithAudio = get<TrackRepository>()::getFoldersWithAudio
         )
     }

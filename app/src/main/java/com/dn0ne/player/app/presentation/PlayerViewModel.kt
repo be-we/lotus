@@ -33,6 +33,7 @@ import com.dn0ne.player.app.presentation.components.trackinfo.ChangesSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.InfoSearchSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.ManualInfoEditSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheetState
+import com.dn0ne.player.core.data.MusicScanner
 import com.dn0ne.player.core.data.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -58,6 +59,7 @@ class PlayerViewModel(
     private val playlistRepository: PlaylistRepository,
     private val unsupportedArtworkEditFormats: List<String>,
     val settings: Settings,
+    private val musicScanner: MusicScanner,
     private val equalizerController: EqualizerController
 ) : ViewModel() {
     var player: Player? = null
@@ -65,6 +67,7 @@ class PlayerViewModel(
     private val _settingsSheetState = MutableStateFlow(
         SettingsSheetState(
             settings = settings,
+            musicScanner = musicScanner,
             equalizerController = equalizerController
         )
     )

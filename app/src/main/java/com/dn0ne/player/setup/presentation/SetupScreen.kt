@@ -82,6 +82,7 @@ fun SetupScreen(
             val foldersWithAudio by viewModel.foldersWithAudio.collectAsState()
             MusicScanPage(
                 settings = viewModel.settings,
+                musicScanner = viewModel.musicScanner,
                 onFolderPick = onFolderPick,
                 foldersWithAudio = foldersWithAudio,
                 onScanFoldersClick = viewModel::onScanFoldersClick,

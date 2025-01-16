@@ -5,28 +5,34 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
-import androidx.compose.material.icons.rounded.DownloadForOffline
 import androidx.compose.material.icons.rounded.LibraryMusic
 import androidx.compose.material.icons.rounded.LocationSearching
+import androidx.compose.material.icons.rounded.Radar
 import androidx.compose.material.icons.rounded.Remove
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,11 +42,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.dn0ne.player.R
 import com.dn0ne.player.app.presentation.components.topbar.ColumnWithCollapsibleTopBar
+import com.dn0ne.player.core.data.MusicScanner
 import com.dn0ne.player.core.data.Settings
+import kotlinx.coroutines.launch
 
 @Composable
 fun MusicScanSettings(
     settings: Settings,
+    musicScanner: MusicScanner,
     foldersWithAudio: Set<String>,
     onFolderPick: () -> Unit,
     onScanFoldersClick: () -> Unit,
@@ -91,6 +100,7 @@ fun MusicScanSettings(
     ) {
         MusicScanSettingsContent(
             settings = settings,
+            musicScanner = musicScanner,
             onFolderPick = onFolderPick,
             foldersWithAudio = foldersWithAudio,
             onScanFoldersClick = onScanFoldersClick
@@ -101,6 +111,7 @@ fun MusicScanSettings(
 @Composable
 fun MusicScanSettingsContent(
     settings: Settings,
+    musicScanner: MusicScanner,
     foldersWithAudio: Set<String>,
     onFolderPick: () -> Unit,
     onScanFoldersClick: () -> Unit,
@@ -110,8 +121,18 @@ fun MusicScanSettingsContent(
         verticalArrangement = Arrangement.spacedBy(20.dp),
         modifier = modifier
     ) {
-        val isScanModeInclusive by settings.isScanModeInclusive.collectAsState()
         val context = LocalContext.current
+
+        val scanOnAppLaunch by settings.scanOnAppLaunch.collectAsState()
+        SettingSwitch(
+            title = context.resources.getString(R.string.scan_on_app_launch),
+            supportingText = context.resources.getString(R.string.scan_on_app_launch_explain),
+            icon = Icons.Rounded.Radar,
+            isChecked = scanOnAppLaunch,
+            onCheckedChange = settings::updateScanOnAppLaunch
+        )
+
+        val isScanModeInclusive by settings.isScanModeInclusive.collectAsState()
         val scanModeOptions = remember {
             listOf(
                 SettingSegmentOption(
@@ -220,6 +241,42 @@ fun MusicScanSettingsContent(
                             scanContentDescription = context.resources.getString(R.string.scan_for_folders_with_audio),
                             modifier = Modifier.fillMaxWidth()
                         )
+                    }
+                }
+            }
+        }
+
+        var isScanInProgress by remember {
+            mutableStateOf(false)
+        }
+        val coroutineScope = rememberCoroutineScope()
+        AnimatedContent(
+            targetState = isScanInProgress,
+            label = "scan-button-animation",
+            transitionSpec = {
+                fadeIn() togetherWith fadeOut()
+            }
+        ) { state ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .padding(horizontal = 28.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                when(state) {
+                    true -> LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    false -> FilledTonalButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                isScanInProgress = true
+                                musicScanner.scanMedia {
+                                    isScanInProgress = false
+                                }
+                            }
+                        }
+                    ) {
+                        Text(text = context.resources.getString(R.string.scan))
                     }
                 }
             }

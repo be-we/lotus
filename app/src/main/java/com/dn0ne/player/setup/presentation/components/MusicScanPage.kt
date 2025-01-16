@@ -17,11 +17,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.dn0ne.player.R
 import com.dn0ne.player.app.presentation.components.settings.MusicScanSettingsContent
+import com.dn0ne.player.core.data.MusicScanner
 import com.dn0ne.player.core.data.Settings
 
 @Composable
 fun MusicScanPage(
     settings: Settings,
+    musicScanner: MusicScanner,
     foldersWithAudio: Set<String>,
     onScanFoldersClick: () -> Unit,
     onFolderPick: () -> Unit,
@@ -48,6 +50,7 @@ fun MusicScanPage(
 
             MusicScanSettingsContent(
                 settings = settings,
+                musicScanner = musicScanner,
                 foldersWithAudio = foldersWithAudio,
                 onFolderPick = onFolderPick,
                 onScanFoldersClick = onScanFoldersClick

@@ -113,6 +113,7 @@ val playerModule = module {
             playlistRepository = get(),
             unsupportedArtworkEditFormats = get<MetadataWriter>().unsupportedArtworkEditFormats,
             settings = get(),
+            musicScanner = get(),
             equalizerController = get()
         )
     }

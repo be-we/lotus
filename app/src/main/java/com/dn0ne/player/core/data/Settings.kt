@@ -43,9 +43,9 @@ class Settings(context: Context) {
 
     private val isScanModeInclusiveKey = "is-scan-mode-inclusive"
     private val scanMusicFolderKey = "scan-music-in-music"
-    private val scanDownloadFolderKey = "scan-music-in-downloads"
     private val extraScanFoldersKey = "extra-scan-folders"
     private val excludedScanFoldersKey = "excluded-scan-folders"
+    private val scanOnAppLaunchKey = "scan-on-app-launch"
 
     var handleAudioFocus: Boolean
         get() = sharedPreferences.getBoolean(handleAudioFocusKey, true)
@@ -308,6 +308,18 @@ class Settings(context: Context) {
         _excludedScanFolders.update { value }
         with(sharedPreferences.edit()) {
             putStringSet(excludedScanFoldersKey, value)
+            apply()
+        }
+    }
+
+    private val _scanOnAppLaunch = MutableStateFlow(
+        sharedPreferences.getBoolean(scanOnAppLaunchKey, true)
+    )
+    val scanOnAppLaunch = _scanOnAppLaunch.asStateFlow()
+    fun updateScanOnAppLaunch(value: Boolean) {
+        _scanOnAppLaunch.update { value }
+        with(sharedPreferences.edit()) {
+            putBoolean(scanOnAppLaunchKey, value)
             apply()
         }
     }

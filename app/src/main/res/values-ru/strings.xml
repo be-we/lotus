@@ -268,6 +268,12 @@
     <string name="pick_folder_to_exclude_from_scanning">Выберите папку, которую нужно исключить из сканирования</string>
     <string name="remove_folder_from_excluded_from_scanning">Удаление папки из исключенных из сканирования</string>
     <string name="exclude_folder_from_scanning">Исключить папку из сканирования</string>
+    <string name="nothing_to_scan">Сканировать нечего</string>
+    <string name="scanned_successfully">Сканирование успешно завершено</string>
+    <string name="scan_on_app_launch">Сканирование при запуске</string>
+    <string name="scan_on_app_launch_explain">Сканировать аудио файлы при запуске приложения</string>
+    <string name="scan">Сканировать</string>
+    <string name="failed_to_scan">Сканирование не удалось</string>
 
     <!-- About screen -->
     <string name="repo">Репозиторий</string>
@@ -277,4 +283,6 @@
 
     <!-- Open a track with "Open with..." dialog -->
     <string name="track_is_not_found_in_media_store">К сожалению, этот трек недоступен для плеера. Возможно, это потому, что он находится в папке, не включенной в сканирование.</string>
+
+    <string name="copy_error">Скопировать ошибку</string>
 </resources>

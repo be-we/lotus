@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dn0ne.player.core.data.MusicScanner
 import com.dn0ne.player.core.data.Settings
 import com.dn0ne.player.setup.data.SetupState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +16,7 @@ class SetupViewModel(
     private val setupState: SetupState,
     private val getFoldersWithAudio: () -> Set<String>,
     val settings: Settings,
+    val musicScanner: MusicScanner
 ) : ViewModel() {
     val startDestination: SetupPage by mutableStateOf(
         if (!setupState.isComplete) {

@@ -8,7 +8,6 @@ import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -48,6 +47,7 @@ import com.dn0ne.player.app.presentation.components.snackbar.ObserveAsEvents
 import com.dn0ne.player.app.presentation.components.snackbar.ScaffoldWithSnackbarEvents
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarController
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarEvent
+import com.dn0ne.player.core.data.MusicScanner
 import com.dn0ne.player.core.presentation.Routes
 import com.dn0ne.player.setup.data.SetupState
 import com.dn0ne.player.setup.presentation.SetupScreen
@@ -301,6 +301,12 @@ class MainActivity : ComponentActivity() {
                                 viewModel.onFolderPicked(path)
                             }
 
+                            if (viewModel.settings.scanOnAppLaunch.value) {
+                                lifecycleScope.launch {
+                                    get<MusicScanner>().scanMedia(showMessages = false)
+                                }
+                            }
+
                             if (intent.action == Intent.ACTION_VIEW) {
                                 val trackUri = intent.data
                                 trackUri?.let { uri ->
@@ -335,7 +341,7 @@ class MainActivity : ComponentActivity() {
                 MediaScannerConnection.scanFile(
                     this@MainActivity,
                     arrayOf(uri.path),
-                    null,
+                    arrayOf("audio/*"),
                     object : MediaScannerConnection.OnScanCompletedListener {
                         override fun onScanCompleted(
                             p0: String?,
@@ -366,7 +372,7 @@ class MainActivity : ComponentActivity() {
 
     private fun goToAppSettings() {
         val intent = Intent(
-            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+            android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
             Uri.fromParts("package", packageName, null)
         )
 

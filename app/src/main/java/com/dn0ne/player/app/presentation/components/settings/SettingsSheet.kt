@@ -222,6 +222,7 @@ fun SettingsSheet(
                 composable<SettingsRoutes.MusicScan> {
                     MusicScanSettings(
                         settings = state.settings,
+                        musicScanner = state.musicScanner,
                         foldersWithAudio = state.foldersWithAudio,
                         onFolderPick = onFolderPick,
                         onScanFoldersClick = onScanFoldersClick,
