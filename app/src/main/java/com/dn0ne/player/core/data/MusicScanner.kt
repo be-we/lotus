@@ -74,7 +74,6 @@ class MusicScanner(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
                 if (!showMessages) return@withContext
                 SnackbarController.sendEvent(
                     SnackbarEvent(
@@ -92,7 +91,6 @@ class MusicScanner(
                     )
                 )
             } catch (e: java.lang.Exception) {
-                e.printStackTrace()
                 if (!showMessages) return@withContext
                 SnackbarController.sendEvent(
                     SnackbarEvent(
