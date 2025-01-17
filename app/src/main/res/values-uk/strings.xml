@@ -250,31 +250,33 @@
     <string name="reset">Зкинути</string>
 
     <!-- Music scan settings -->
-    <string name="scan_music_folder">Сканувати папку Музика</string>
-    <string name="scan_music_folder_explain">Шукати музику в папці "Музика" за замовчуванням</string>
-    <string name="scan_download_folder">Сканувати папку Завантаження</string>
-    <string name="scan_download_folder_explain">Шукати музику в папці "Завантаження" за замовчуванням</string>
-    <string name="extra_scan_folders">Дод. папки для сканування</string>
+    <string name="include_music_folder">Включити папку Музика</string>
+    <string name="include_music_folder_explain">Показувати музику з папки "Музика" за замовчуванням</string>
+    <string name="included_folders">Включені папки</string>
     <string name="pick_folder_to_include_in_scanning">Виберіть папку для включення до сканування</string>
     <string name="remove_folder_from_included_in_scanning">Видалити папку з числа включених до сканування</string>
     <string name="folders_with_audio">Папки з аудіо</string>
     <string name="include_folder_in_scanning">Включити папку до сканування</string>
     <string name="scan_for_folders_with_audio">Шукати папки з аудіофайлами</string>
-    <string name="scan_mode">Режим сканування</string>
-    <string name="scan_mode_explain">Шукати тільки у вказаних папках або всюди, крім них</string>
+    <string name="filter_mode">Режим фільтру</string>
+    <string name="filter_mode_explain">Показувати музику з вказаних папок або звідусіль, окрім них</string>
     <string name="inclusive">Включення</string>
     <string name="exclusive">Виключення</string>
     <string name="excluded_folders">Виключені папки</string>
     <string name="pick_folder_to_exclude_from_scanning">Виберіть папку, яку потрібно виключити зі сканування</string>
     <string name="remove_folder_from_excluded_from_scanning">Видалити папку з виключених для сканування</string>
     <string name="exclude_folder_from_scanning">Виключити папку зі сканування</string>
-    <string name="nothing_to_scan">Сканувати нічого</string>
     <string name="scanned_successfully">Сканування успішно завершено</string>
-    <string name="scan_on_app_launch">Сканувати при запуску</string>
-    <string name="scan_on_app_launch_explain">Сканувати аудіо файли при запуску додатку</string>
-    <string name="scan">Сканувати</string>
-    <string name="scan_folder">Сканувати папку</string>
+    <string name="refresh_on_app_launch">Оновлювати при запуску</string>
+    <string name="refresh_on_app_launch_explain">Оновлювати дані в MediaStore при запуску додатку</string>
+    <string name="refresh">Оновити MediaStore</string>
+    <string name="refresh_explain">Оновити дані, які вже є в MediaStore</string>
+    <string name="scan_folder">Відсканувати папку</string>
+    <string name="scan_folder_explain">Відсканувати папку, щоб додати нові дані до MediaStore</string>
     <string name="failed_to_scan">Сканування не вдалося</string>
+    <string name="nothing_to_refresh">Оновлювати нічого</string>
+    <string name="refreshed_successfully">Успішно оновлено</string>
+    <string name="failed_to_refresh">Не вадлося оновити</string>
 
     <!-- About screen -->
     <string name="repo">Репозиторій</string>

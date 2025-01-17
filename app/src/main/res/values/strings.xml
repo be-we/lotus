@@ -262,31 +262,33 @@
     <string name="reset">Reset</string>
 
     <!-- Music scan settings -->
-    <string name="scan_music_folder">Scan Music folder</string>
-    <string name="scan_music_folder_explain">Look for music in default Music folder</string>
-    <string name="scan_download_folder">Scan Download folder</string>
-    <string name="scan_download_folder_explain">Look for music in default Download folder</string>
-    <string name="extra_scan_folders">Extra scan folders</string>
+    <string name="include_music_folder">Include Music folder</string>
+    <string name="include_music_folder_explain">Show music from default Music folder</string>
+    <string name="included_folders">Included folders</string>
     <string name="pick_folder_to_include_in_scanning">Pick folder to include in scanning</string>
     <string name="remove_folder_from_included_in_scanning">Remove folder from included in scanning</string>
     <string name="folders_with_audio">Folders with audio</string>
     <string name="include_folder_in_scanning">Include folder in scanning</string>
     <string name="scan_for_folders_with_audio">Scan for folders with audio</string>
-    <string name="scan_mode">Scan mode</string>
-    <string name="scan_mode_explain">Search only in specified folders or everywhere except them</string>
+    <string name="filter_mode">Filter mode</string>
+    <string name="filter_mode_explain">Show music from specified folders or from everywhere but them</string>
     <string name="inclusive">Inclusive</string>
     <string name="exclusive">Exclusive</string>
     <string name="excluded_folders">Excluded folders</string>
     <string name="pick_folder_to_exclude_from_scanning">Pick folder to exclude from scanning</string>
     <string name="remove_folder_from_excluded_from_scanning">Remove folder from excluded from scanning</string>
     <string name="exclude_folder_from_scanning">Exclude folder from scanning</string>
-    <string name="nothing_to_scan">Nothing to scan</string>
     <string name="scanned_successfully">Scanned successfully</string>
-    <string name="scan_on_app_launch">Scan on app launch</string>
-    <string name="scan_on_app_launch_explain">Scan audio files at launch</string>
-    <string name="scan">Scan</string>
+    <string name="refresh_on_app_launch">Refresh on app launch</string>
+    <string name="refresh_on_app_launch_explain">Refresh data in MediaStore on launch</string>
+    <string name="refresh">Refresh MediaStore</string>
+    <string name="refresh_explain">Refresh data already present in MediaStore</string>
     <string name="scan_folder">Scan folder</string>
+    <string name="scan_folder_explain">Scan audio folder to include new data in MediaStore</string>
     <string name="failed_to_scan">Failed to scan</string>
+    <string name="nothing_to_refresh">Nothing to refresh</string>
+    <string name="refreshed_successfully">Successfully refreshed</string>
+    <string name="failed_to_refresh">Failed to refresh</string>
 
     <!-- About screen -->
     <string name="repo">Repository</string>

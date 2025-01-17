@@ -250,31 +250,33 @@
     <string name="reset">Сбросить</string>
 
     <!-- Music scan settings -->
-    <string name="scan_music_folder">Сканировать папку Музыка</string>
-    <string name="scan_music_folder_explain">Искать музыку в папке "Музыка" по умолчанию</string>
-    <string name="scan_download_folder">Сканировать папку Загрузки</string>
-    <string name="scan_download_folder_explain">Искать музыку в папке "Загрузки" по умолчанию</string>
-    <string name="extra_scan_folders">Доп. папки для сканирования</string>
+    <string name="include_music_folder">Включить папку Музыка</string>
+    <string name="include_music_folder_explain">Показывать музыку из папки "Музыка" по умолчанию</string>
+    <string name="included_folders">Включенные папки</string>
     <string name="pick_folder_to_include_in_scanning">Выберите папку, которую нужно включить в сканирование</string>
     <string name="remove_folder_from_included_in_scanning">Удалить папку из числа включенных в сканирование</string>
     <string name="folders_with_audio">Папки с аудио</string>
     <string name="include_folder_in_scanning">Включить папку в сканирование</string>
     <string name="scan_for_folders_with_audio">Найти папки со звуком</string>
-    <string name="scan_mode">Режим сканирования</string>
-    <string name="scan_mode_explain">Искать только в указанных папках или везде, кроме них</string>
+    <string name="filter_mode">Режим фильтра</string>
+    <string name="filter_mode_explain">Показывать музыку из указанных папок или из всех кроме них</string>
     <string name="inclusive">Включение</string>
     <string name="exclusive">Исключение</string>
     <string name="excluded_folders">Исключенные папки</string>
     <string name="pick_folder_to_exclude_from_scanning">Выберите папку, которую нужно исключить из сканирования</string>
     <string name="remove_folder_from_excluded_from_scanning">Удаление папки из исключенных из сканирования</string>
     <string name="exclude_folder_from_scanning">Исключить папку из сканирования</string>
-    <string name="nothing_to_scan">Сканировать нечего</string>
     <string name="scanned_successfully">Сканирование успешно завершено</string>
-    <string name="scan_on_app_launch">Сканирование при запуске</string>
-    <string name="scan_on_app_launch_explain">Сканировать аудио файлы при запуске приложения</string>
-    <string name="scan">Сканировать</string>
-    <string name="scan_folder">Сканировать папку</string>
+    <string name="refresh_on_app_launch">Обновление при запуске</string>
+    <string name="refresh_on_app_launch_explain">Обновлять данные в MediaStore при запуске приложения</string>
+    <string name="refresh">Обновить MediaStore</string>
+    <string name="refresh_explain">Обновить данные, уже имеющиеся в MediaStore</string>
+    <string name="scan_folder">Отсканировать папку</string>
+    <string name="scan_folder_explain">Отсканировать папку для включения новых данных в MediaStore</string>
     <string name="failed_to_scan">Сканирование не удалось</string>
+    <string name="nothing_to_refresh">Обновлять нечего</string>
+    <string name="refreshed_successfully">Успешно обновлено</string>
+    <string name="failed_to_refresh">Не удалось обновить</string>
 
     <!-- About screen -->
     <string name="repo">Репозиторий</string>

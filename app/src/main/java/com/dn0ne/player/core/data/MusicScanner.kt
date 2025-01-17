@@ -20,7 +20,7 @@ class MusicScanner(
 ) {
     private val allowedExtensions = setOf("mp3", "wav", "aac", "flac", "ogg", "m4a")
 
-    suspend fun scanMedia(showMessages: Boolean = true, onComplete: () -> Unit = {}) {
+    suspend fun refreshMedia(showMessages: Boolean = true, onComplete: () -> Unit = {}) {
         withContext(Dispatchers.IO) {
             try {
                 val isScanModeInclusive = settings.isScanModeInclusive.value
@@ -54,7 +54,7 @@ class MusicScanner(
                     if (showMessages) {
                         SnackbarController.sendEvent(
                             event = SnackbarEvent(
-                                message = R.string.nothing_to_scan
+                                message = R.string.nothing_to_refresh
                             )
                         )
                     }
@@ -69,7 +69,7 @@ class MusicScanner(
                     if (showMessages) {
                         SnackbarController.sendEvent(
                             event = SnackbarEvent(
-                                message = R.string.scanned_successfully
+                                message = R.string.refreshed_successfully
                             )
                         )
                     }
@@ -78,7 +78,7 @@ class MusicScanner(
                 if (!showMessages) return@withContext
                 SnackbarController.sendEvent(
                     SnackbarEvent(
-                        message = R.string.failed_to_scan,
+                        message = R.string.failed_to_refresh,
                         action = SnackbarAction(
                             name = R.string.copy_error,
                             action = {
@@ -98,7 +98,7 @@ class MusicScanner(
                 if (!showMessages) return@withContext
                 SnackbarController.sendEvent(
                     SnackbarEvent(
-                        message = R.string.failed_to_scan,
+                        message = R.string.failed_to_refresh,
                         action = SnackbarAction(
                             name = R.string.copy_error,
                             action = {
