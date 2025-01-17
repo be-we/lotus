@@ -5,35 +5,32 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material.icons.rounded.Autorenew
+import androidx.compose.material.icons.rounded.Folder
 import androidx.compose.material.icons.rounded.LibraryMusic
 import androidx.compose.material.icons.rounded.LocationSearching
 import androidx.compose.material.icons.rounded.Radar
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Remove
-import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material.icons.rounded.Storage
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -125,16 +122,6 @@ fun MusicScanSettingsContent(
         modifier = modifier
     ) {
         val context = LocalContext.current
-
-        val scanOnAppLaunch by settings.scanOnAppLaunch.collectAsState()
-        SettingSwitch(
-            title = context.resources.getString(R.string.scan_on_app_launch),
-            supportingText = context.resources.getString(R.string.scan_on_app_launch_explain),
-            icon = Icons.Rounded.Radar,
-            isChecked = scanOnAppLaunch,
-            onCheckedChange = settings::updateScanOnAppLaunch
-        )
-
         val isScanModeInclusive by settings.isScanModeInclusive.collectAsState()
         val scanModeOptions = remember {
             listOf(
@@ -155,8 +142,8 @@ fun MusicScanSettingsContent(
             )
         }
         SettingSegmentOptions(
-            title = context.resources.getString(R.string.scan_mode),
-            supportingText = context.resources.getString(R.string.scan_mode_explain),
+            title = context.resources.getString(R.string.filter_mode),
+            supportingText = context.resources.getString(R.string.filter_mode_explain),
             icon = Icons.Rounded.LocationSearching,
             options = scanModeOptions,
             selectedOptionIndex = if (isScanModeInclusive) 0 else 1,
@@ -176,8 +163,8 @@ fun MusicScanSettingsContent(
                     true -> {
                         val isScanMusicFolderChecked by settings.scanMusicFolder.collectAsState()
                         SettingSwitch(
-                            title = context.resources.getString(R.string.scan_music_folder),
-                            supportingText = context.resources.getString(R.string.scan_music_folder_explain),
+                            title = context.resources.getString(R.string.include_music_folder),
+                            supportingText = context.resources.getString(R.string.include_music_folder_explain),
                             icon = Icons.Rounded.LibraryMusic,
                             isChecked = isScanMusicFolderChecked,
                             onCheckedChange = {
@@ -187,7 +174,7 @@ fun MusicScanSettingsContent(
 
                         val includedScanFolders by settings.extraScanFolders.collectAsState()
                         SettingFoldersPicked(
-                            title = context.resources.getString(R.string.extra_scan_folders),
+                            title = context.resources.getString(R.string.included_folders),
                             paths = includedScanFolders.toList(),
                             addFolderContentDescription = context.resources.getString(R.string.pick_folder_to_include_in_scanning),
                             removeFolderContentDescription = context.resources.getString(R.string.remove_folder_from_included_in_scanning),
@@ -249,56 +236,42 @@ fun MusicScanSettingsContent(
             }
         }
 
-        var isScanInProgress by remember {
-            mutableStateOf(false)
-        }
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+
+        val scanOnAppLaunch by settings.scanOnAppLaunch.collectAsState()
+        SettingSwitch(
+            title = context.resources.getString(R.string.refresh_on_app_launch),
+            supportingText = context.resources.getString(R.string.refresh_on_app_launch_explain),
+            icon = Icons.Rounded.Autorenew,
+            isChecked = scanOnAppLaunch,
+            onCheckedChange = settings::updateScanOnAppLaunch
+        )
+
         val coroutineScope = rememberCoroutineScope()
-        AnimatedContent(
-            targetState = isScanInProgress,
-            label = "scan-button-animation",
-            transitionSpec = {
-                fadeIn() togetherWith fadeOut()
-            }
-        ) { state ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .padding(horizontal = 28.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                when(state) {
-                    true -> {
-                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                    }
-                    false -> {
-                        Row {
-                            FilledTonalButton(
-                                onClick = {
-                                    coroutineScope.launch {
-                                        isScanInProgress = true
-                                        musicScanner.scanMedia {
-                                            isScanInProgress = false
-                                        }
-                                    }
-                                }
-                            ) {
-                                Text(text = context.resources.getString(R.string.scan))
-                            }
-
-                            Spacer(modifier = Modifier.width(16.dp))
-
-                            FilledTonalButton(
-                                onClick = {
-                                    onFolderPick(true)
-                                }
-                            ) {
-                                Text(text = context.resources.getString(R.string.scan_folder))
-                            }
-                        }
-                    }
+        SettingIconButton(
+            title = context.resources.getString(R.string.refresh),
+            supportingText = context.resources.getString(R.string.refresh_explain),
+            icon = Icons.Rounded.Storage,
+            buttonIcon = Icons.Rounded.Refresh,
+            buttonContentDescription = context.resources.getString(R.string.refresh_explain),
+            onButtonClick = {
+                coroutineScope.launch {
+                    musicScanner.refreshMedia()
                 }
             }
-        }
+        )
+
+        SettingIconButton(
+            title = context.resources.getString(R.string.scan_folder),
+            supportingText = context.resources.getString(R.string.scan_folder_explain),
+            icon = Icons.Rounded.Folder,
+            buttonIcon = Icons.Rounded.Radar,
+            buttonContentDescription = context.resources.getString(R.string.scan_folder_explain),
+            onButtonClick = {
+                onFolderPick(true)
+            }
+        )
     }
 }

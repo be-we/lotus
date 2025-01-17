@@ -320,7 +320,7 @@ class MainActivity : ComponentActivity() {
 
                             if (viewModel.settings.scanOnAppLaunch.value) {
                                 lifecycleScope.launch {
-                                    get<MusicScanner>().scanMedia(showMessages = false)
+                                    get<MusicScanner>().refreshMedia(showMessages = false)
                                 }
                             }
 
