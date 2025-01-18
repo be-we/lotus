@@ -43,7 +43,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.dn0ne.player.app.presentation.components.animatable.rememberAnimatable
 import kotlin.math.PI
@@ -108,6 +110,10 @@ fun WavingSeekBar(
     }
 
     val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
+    val isLtr by remember {
+        mutableStateOf(layoutDirection == LayoutDirection.Ltr)
+    }
 
     Column(
         modifier = modifier
@@ -126,7 +132,7 @@ fun WavingSeekBar(
                     .pointerInput(Unit) {
                         detectTapGestures(
                             onPress = {
-                                handleOffset = it.x.coerceIn(0f, barWidth)
+                                handleOffset = (if (isLtr) it.x else barWidth - it.x).coerceIn(0f, barWidth)
                                 handleOffsetFraction = handleOffset / barWidth
                                 onPositionChange(
                                     (handleOffsetFraction * currentDuration).toLong()
@@ -146,7 +152,7 @@ fun WavingSeekBar(
                                 )
                             },
                         ) { _, dragAmount ->
-                            handleOffset += dragAmount.x
+                            handleOffset += if (isLtr) dragAmount.x else -dragAmount.x
 
                             handleOffset = handleOffset.coerceIn(0f, barWidth)
                             handleOffsetFraction = handleOffset / barWidth
@@ -157,6 +163,7 @@ fun WavingSeekBar(
                 FilledSeekBarSegment(
                     color = MaterialTheme.colorScheme.primary,
                     enableWaving = enableWaving && isPlaying && !isHandleInDrag,
+                    waveBackwards = !isLtr,
                     waveWidth = with(density) {
                         waveWidth.toPx()
                     },
@@ -187,17 +194,17 @@ fun WavingSeekBar(
             var lastAngle by remember {
                 mutableFloatStateOf(0f)
             }
-            val animatable = rememberAnimatable(initialValue = 0f)
+            val handleRotation = rememberAnimatable(initialValue = 0f)
             LaunchedEffect(isPlaying) {
                 val startAngle = (lastAngle.toInt() % 90).toFloat()
                 while (isPlaying) {
-                    animatable.animateTo(
-                        targetValue = startAngle + 90f,
+                    handleRotation.animateTo(
+                        targetValue = startAngle + if (isLtr) 90f else -90f,
                         animationSpec = tween(durationMillis = 1000, easing = LinearEasing)
                     ) {
                         lastAngle = value
                     }
-                    animatable.snapTo(startAngle)
+                    handleRotation.snapTo(startAngle)
                 }
             }
 
@@ -225,7 +232,7 @@ fun WavingSeekBar(
                                 )
                             },
                         ) { _, dragAmount ->
-                            handleOffset += dragAmount.x
+                            handleOffset += if (isLtr) dragAmount.x else -dragAmount.x
 
                             handleOffset = handleOffset.coerceIn(0f, barWidth)
                             handleOffsetFraction = handleOffset / barWidth
@@ -233,7 +240,7 @@ fun WavingSeekBar(
                     }
                     .align(Alignment.CenterStart)
                     .graphicsLayer {
-                        rotationZ = if (isPlaying) animatable.value else lastAngle
+                        rotationZ = if (isPlaying) handleRotation.value else lastAngle
                     }
                     .clip(RoundedCornerShape(handleSize / 3))
                     .background(color = MaterialTheme.colorScheme.primary)
@@ -274,6 +281,7 @@ fun WavingSeekBar(
 fun FilledSeekBarSegment(
     color: Color,
     enableWaving: Boolean = true,
+    waveBackwards: Boolean = false,
     waveWidth: Float? = null,
     strokeWidth: Float = 10f,
     modifier: Modifier = Modifier
@@ -301,7 +309,7 @@ fun FilledSeekBarSegment(
 
     val offset by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = -waveWidth * 2 * PI.toFloat(),
+        targetValue = (if (waveBackwards) waveWidth else -waveWidth) * 2 * PI.toFloat(),
         animationSpec = infiniteRepeatable(
             animation = tween(2000, easing = LinearEasing)
         ),
