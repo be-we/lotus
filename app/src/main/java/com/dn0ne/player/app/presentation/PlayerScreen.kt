@@ -31,8 +31,10 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ViewList
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FilterList
+import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.MyLocation
 import androidx.compose.material.icons.rounded.Search
@@ -89,6 +91,7 @@ import com.dn0ne.player.app.presentation.components.playlist.MutablePlaylist
 import com.dn0ne.player.app.presentation.components.playlist.Playlist
 import com.dn0ne.player.app.presentation.components.playlist.RenamePlaylistBottomSheet
 import com.dn0ne.player.app.presentation.components.playlist.playlistCards
+import com.dn0ne.player.app.presentation.components.playlist.playlistRows
 import com.dn0ne.player.app.presentation.components.settings.SettingsSheet
 import com.dn0ne.player.app.presentation.components.settings.Theme
 import com.dn0ne.player.app.presentation.components.topbar.LazyGridWithCollapsibleTabsTopBar
@@ -266,6 +269,7 @@ fun PlayerScreen(
                         val folderPlaylists by viewModel.folderPlaylists.collectAsState()
 
                         val gridState = rememberLazyGridState()
+                        val gridPlaylists by viewModel.settings.gridPlaylists.collectAsState()
 
                         val tabs by viewModel.settings.tabs.collectAsState()
                         var selectedTab by rememberSaveable {
@@ -417,7 +421,13 @@ fun PlayerScreen(
                             onSettingsClick = {
                                 viewModel.onEvent(PlayerScreenEvent.OnSettingsClick)
                             },
-                            replaceSearchWithFilter = replaceSearchWithFilter
+                            replaceSearchWithFilter = replaceSearchWithFilter,
+                            gridPlaylists = gridPlaylists,
+                            onGridPlaylistsClick = {
+                                viewModel.settings.updateGridPlaylists(
+                                    !gridPlaylists
+                                )
+                            }
                         )
                     }
 
@@ -874,6 +884,8 @@ fun MainPlayerScreen(
     onGenrePlaylistSelection: (Playlist) -> Unit,
     onFolderPlaylistSelection: (Playlist) -> Unit,
     replaceSearchWithFilter: Boolean,
+    gridPlaylists: Boolean,
+    onGridPlaylistsClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
     val context = LocalContext.current
@@ -957,19 +969,38 @@ fun MainPlayerScreen(
                                 }
                             }
 
-                            IconButton(
-                                onClick = {
-                                    showSearchField = true
+                            Row {
+                                if (tab != Tab.Tracks) {
+                                    IconButton(
+                                        onClick = onGridPlaylistsClick
+                                    ) {
+                                        Icon(
+                                            imageVector = if (gridPlaylists) {
+                                                Icons.Rounded.GridView
+                                            } else Icons.AutoMirrored.Rounded.ViewList,
+                                            contentDescription = context.resources.getString(
+                                                if (gridPlaylists) {
+                                                    R.string.enable_list_view
+                                                } else R.string.enable_grid_view
+                                            )
+                                        )
+                                    }
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = if (replaceSearchWithFilter && tab == Tab.Tracks) {
-                                        Icons.Rounded.FilterList
-                                    } else Icons.Rounded.Search,
-                                    contentDescription = context.resources.getString(
-                                        R.string.track_search
+
+                                IconButton(
+                                    onClick = {
+                                        showSearchField = true
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = if (replaceSearchWithFilter && tab == Tab.Tracks) {
+                                            Icons.Rounded.FilterList
+                                        } else Icons.Rounded.Search,
+                                        contentDescription = context.resources.getString(
+                                            R.string.track_search
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
                     }
@@ -1036,7 +1067,7 @@ fun MainPlayerScreen(
         contentVerticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp),
         gridCells = {
-            if (it == Tab.Tracks) GridCells.Fixed(1) else {
+            if (it == Tab.Tracks || !gridPlaylists) GridCells.Fixed(1) else {
                 GridCells.Adaptive(150.dp)
             }
         },
@@ -1068,55 +1099,107 @@ fun MainPlayerScreen(
             }
 
             Tab.Playlists -> {
-                playlistCards(
-                    playlists = playlists.filterPlaylists(searchFieldValue),
-                    sort = playlistSort,
-                    sortOrder = playlistSortOrder,
-                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown),
-                    showSinglePreview = false,
-                    onCardClick = onPlaylistSelection,
-                )
+                if (gridPlaylists) {
+                    playlistCards(
+                        playlists = playlists.filterPlaylists(searchFieldValue),
+                        sort = playlistSort,
+                        sortOrder = playlistSortOrder,
+                        fallbackPlaylistTitle = context.resources.getString(R.string.unknown),
+                        showSinglePreview = false,
+                        onCardClick = onPlaylistSelection,
+                    )
+                } else {
+                    playlistRows(
+                        playlists = playlists.filterPlaylists(searchFieldValue),
+                        sort = playlistSort,
+                        sortOrder = playlistSortOrder,
+                        fallbackPlaylistTitle = context.resources.getString(R.string.unknown),
+                        showSinglePreview = false,
+                        onRowClick = onPlaylistSelection,
+                    )
+                }
             }
 
             Tab.Albums -> {
-                playlistCards(
-                    playlists = albumPlaylists.filterPlaylists(searchFieldValue),
-                    sort = playlistSort,
-                    sortOrder = playlistSortOrder,
-                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_album),
-                    showSinglePreview = true,
-                    onCardClick = onAlbumPlaylistSelection,
-                )
+                if (gridPlaylists) {
+                    playlistCards(
+                        playlists = albumPlaylists.filterPlaylists(searchFieldValue),
+                        sort = playlistSort,
+                        sortOrder = playlistSortOrder,
+                        fallbackPlaylistTitle = context.resources.getString(R.string.unknown_album),
+                        showSinglePreview = true,
+                        onCardClick = onAlbumPlaylistSelection,
+                    )
+                } else {
+                    playlistRows(
+                        playlists = albumPlaylists.filterPlaylists(searchFieldValue),
+                        sort = playlistSort,
+                        sortOrder = playlistSortOrder,
+                        fallbackPlaylistTitle = context.resources.getString(R.string.unknown_album),
+                        showSinglePreview = true,
+                        onRowClick = onAlbumPlaylistSelection,
+                    )
+                }
             }
 
             Tab.Artists -> {
-                playlistCards(
-                    playlists = artistPlaylists.filterPlaylists(searchFieldValue),
-                    sort = playlistSort,
-                    sortOrder = playlistSortOrder,
-                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_artist),
-                    onCardClick = onArtistPlaylistSelection,
-                )
+                if (gridPlaylists) {
+                    playlistCards(
+                        playlists = artistPlaylists.filterPlaylists(searchFieldValue),
+                        sort = playlistSort,
+                        sortOrder = playlistSortOrder,
+                        fallbackPlaylistTitle = context.resources.getString(R.string.unknown_artist),
+                        onCardClick = onArtistPlaylistSelection,
+                    )
+                } else {
+                    playlistRows(
+                        playlists = artistPlaylists.filterPlaylists(searchFieldValue),
+                        sort = playlistSort,
+                        sortOrder = playlistSortOrder,
+                        fallbackPlaylistTitle = context.resources.getString(R.string.unknown_artist),
+                        onRowClick = onArtistPlaylistSelection,
+                    )
+                }
             }
 
             Tab.Genres -> {
-                playlistCards(
-                    playlists = genrePlaylists.filterPlaylists(searchFieldValue),
-                    sort = playlistSort,
-                    sortOrder = playlistSortOrder,
-                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_genre),
-                    onCardClick = onGenrePlaylistSelection,
-                )
+                if (gridPlaylists) {
+                    playlistCards(
+                        playlists = genrePlaylists.filterPlaylists(searchFieldValue),
+                        sort = playlistSort,
+                        sortOrder = playlistSortOrder,
+                        fallbackPlaylistTitle = context.resources.getString(R.string.unknown_genre),
+                        onCardClick = onGenrePlaylistSelection,
+                    )
+                } else {
+                    playlistRows(
+                        playlists = genrePlaylists.filterPlaylists(searchFieldValue),
+                        sort = playlistSort,
+                        sortOrder = playlistSortOrder,
+                        fallbackPlaylistTitle = context.resources.getString(R.string.unknown_genre),
+                        onRowClick = onGenrePlaylistSelection,
+                    )
+                }
             }
 
             Tab.Folders -> {
-                playlistCards(
-                    playlists = folderPlaylists.filterPlaylists(searchFieldValue),
-                    sort = playlistSort,
-                    sortOrder = playlistSortOrder,
-                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_folder),
-                    onCardClick = onFolderPlaylistSelection
-                )
+                if (gridPlaylists) {
+                    playlistCards(
+                        playlists = folderPlaylists.filterPlaylists(searchFieldValue),
+                        sort = playlistSort,
+                        sortOrder = playlistSortOrder,
+                        fallbackPlaylistTitle = context.resources.getString(R.string.unknown_folder),
+                        onCardClick = onFolderPlaylistSelection
+                    )
+                } else {
+                    playlistRows(
+                        playlists = folderPlaylists.filterPlaylists(searchFieldValue),
+                        sort = playlistSort,
+                        sortOrder = playlistSortOrder,
+                        fallbackPlaylistTitle = context.resources.getString(R.string.unknown_folder),
+                        onRowClick = onFolderPlaylistSelection
+                    )
+                }
             }
         }
     }

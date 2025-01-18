@@ -179,6 +179,8 @@
     <string name="delete_playlist_dialog_text">Это не повлияет на треки в нем.</string>
     <string name="nothing_yet">Пока ничего нет.</string>
     <string name="unknown_folder">Неизвестная папка</string>
+    <string name="enable_list_view">Отображать списком</string>
+    <string name="enable_grid_view">Отображать сеткой</string>
 
     <!-- Playlists errors -->
     <string name="blank_playlist_name_error">Пожалуйста, назовите плейлист.</string>

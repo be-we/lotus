@@ -53,6 +53,8 @@ class Settings(context: Context) {
 
     private val jumpToBeginningKey = "jump-to-beginning"
 
+    private val gridPlaylistsKey = "grid-playlists"
+
     var handleAudioFocus: Boolean
         get() = sharedPreferences.getBoolean(handleAudioFocusKey, true)
         set(value) {
@@ -363,4 +365,16 @@ class Settings(context: Context) {
                 apply()
             }
         }
+
+    private val _gridPlaylist = MutableStateFlow(
+        sharedPreferences.getBoolean(gridPlaylistsKey, true)
+    )
+    val gridPlaylists = _gridPlaylist.asStateFlow()
+    fun updateGridPlaylists(value: Boolean) {
+        _gridPlaylist.update { value }
+        with(sharedPreferences.edit()) {
+            putBoolean(gridPlaylistsKey, value)
+            apply()
+        }
+    }
 }

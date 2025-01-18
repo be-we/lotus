@@ -191,6 +191,8 @@
     <string name="delete_playlist_dialog_text">This won\'t affect the tracks in it.</string>
     <string name="nothing_yet">Nothing yet.</string>
     <string name="unknown_folder">Unknown Folder</string>
+    <string name="enable_list_view">Enable list view</string>
+    <string name="enable_grid_view">Enable grid view</string>
 
     <!-- Playlists errors -->
     <string name="blank_playlist_name_error">Please name the playlist.</string>
