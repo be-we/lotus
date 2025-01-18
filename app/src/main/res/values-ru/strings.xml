@@ -234,6 +234,8 @@
     <string name="tabs_supporting_text">Вкладка по умолчанию и порядок</string>
     <string name="default_tab_and_order">Вкладка по умолчанию и порядок</string>
     <string name="reorder_tab">Изменить порядок вкладки</string>
+    <string name="jump_to_beginning">Перейти к началу</string>
+    <string name="jump_to_beginning_explain">Перезапускать текущий трек при первом нажатии кнопки перехода к предыдущему</string>
 
     <!-- Playlists settings -->
     <string name="filter_instead_of_search">Фильтр вместо поиска</string>

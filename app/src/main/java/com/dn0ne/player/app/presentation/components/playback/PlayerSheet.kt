@@ -434,11 +434,19 @@ fun BottomPlayer(
                 IconButton(
                     onClick = onSeekToNextClick
                 ) {
+                    val layoutDirection = LocalLayoutDirection.current
+                    val isRtl = layoutDirection == LayoutDirection.Rtl
                     Icon(
                         imageVector = Icons.Rounded.SkipNext,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier
+                            .size(36.dp)
+                            .graphicsLayer {
+                                if (isRtl) {
+                                    rotationY = 180f
+                                }
+                            }
                     )
                 }
             }

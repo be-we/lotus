@@ -396,15 +396,15 @@ class PlayerViewModel(
 
             PlayerScreenEvent.OnSeekToPreviousClick -> {
                 player?.let { player ->
-                    if (player.hasPreviousMediaItem()) {
-                        player.seekToPreviousMediaItem()
-                    } else {
-                        player.seekTo(0L)
+                    if (settings.jumpToBeginning && player.currentPosition >= 3000) {
+                        player.seekTo(0)
                         _playbackState.update {
                             it.copy(
-                                position = 0L
+                                position = 0
                             )
                         }
+                    } else {
+                        player.seekToPreviousMediaItem()
                     }
                 }
             }

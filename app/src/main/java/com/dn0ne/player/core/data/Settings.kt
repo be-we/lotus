@@ -47,8 +47,11 @@ class Settings(context: Context) {
     private val extraScanFoldersKey = "extra-scan-folders"
     private val excludedScanFoldersKey = "excluded-scan-folders"
     private val scanOnAppLaunchKey = "scan-on-app-launch"
+
     private val tabOrderKey = "tab-order"
     private val defaultTabKey = "default-tab"
+
+    private val jumpToBeginningKey = "jump-to-beginning"
 
     var handleAudioFocus: Boolean
         get() = sharedPreferences.getBoolean(handleAudioFocusKey, true)
@@ -348,6 +351,15 @@ class Settings(context: Context) {
         set(value) {
             with(sharedPreferences.edit()) {
                 putInt(defaultTabKey, value.ordinal)
+                apply()
+            }
+        }
+
+    var jumpToBeginning: Boolean
+        get() = sharedPreferences.getBoolean(jumpToBeginningKey, true)
+        set(value) {
+            with(sharedPreferences.edit()) {
+                putBoolean(jumpToBeginningKey, value)
                 apply()
             }
         }

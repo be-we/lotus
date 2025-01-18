@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Equalizer
 import androidx.compose.material.icons.rounded.FilterCenterFocus
+import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -108,6 +109,20 @@ fun PlaybackSettings(
                         )
                     )
                 }
+            }
+        )
+
+        var jumpToBeginning by remember {
+            mutableStateOf(settings.jumpToBeginning)
+        }
+        SettingSwitch(
+            title = context.resources.getString(R.string.jump_to_beginning),
+            supportingText = context.resources.getString(R.string.jump_to_beginning_explain),
+            icon = Icons.Rounded.SkipPrevious,
+            isChecked = jumpToBeginning,
+            onCheckedChange = {
+                settings.jumpToBeginning = it
+                jumpToBeginning = it
             }
         )
 

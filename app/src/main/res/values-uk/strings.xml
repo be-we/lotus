@@ -228,6 +228,8 @@
     <string name="changes_will_take_effect_on_next_launch">Зміни набудуть чинності з наступного запуску.</string>
     <string name="equalizer">Еквалайзер</string>
     <string name="equalizer_explain">Ручне регулювання звуку</string>
+ау    <string name="jump_to_beginning">Перейти до початку</string>
+    <string name="jump_to_beginning_explain">Перезапустити поточний трек при першому натисканні кнопки переходу до попереднього</string>
 
     <!-- Tabs settings -->
     <string name="tabs">Вкладки</string>
