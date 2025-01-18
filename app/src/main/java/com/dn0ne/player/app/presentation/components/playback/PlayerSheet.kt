@@ -78,8 +78,10 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.dn0ne.player.R
@@ -921,6 +923,8 @@ fun PlaybackControl(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            val layoutDirection = LocalLayoutDirection.current
+            val isRtl = layoutDirection == LayoutDirection.Rtl
             IconButton(
                 onClick = onSeekToPreviousClick,
                 modifier = Modifier.size(48.dp)
@@ -929,7 +933,13 @@ fun PlaybackControl(
                     imageVector = Icons.Rounded.SkipPrevious,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier
+                        .size(36.dp)
+                        .graphicsLayer {
+                            if (isRtl) {
+                                rotationY = 180f
+                            }
+                        }
                 )
             }
 
@@ -968,7 +978,13 @@ fun PlaybackControl(
                     imageVector = Icons.Rounded.SkipNext,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(36.dp)
+                    modifier = Modifier
+                        .size(36.dp)
+                        .graphicsLayer {
+                            if (isRtl) {
+                                rotationY = 180f
+                            }
+                        }
                 )
             }
         }
