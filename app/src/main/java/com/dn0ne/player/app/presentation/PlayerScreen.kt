@@ -54,7 +54,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -93,6 +92,7 @@ import com.dn0ne.player.app.presentation.components.playlist.playlistCards
 import com.dn0ne.player.app.presentation.components.settings.SettingsSheet
 import com.dn0ne.player.app.presentation.components.settings.Theme
 import com.dn0ne.player.app.presentation.components.topbar.LazyGridWithCollapsibleTabsTopBar
+import com.dn0ne.player.app.presentation.components.topbar.Tab
 import com.dn0ne.player.app.presentation.components.trackList
 import com.dn0ne.player.app.presentation.components.trackinfo.SearchField
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheet
@@ -266,12 +266,15 @@ fun PlayerScreen(
                         val folderPlaylists by viewModel.folderPlaylists.collectAsState()
 
                         val gridState = rememberLazyGridState()
-                        var selectedTabIndex by rememberSaveable {
-                            mutableIntStateOf(1)
+
+                        val tabs by viewModel.settings.tabs.collectAsState()
+                        var selectedTab by rememberSaveable {
+                            mutableStateOf(viewModel.settings.defaultTab)
                         }
+
                         val shouldShowLocateButton by remember(currentTrack, trackList) {
                             derivedStateOf {
-                                selectedTabIndex == 1 &&
+                                selectedTab == Tab.Tracks &&
                                         currentTrack != null &&
                                         gridState.layoutInfo.visibleItemsInfo.fastFirstOrNull {
                                             it.index == trackList.indexOf(currentTrack)
@@ -310,8 +313,10 @@ fun PlayerScreen(
 
                         MainPlayerScreen(
                             gridState = gridState,
+                            topBarTabs = tabs,
+                            defaultTab = viewModel.settings.defaultTab,
                             onTabChange = {
-                                selectedTabIndex = it
+                                selectedTab = it
                             },
                             trackList = trackList,
                             currentTrack = currentTrack,
@@ -842,7 +847,9 @@ fun PlayerScreen(
 @Composable
 fun MainPlayerScreen(
     gridState: LazyGridState = rememberLazyGridState(),
-    onTabChange: (Int) -> Unit = {},
+    topBarTabs: List<Tab>,
+    defaultTab: Tab,
+    onTabChange: (Tab) -> Unit = {},
     trackList: List<Track>,
     currentTrack: Track?,
     onTrackClick: (Track, Playlist) -> Unit,
@@ -871,17 +878,6 @@ fun MainPlayerScreen(
 ) {
     val context = LocalContext.current
 
-    val topBarTabs = remember {
-        listOf(
-            context.resources.getString(R.string.playlists),
-            context.resources.getString(R.string.tracks),
-            context.resources.getString(R.string.albums),
-            context.resources.getString(R.string.artists),
-            context.resources.getString(R.string.genres),
-            context.resources.getString(R.string.folders)
-        )
-    }
-
     var collapseFraction by remember {
         mutableFloatStateOf(0f)
     }
@@ -895,8 +891,8 @@ fun MainPlayerScreen(
 
     LazyGridWithCollapsibleTabsTopBar(
         gridState = gridState,
-        topBarTabTitles = topBarTabs,
-        defaultSelectedTabIndex = 1,
+        topBarTabs = topBarTabs,
+        defaultSelectedTab = defaultTab,
         onTabChange = {
             showSearchField = false
             searchFieldValue = ""
@@ -910,7 +906,7 @@ fun MainPlayerScreen(
             ),
             fontWeight = FontWeight.Bold
         ),
-        topBarButtons = { tabIndex ->
+        topBarButtons = { tab ->
             AnimatedContent(
                 targetState = showSearchField,
                 label = "top-bar-search-bar-animation",
@@ -936,7 +932,7 @@ fun MainPlayerScreen(
                                     )
                                 }
 
-                                if (tabIndex == 1) {
+                                if (tab == Tab.Tracks) {
                                     TrackSortButton(
                                         sort = trackSort,
                                         order = trackSortOrder,
@@ -967,7 +963,7 @@ fun MainPlayerScreen(
                                 }
                             ) {
                                 Icon(
-                                    imageVector = if (replaceSearchWithFilter && tabIndex == 1) {
+                                    imageVector = if (replaceSearchWithFilter && tab == Tab.Tracks) {
                                         Icons.Rounded.FilterList
                                     } else Icons.Rounded.Search,
                                     contentDescription = context.resources.getString(
@@ -994,10 +990,10 @@ fun MainPlayerScreen(
                                 onValueChange = {
                                     searchFieldValue = it.trimStart()
                                 },
-                                icon = if (replaceSearchWithFilter && tabIndex == 1) {
+                                icon = if (replaceSearchWithFilter && tab == Tab.Tracks) {
                                     Icons.Rounded.FilterList
                                 } else Icons.Rounded.Search,
-                                placeholder = if (replaceSearchWithFilter && tabIndex == 1) {
+                                placeholder = if (replaceSearchWithFilter && tab == Tab.Tracks) {
                                     context.resources.getString(R.string.filter)
                                 } else context.resources.getString(R.string.search),
                                 modifier = Modifier
@@ -1040,68 +1036,16 @@ fun MainPlayerScreen(
         contentVerticalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp),
         gridCells = {
-            if (it == 1) GridCells.Fixed(1) else {
+            if (it == Tab.Tracks) GridCells.Fixed(1) else {
                 GridCells.Adaptive(150.dp)
             }
         },
         modifier = Modifier
             .fillMaxSize()
             .safeDrawingPadding()
-    ) { tabIndex ->
-        when (tabIndex) {
-            0 -> {
-                playlistCards(
-                    playlists = playlists.filterPlaylists(searchFieldValue),
-                    sort = playlistSort,
-                    sortOrder = playlistSortOrder,
-                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown),
-                    showSinglePreview = false,
-                    onCardClick = onPlaylistSelection,
-                )
-            }
-
-            2 -> {
-                playlistCards(
-                    playlists = albumPlaylists.filterPlaylists(searchFieldValue),
-                    sort = playlistSort,
-                    sortOrder = playlistSortOrder,
-                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_album),
-                    showSinglePreview = true,
-                    onCardClick = onAlbumPlaylistSelection,
-                )
-            }
-
-            3 -> {
-                playlistCards(
-                    playlists = artistPlaylists.filterPlaylists(searchFieldValue),
-                    sort = playlistSort,
-                    sortOrder = playlistSortOrder,
-                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_artist),
-                    onCardClick = onArtistPlaylistSelection,
-                )
-            }
-
-            4 -> {
-                playlistCards(
-                    playlists = genrePlaylists.filterPlaylists(searchFieldValue),
-                    sort = playlistSort,
-                    sortOrder = playlistSortOrder,
-                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_genre),
-                    onCardClick = onGenrePlaylistSelection,
-                )
-            }
-
-            5 -> {
-                playlistCards(
-                    playlists = folderPlaylists.filterPlaylists(searchFieldValue),
-                    sort = playlistSort,
-                    sortOrder = playlistSortOrder,
-                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_folder),
-                    onCardClick = onFolderPlaylistSelection
-                )
-            }
-
-            else -> {
+    ) { tab ->
+        when (tab) {
+            Tab.Tracks -> {
                 trackList(
                     trackList = trackList.filterTracks(searchFieldValue),
                     currentTrack = currentTrack,
@@ -1120,6 +1064,58 @@ fun MainPlayerScreen(
                     onAddToQueueClick = onAddToQueueClick,
                     onAddToPlaylistClick = onAddToPlaylistClick,
                     onViewTrackInfoClick = onViewTrackInfoClick
+                )
+            }
+
+            Tab.Playlists -> {
+                playlistCards(
+                    playlists = playlists.filterPlaylists(searchFieldValue),
+                    sort = playlistSort,
+                    sortOrder = playlistSortOrder,
+                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown),
+                    showSinglePreview = false,
+                    onCardClick = onPlaylistSelection,
+                )
+            }
+
+            Tab.Albums -> {
+                playlistCards(
+                    playlists = albumPlaylists.filterPlaylists(searchFieldValue),
+                    sort = playlistSort,
+                    sortOrder = playlistSortOrder,
+                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_album),
+                    showSinglePreview = true,
+                    onCardClick = onAlbumPlaylistSelection,
+                )
+            }
+
+            Tab.Artists -> {
+                playlistCards(
+                    playlists = artistPlaylists.filterPlaylists(searchFieldValue),
+                    sort = playlistSort,
+                    sortOrder = playlistSortOrder,
+                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_artist),
+                    onCardClick = onArtistPlaylistSelection,
+                )
+            }
+
+            Tab.Genres -> {
+                playlistCards(
+                    playlists = genrePlaylists.filterPlaylists(searchFieldValue),
+                    sort = playlistSort,
+                    sortOrder = playlistSortOrder,
+                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_genre),
+                    onCardClick = onGenrePlaylistSelection,
+                )
+            }
+
+            Tab.Folders -> {
+                playlistCards(
+                    playlists = folderPlaylists.filterPlaylists(searchFieldValue),
+                    sort = playlistSort,
+                    sortOrder = playlistSortOrder,
+                    fallbackPlaylistTitle = context.resources.getString(R.string.unknown_folder),
+                    onCardClick = onFolderPlaylistSelection
                 )
             }
         }

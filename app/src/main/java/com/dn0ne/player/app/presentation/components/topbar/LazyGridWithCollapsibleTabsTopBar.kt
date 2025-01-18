@@ -51,7 +51,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -66,6 +65,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -86,12 +86,12 @@ import my.nanihadesuka.compose.ScrollbarSettings
 )
 @Composable
 fun LazyGridWithCollapsibleTabsTopBar(
-    topBarTabTitles: List<String>,
-    defaultSelectedTabIndex: Int = 0,
-    onTabChange: (tabIndex: Int) -> Unit = {},
+    topBarTabs: List<Tab>,
+    defaultSelectedTab: Tab = Tab.Tracks,
+    onTabChange: (tab: Tab) -> Unit = {},
     tabTitleTextStyle: TextStyle = MaterialTheme.typography.headlineLarge,
     tabRowTitleTextStyle: TextStyle = MaterialTheme.typography.titleLarge,
-    topBarButtons: @Composable BoxScope.(tabIndex: Int) -> Unit = {},
+    topBarButtons: @Composable BoxScope.(tab: Tab) -> Unit = {},
     minTopBarHeight: Dp = 60.dp,
     maxTopBarHeight: Dp = 250.dp,
     maxTopBarHeightLandscape: Dp = 150.dp,
@@ -103,8 +103,8 @@ fun LazyGridWithCollapsibleTabsTopBar(
     contentVerticalArrangement: Arrangement.Vertical = Arrangement.Top,
     enableScrollbar: Boolean = true,
     modifier: Modifier = Modifier,
-    gridCells: (tabIndex: Int) -> GridCells = { GridCells.Fixed(1) },
-    tabContent: LazyGridScope.(tabIndex: Int) -> Unit
+    gridCells: (tab: Tab) -> GridCells = { GridCells.Fixed(1) },
+    tabContent: LazyGridScope.(tab: Tab) -> Unit
 ) {
     val density = LocalDensity.current
     val coroutineScope = rememberCoroutineScope()
@@ -176,8 +176,8 @@ fun LazyGridWithCollapsibleTabsTopBar(
         }
     }
 
-    var selectedTabIndex by rememberSaveable {
-        mutableIntStateOf(defaultSelectedTabIndex.coerceIn(topBarTabTitles.indices))
+    var selectedTab by rememberSaveable {
+        mutableStateOf(defaultSelectedTab)
     }
     var showTabRow by remember {
         mutableStateOf(false)
@@ -204,13 +204,13 @@ fun LazyGridWithCollapsibleTabsTopBar(
                     .height(with(density) { topBarHeight.value.toDp() })
             )
             AnimatedContent(
-                targetState = selectedTabIndex,
+                targetState = selectedTab,
                 label = "column-tab-animation",
             ) { tabIndex ->
-                if (tabIndex != defaultSelectedTabIndex) {
+                if (selectedTab != defaultSelectedTab) {
                     BackHandler {
-                        selectedTabIndex = defaultSelectedTabIndex
-                        onTabChange(defaultSelectedTabIndex)
+                        selectedTab = defaultSelectedTab
+                        onTabChange(defaultSelectedTab)
                     }
                 }
 
@@ -268,6 +268,11 @@ fun LazyGridWithCollapsibleTabsTopBar(
                 LocalContentColor provides MaterialTheme.colorScheme.onSurface
             ) {
                 SharedTransitionLayout {
+                    val selectedTabIndex by remember {
+                        derivedStateOf {
+                            topBarTabs.indexOf(selectedTab)
+                        }
+                    }
                     AnimatedContent(
                         targetState = showTabRow,
                         transitionSpec = {
@@ -313,8 +318,7 @@ fun LazyGridWithCollapsibleTabsTopBar(
                                         }
                                 ) {
                                     TabTitle(
-                                        selectedTabIndex = selectedTabIndex,
-                                        title = topBarTabTitles[selectedTabIndex],
+                                        selectedTab = selectedTab,
                                         style = tabTitleTextStyle,
                                         sharedTransitionScope = this@SharedTransitionLayout,
                                         animatedVisibilityScope = this@AnimatedContent,
@@ -322,22 +326,22 @@ fun LazyGridWithCollapsibleTabsTopBar(
                                         modifier = Modifier.align(Alignment.Center)
                                     )
 
-                                    topBarButtons(selectedTabIndex)
+                                    topBarButtons(selectedTab)
                                 }
                             }
 
                             true -> {
                                 LaunchedEffect(Unit) {
                                     tabListState.scrollToItem(
-                                        index = selectedTabIndex + 1,
+                                        index = topBarTabs.indexOf(selectedTab) + 1,
                                     )
 
                                     tabListState.scrollToItem(
-                                        index = selectedTabIndex + 1,
+                                        index = topBarTabs.indexOf(selectedTab) + 1,
                                         scrollOffset = -viewportWidth / 2 + (tabListState
                                             .layoutInfo
                                             .visibleItemsInfo
-                                            .fastFirstOrNull { it.index == selectedTabIndex + 1 }?.size ?: 0) / 2
+                                            .fastFirstOrNull { it.index == topBarTabs.indexOf(selectedTab) + 1 }?.size ?: 0) / 2
                                     )
                                 }
 
@@ -366,17 +370,16 @@ fun LazyGridWithCollapsibleTabsTopBar(
                                     }
 
                                     itemsIndexed(
-                                        items = topBarTabTitles,
-                                        key = { index, title -> "$index-$title" }
-                                    ) { index, title ->
+                                        items = topBarTabs,
+                                        key = { index, tab -> "$index-$tab" }
+                                    ) { index, tab ->
                                         TabRowTitle(
-                                            selectedTabIndex = selectedTabIndex,
-                                            index = index,
-                                            title = title,
+                                            selectedTab = selectedTab,
+                                            tab = tab,
                                             style = tabRowTitleTextStyle,
                                             onClick = {
-                                                selectedTabIndex = index
-                                                onTabChange(index)
+                                                selectedTab = tab
+                                                onTabChange(tab)
                                                 showTabRow = false
                                             },
                                             sharedTransitionScope = this@SharedTransitionLayout,
@@ -407,8 +410,7 @@ fun LazyGridWithCollapsibleTabsTopBar(
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun TabTitle(
-    selectedTabIndex: Int,
-    title: String,
+    selectedTab: Tab,
     style: TextStyle,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
@@ -420,15 +422,13 @@ fun TabTitle(
             modifier = modifier
                 .width(IntrinsicSize.Min)
         ) {
-            val title by remember(selectedTabIndex) {
-                mutableStateOf(title)
-            }
+            val context = LocalContext.current
             Text(
-                text = title,
+                text = context.resources.getString(selectedTab.titleResId),
                 style = style,
                 modifier = Modifier
                     .sharedBounds(
-                        sharedContentState = rememberSharedContentState(title),
+                        sharedContentState = rememberSharedContentState(selectedTab),
                         animatedVisibilityScope = animatedVisibilityScope,
                         boundsTransform = { _, _ ->
                             boundTransformAnimationSpec
@@ -462,9 +462,8 @@ fun TabTitle(
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun TabRowTitle(
-    selectedTabIndex: Int,
-    index: Int,
-    title: String,
+    selectedTab: Tab,
+    tab: Tab,
     style: TextStyle,
     onClick: () -> Unit,
     sharedTransitionScope: SharedTransitionScope,
@@ -489,14 +488,15 @@ fun TabRowTitle(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            key("$selectedTabIndex-$index") {
+            val context = LocalContext.current
+            key("$selectedTab-$tab") {
                 Text(
-                    text = title,
+                    text = context.resources.getString(tab.titleResId),
                     style = style,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .sharedBounds(
-                            sharedContentState = rememberSharedContentState(title),
+                            sharedContentState = rememberSharedContentState(tab),
                             animatedVisibilityScope = animatedVisibilityScope,
                             boundsTransform = { _, _ ->
                                 boundTransformAnimationSpec
@@ -507,7 +507,7 @@ fun TabRowTitle(
                 val primary = MaterialTheme.colorScheme.primary
                 val color by remember {
                     mutableStateOf(
-                        if (selectedTabIndex == index) {
+                        if (selectedTab == tab) {
                             primary
                         } else Color.Transparent
                     )

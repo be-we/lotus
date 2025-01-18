@@ -8,6 +8,7 @@ import com.dn0ne.player.app.domain.sort.PlaylistSort
 import com.dn0ne.player.app.domain.sort.SortOrder
 import com.dn0ne.player.app.domain.sort.TrackSort
 import com.dn0ne.player.app.presentation.components.settings.Theme
+import com.dn0ne.player.app.presentation.components.topbar.Tab
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -46,6 +47,8 @@ class Settings(context: Context) {
     private val extraScanFoldersKey = "extra-scan-folders"
     private val excludedScanFoldersKey = "excluded-scan-folders"
     private val scanOnAppLaunchKey = "scan-on-app-launch"
+    private val tabOrderKey = "tab-order"
+    private val defaultTabKey = "default-tab"
 
     var handleAudioFocus: Boolean
         get() = sharedPreferences.getBoolean(handleAudioFocusKey, true)
@@ -323,4 +326,29 @@ class Settings(context: Context) {
             apply()
         }
     }
+
+    private val _tabs = MutableStateFlow(
+        sharedPreferences.getString(tabOrderKey, null)?.let {
+            it.split(";").map {
+                Tab.valueOf(it)
+            }
+        } ?: Tab.entries.toList()
+    )
+    val tabs = _tabs.asStateFlow()
+    fun updateTabOrder(tabs: List<Tab>) {
+        _tabs.update { tabs }
+        with(sharedPreferences.edit()) {
+            putString(tabOrderKey, tabs.map { it.name }.joinToString(";"))
+            apply()
+        }
+    }
+
+    var defaultTab: Tab
+        get() = Tab.entries[sharedPreferences.getInt(defaultTabKey, 1)]
+        set(value) {
+            with(sharedPreferences.edit()) {
+                putInt(defaultTabKey, value.ordinal)
+                apply()
+            }
+        }
 }

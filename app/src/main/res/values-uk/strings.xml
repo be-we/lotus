@@ -229,6 +229,12 @@
     <string name="equalizer">Еквалайзер</string>
     <string name="equalizer_explain">Ручне регулювання звуку</string>
 
+    <!-- Tabs settings -->
+    <string name="tabs">Вкладки</string>
+    <string name="tabs_supporting_text">Вкладка за замовчуванням та порядок</string>
+    <string name="default_tab_and_order">Вкладка за замовчуванням та порядок</string>
+    <string name="reorder_tab">Змінити порядок вкладки</string>
+
     <!-- Playlists settings -->
     <string name="filter_instead_of_search">Фільтр замість пошуку</string>
     <string name="filter_instead_of_search_explain">Замінити пошук у плейлисті на фільтр</string>

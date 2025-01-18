@@ -26,6 +26,7 @@ import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Lyrics
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Radar
+import androidx.compose.material.icons.rounded.TableChart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -163,6 +164,14 @@ fun SettingsSheet(
                                     }
                                 ),
                                 SettingsItem(
+                                    title = context.resources.getString(R.string.tabs),
+                                    supportingText = context.resources.getString(R.string.tabs_supporting_text),
+                                    icon = Icons.Rounded.TableChart,
+                                    onClick = {
+                                        navController.navigate(SettingsRoutes.Tabs)
+                                    }
+                                ),
+                                SettingsItem(
                                     title = context.resources.getString(R.string.playlists),
                                     supportingText = context.resources.getString(R.string.playlists_supporting_text),
                                     icon = Icons.AutoMirrored.Rounded.PlaylistPlay,
@@ -233,6 +242,16 @@ fun SettingsSheet(
                     )
                 }
 
+                composable<SettingsRoutes.Tabs> {
+                    TabsSettings(
+                        settings = state.settings,
+                        onBackClick = {
+                            navController.navigateUp()
+                        },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
                 composable<SettingsRoutes.Playlists> {
                     PlaylistsSettings(
                         settings = state.settings,
@@ -287,6 +306,9 @@ sealed interface SettingsRoutes {
 
     @Serializable
     data object MusicScan : SettingsRoutes
+
+    @Serializable
+    data object Tabs : SettingsRoutes
 
     @Serializable
     data object Playlists : SettingsRoutes

@@ -241,6 +241,12 @@
     <string name="equalizer">Equalizer</string>
     <string name="equalizer_explain">Manually adjust sound</string>
 
+    <!-- Tabs settings -->
+    <string name="tabs">Tabs</string>
+    <string name="tabs_supporting_text">Default tab and order</string>
+    <string name="default_tab_and_order">Default tab and order</string>
+    <string name="reorder_tab">Reorder tab</string>
+
     <!-- Playlists settings -->
     <string name="filter_instead_of_search">Filter instead of search</string>
     <string name="filter_instead_of_search_explain">Replace playlist search with filter</string>
