@@ -8,5 +8,6 @@ data class Metadata(
     val genre: String? = null,
     val year: String? = null,
     val trackNumber: String? = null,
-    val coverArtBytes: ByteArray? = null
+    val coverArtBytes: ByteArray? = null,
+    val lyrics: String? = null
 )

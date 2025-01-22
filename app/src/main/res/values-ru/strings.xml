@@ -150,6 +150,24 @@
     <string name="restore_art">Восстановить</string>
     <string name="restore_tag">Восстановить значение тега</string>
 
+    <!-- Lyrics control screen -->
+    <string name="lyrics_control">Управление текстом</string>
+    <string name="lyrics_in_tag">Текст в теге</string>
+    <string name="lyrics_in_tag_explain">Текст, хранящийся в теге аудио файла</string>
+    <string name="lyrics_in_local_database">Текст в локальной базе данных</string>
+    <string name="lyrics_in_local_database_explain">Текст скопированный из тега, взятый из LRCLIB или добавленный из файла. Его вы видите на экране текста</string>
+    <string name="lyrics_actions">Действия с текстом</string>
+    <string name="lyrics_tools_explained">Действия по управлению или изменению текста в локальной базе данных</string>
+    <string name="clear_db_entry">Очистить запись в БД</string>
+    <string name="copy_from_tag">Скопировать из тега</string>
+    <string name="import_from_file">Импортировать из файла</string>
+    <string name="write_to_tag">Записать в тег</string>
+    <string name="fetch_from_lrclib">Взять из LRCLIB</string>
+    <string name="publish_on_lrclib">Опубликовать на LRCLIB</string>
+    <string name="unable_to_publish">Невозможно опубликовать: не указаны название, исполнитель или альбом.</string>
+    <string name="published_successfully">Опубликован успешно.</string>
+    <string name="solving_challenge">Решаем задачу...</string>
+
     <!-- Lyrics sheet -->
     <string name="lyrics">Текст</string>
     <string name="close_lyrics_sheet">Закрыть текст трека</string>
@@ -159,7 +177,7 @@
 
     <!-- Lyrics screen errors -->
     <string name="cant_look_for_lyrics_title_or_artist_is_missing">Не удается найти текст. Для этого трека не указано название или исполнитель.</string>
-    <string name="lyrics_not_found">К сожалению, текст к этому треку найти не удалось.</string>
+    <string name="lyrics_not_found">К сожалению, на LRCLIB текст к этому треку найти не удалось.</string>
     <string name="cant_find_lyrics">Текст не найден.</string>
     <string name="lyrics_provided_by">Текст предоставлен LRCLIB</string>
 

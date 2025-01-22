@@ -145,6 +145,27 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
+        val pickedLyricsFileContentChannel = Channel<String>()
+        val pickLyricsFile =
+            registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+                uri?.let {
+                    var lyrics: String? = null
+                    contentResolver.openInputStream(it)?.use { input ->
+                        lyrics = input.readBytes().toString(Charsets.UTF_8)
+                    }
+
+                    println(lyrics)
+
+                    lyrics?.let {
+                        lifecycleScope.launch {
+                            pickedLyricsFileContentChannel.send(
+                                it
+                            )
+                        }
+                    }
+                }
+            }
+
         val startDestination = if (checkAudioPermission() && setupState.isComplete) {
             Routes.Player
         } else Routes.Setup
@@ -252,6 +273,9 @@ class MainActivity : ComponentActivity() {
                                         shouldScanPickedFolder = shouldScan
                                         pickFolder.launch(null)
                                     },
+                                    onLyricsPick = {
+                                        pickLyricsFile.launch(arrayOf("text/plain", "application/lrc"))
+                                    },
                                     modifier = Modifier.fillMaxSize()
                                 )
                             }
@@ -316,6 +340,10 @@ class MainActivity : ComponentActivity() {
                                     return@ObserveAsEvents
                                 }
                                 viewModel.onFolderPicked(path)
+                            }
+
+                            ObserveAsEvents(pickedLyricsFileContentChannel.receiveAsFlow()) { lyrics ->
+                                viewModel.onLyricsPicked(lyrics)
                             }
 
                             if (viewModel.settings.scanOnAppLaunch.value) {

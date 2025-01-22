@@ -1,6 +1,8 @@
 package com.dn0ne.player.app.di
 
 import com.dn0ne.player.EqualizerController
+import com.dn0ne.player.app.data.LyricsReader
+import com.dn0ne.player.app.data.LyricsReaderImpl
 import com.dn0ne.player.app.data.MetadataWriter
 import com.dn0ne.player.app.data.MetadataWriterImpl
 import com.dn0ne.player.app.data.SavedPlayerState
@@ -103,6 +105,12 @@ val playerModule = module {
         )
     }
 
+    single<LyricsReader> {
+        LyricsReaderImpl(
+            context = androidContext()
+        )
+    }
+
     viewModel<PlayerViewModel> {
         PlayerViewModel(
             savedPlayerState = get(),
@@ -110,6 +118,7 @@ val playerModule = module {
             metadataProvider = get(),
             lyricsProvider = get(),
             lyricsRepository = get(),
+            lyricsReader = get(),
             playlistRepository = get(),
             unsupportedArtworkEditFormats = get<MetadataWriter>().unsupportedArtworkEditFormats,
             settings = get(),

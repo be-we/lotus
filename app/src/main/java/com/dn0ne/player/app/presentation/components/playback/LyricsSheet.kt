@@ -298,13 +298,15 @@ fun LyricsSheet(
                             }
                         }
 
-                        item {
-                            ProviderText(
-                                providerText = context.resources.getString(R.string.lyrics_provided_by),
-                                uri = context.resources.getString(R.string.lrclib_uri),
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                        if (lyrics?.areFromRemote == true) {
+                            item {
+                                ProviderText(
+                                    providerText = context.resources.getString(R.string.lyrics_provided_by),
+                                    uri = context.resources.getString(R.string.lrclib_uri),
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
                 }
@@ -326,13 +328,15 @@ fun LyricsSheet(
                             }
                         }
 
-                        item {
-                            ProviderText(
-                                providerText = context.resources.getString(R.string.lyrics_provided_by),
-                                uri = context.resources.getString(R.string.lrclib_uri),
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                        if (lyrics?.areFromRemote == true) {
+                            item {
+                                ProviderText(
+                                    providerText = context.resources.getString(R.string.lyrics_provided_by),
+                                    uri = context.resources.getString(R.string.lrclib_uri),
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
                 }
@@ -517,7 +521,7 @@ fun SyncedLyricsLine(
                 textHeight = it.size.height.toFloat()
             }
             .graphicsLayer {
-                transformOrigin = when(style.textAlign) {
+                transformOrigin = when (style.textAlign) {
                     TextAlign.Center -> TransformOrigin(.5f, .5f)
                     TextAlign.End -> TransformOrigin(1f, .5f)
                     else -> TransformOrigin(0f, .5f)

@@ -150,6 +150,24 @@
     <string name="restore_art">Відновити</string>
     <string name="restore_tag">Відновити значення тегу</string>
 
+    <!-- Lyrics control screen -->
+    <string name="lyrics_control">Керування текстом</string>
+    <string name="lyrics_in_tag">Текст в тезі</string>
+    <string name="lyrics_in_tag_explain">Текст, що зберігається в тезі аудіофайлу</string>
+    <string name="lyrics_in_local_database">Текст у локальній базі даних</string>
+    <string name="lyrics_in_local_database_explain">Текст скопійований з тегу, взятий з LRCLIB або доданий з файлу. Це те, що ви бачите на екрані тексту</string>
+    <string name="lyrics_actions">Дії з текстом</string>
+    <string name="lyrics_tools_explained">Дії для керування або модифікації тексту у локальній базі даних</string>
+    <string name="clear_db_entry">Видалити запис у БД</string>
+    <string name="copy_from_tag">Скопіювати з тегу</string>
+    <string name="import_from_file">Імпортувати з файлу</string>
+    <string name="write_to_tag">Записати в тег</string>
+    <string name="fetch_from_lrclib">Взяти з LRCLIB</string>
+    <string name="publish_on_lrclib">Опублікувати на LRCLIB</string>
+    <string name="unable_to_publish">Неможливо опублікувати: не вказано назву, виконавця або альбом.</string>
+    <string name="published_successfully">Успішно опубліковано.</string>
+    <string name="solving_challenge">Вирішуємо задачу...</string>
+
     <!-- Lyrics sheet -->
     <string name="lyrics">Текст</string>
     <string name="close_lyrics_sheet">Закрити текст треку</string>
@@ -159,7 +177,7 @@
 
     <!-- Lyrics screen errors -->
     <string name="cant_look_for_lyrics_title_or_artist_is_missing">Не вдається знайти текст. Для цього треку не вказано назву або виконавця.</string>
-    <string name="lyrics_not_found">На жаль, текст до цього треку знайти не вдалося.</string>
+    <string name="lyrics_not_found">На жаль, на LRCLIB текст до цього треку знайти не вдалося.</string>
     <string name="cant_find_lyrics">Текст не знайдено.</string>
     <string name="lyrics_provided_by">Текст наданий LRCLIB</string>
 

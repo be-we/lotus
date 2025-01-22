@@ -10,6 +10,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import com.dn0ne.player.EqualizerController
 import com.dn0ne.player.R
+import com.dn0ne.player.app.data.LyricsReader
 import com.dn0ne.player.app.data.SavedPlayerState
 import com.dn0ne.player.app.data.remote.lyrics.LyricsProvider
 import com.dn0ne.player.app.data.remote.metadata.MetadataProvider
@@ -17,6 +18,7 @@ import com.dn0ne.player.app.data.repository.LyricsRepository
 import com.dn0ne.player.app.data.repository.PlaylistRepository
 import com.dn0ne.player.app.data.repository.TrackRepository
 import com.dn0ne.player.app.domain.lyrics.Lyrics
+import com.dn0ne.player.app.domain.lyrics.toSyncedLyrics
 import com.dn0ne.player.app.domain.metadata.Metadata
 import com.dn0ne.player.app.domain.playback.PlaybackMode
 import com.dn0ne.player.app.domain.result.DataError
@@ -25,12 +27,14 @@ import com.dn0ne.player.app.domain.sort.sortedBy
 import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.domain.track.Track
 import com.dn0ne.player.app.domain.track.format
+import com.dn0ne.player.app.presentation.PlayerScreenEvent.*
 import com.dn0ne.player.app.presentation.components.playback.PlaybackState
 import com.dn0ne.player.app.presentation.components.settings.SettingsSheetState
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarController
 import com.dn0ne.player.app.presentation.components.snackbar.SnackbarEvent
 import com.dn0ne.player.app.presentation.components.trackinfo.ChangesSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.InfoSearchSheetState
+import com.dn0ne.player.app.presentation.components.trackinfo.LyricsControlSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.ManualInfoEditSheetState
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheetState
 import com.dn0ne.player.core.data.MusicScanner
@@ -56,6 +60,7 @@ class PlayerViewModel(
     private val metadataProvider: MetadataProvider,
     private val lyricsProvider: LyricsProvider,
     private val lyricsRepository: LyricsRepository,
+    private val lyricsReader: LyricsReader,
     private val playlistRepository: PlaylistRepository,
     private val unsupportedArtworkEditFormats: List<String>,
     val settings: Settings,
@@ -187,18 +192,29 @@ class PlayerViewModel(
     private val _infoSearchSheetState = MutableStateFlow(InfoSearchSheetState())
     private val _changesSheetState = MutableStateFlow(ChangesSheetState())
     private val _manualInfoEditSheetState = MutableStateFlow(ManualInfoEditSheetState())
+    private val _lyricsControlSheetState = MutableStateFlow(LyricsControlSheetState())
     private val _trackInfoSheetState = MutableStateFlow(
         TrackInfoSheetState(
             showRisksOfMetadataEditingDialog = !settings.areRisksOfMetadataEditingAccepted
         )
     )
     val trackInfoSheetState = combine(
-        _trackInfoSheetState, _infoSearchSheetState, _changesSheetState, _manualInfoEditSheetState
-    ) { trackInfoSheetState, infoSearchSheetState, changesSheetState, manualInfoEditSheetState ->
+        _trackInfoSheetState,
+        _infoSearchSheetState,
+        _changesSheetState,
+        _manualInfoEditSheetState,
+        _lyricsControlSheetState
+    ) { trackInfoSheetState,
+        infoSearchSheetState,
+        changesSheetState,
+        manualInfoEditSheetState,
+        lyricsControlSheetState ->
+
         trackInfoSheetState.copy(
             infoSearchSheetState = infoSearchSheetState,
             changesSheetState = changesSheetState,
-            manualInfoEditSheetState = manualInfoEditSheetState
+            manualInfoEditSheetState = manualInfoEditSheetState,
+            lyricsControlSheetState = lyricsControlSheetState
         )
     }
         .stateIn(
@@ -321,7 +337,7 @@ class PlayerViewModel(
                 val track = _trackList.value.fastFirstOrNull { it.data == path || it.uri == uri }
                 track?.let {
                     onEvent(
-                        PlayerScreenEvent.OnTrackClick(
+                        OnTrackClick(
                             track = it,
                             playlist = Playlist(
                                 name = null,
@@ -343,7 +359,7 @@ class PlayerViewModel(
     fun onEvent(event: PlayerScreenEvent) {
 
         when (event) {
-            is PlayerScreenEvent.OnTrackClick -> {
+            is OnTrackClick -> {
                 player?.let { player ->
                     if (_playbackState.value.playlist != event.playlist) {
                         player.clearMediaItems()
@@ -372,13 +388,13 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnPauseClick -> {
+            OnPauseClick -> {
                 player?.run {
                     pause()
                 }
             }
 
-            PlayerScreenEvent.OnPlayClick -> {
+            OnPlayClick -> {
                 player?.let { player ->
                     if (player.currentMediaItem == null) return
 
@@ -386,7 +402,7 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnSeekToNextClick -> {
+            OnSeekToNextClick -> {
                 player?.let { player ->
                     if (!player.hasNextMediaItem()) return
 
@@ -394,7 +410,7 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnSeekToPreviousClick -> {
+            OnSeekToPreviousClick -> {
                 player?.let { player ->
                     if (settings.jumpToBeginning && player.currentPosition >= 3000) {
                         player.seekTo(0)
@@ -409,7 +425,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnSeekTo -> {
+            is OnSeekTo -> {
                 player?.let { player ->
                     if (player.currentMediaItem == null) return
 
@@ -422,7 +438,7 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnPlaybackModeClick -> {
+            OnPlaybackModeClick -> {
                 val newPlaybackMode = _playbackState.value.playbackMode.let {
                     PlaybackMode.entries.nextAfterOrNull(it.ordinal)
                 }
@@ -437,7 +453,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnPlayerExpandedChange -> {
+            is OnPlayerExpandedChange -> {
                 _playbackState.update {
                     it.copy(
                         isPlayerExpanded = event.isExpanded,
@@ -446,7 +462,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnLyricsSheetExpandedChange -> {
+            is OnLyricsSheetExpandedChange -> {
                 _playbackState.update {
                     it.copy(
                         isLyricsSheetExpanded = event.isExpanded
@@ -454,14 +470,14 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnLyricsClick -> {
+            OnLyricsClick -> {
                 loadLyrics()
             }
 
-            is PlayerScreenEvent.OnRemoveFromQueueClick -> {
+            is OnRemoveFromQueueClick -> {
                 player?.let { player ->
                     if (event.index == player.currentMediaItemIndex) {
-                        onEvent(PlayerScreenEvent.OnSeekToNextClick)
+                        onEvent(OnSeekToNextClick)
                     }
 
                     player.removeMediaItem(event.index)
@@ -491,7 +507,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnReorderingQueue -> {
+            is OnReorderingQueue -> {
                 player?.let { player ->
                     player.moveMediaItem(event.from, event.to)
 
@@ -511,7 +527,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnPlayNextClick -> {
+            is OnPlayNextClick -> {
                 if (_playbackState.value.currentTrack == event.track) return
 
                 _playbackState.value.playlist?.let { playlist ->
@@ -522,7 +538,7 @@ class PlayerViewModel(
 
                     if (trackIndex >= 0) {
                         onEvent(
-                            PlayerScreenEvent.OnReorderingQueue(
+                            OnReorderingQueue(
                                 trackIndex,
                                 (currentTrackIndex).coerceAtMost(playlist.trackList.lastIndex)
                             )
@@ -549,7 +565,7 @@ class PlayerViewModel(
                     }
                 } ?: run {
                     onEvent(
-                        PlayerScreenEvent.OnTrackClick(
+                        OnTrackClick(
                             track = event.track,
                             playlist = Playlist(
                                 name = null,
@@ -564,7 +580,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnAddToQueueClick -> {
+            is OnAddToQueueClick -> {
                 if (_playbackState.value.currentTrack == event.track) return
 
                 _playbackState.value.playlist?.let { playlist ->
@@ -572,7 +588,7 @@ class PlayerViewModel(
 
                     if (trackIndex >= 0) {
                         onEvent(
-                            PlayerScreenEvent.OnReorderingQueue(
+                            OnReorderingQueue(
                                 trackIndex,
                                 playlist.trackList.lastIndex
                             )
@@ -596,7 +612,7 @@ class PlayerViewModel(
                     }
                 } ?: run {
                     onEvent(
-                        PlayerScreenEvent.OnTrackClick(
+                        OnTrackClick(
                             track = event.track,
                             playlist = Playlist(
                                 name = null,
@@ -611,7 +627,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnViewTrackInfoClick -> {
+            is OnViewTrackInfoClick -> {
                 _trackInfoSheetState.update {
                     it.copy(
                         isShown = true,
@@ -627,7 +643,7 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnCloseTrackInfoSheetClick -> {
+            OnCloseTrackInfoSheetClick -> {
                 _trackInfoSheetState.update {
                     it.copy(
                         isShown = false
@@ -635,7 +651,7 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnAcceptingRisksOfMetadataEditing -> {
+            OnAcceptingRisksOfMetadataEditing -> {
                 settings.areRisksOfMetadataEditingAccepted = true
                 _trackInfoSheetState.update {
                     it.copy(
@@ -644,11 +660,11 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnMatchDurationWhenSearchMetadataClick -> {
+            OnMatchDurationWhenSearchMetadataClick -> {
                 settings.matchDurationWhenSearchMetadata = !settings.matchDurationWhenSearchMetadata
             }
 
-            is PlayerScreenEvent.OnSearchInfo -> {
+            is OnSearchInfo -> {
                 viewModelScope.launch {
                     _infoSearchSheetState.update {
                         it.copy(
@@ -734,7 +750,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnMetadataSearchResultPick -> {
+            is OnMetadataSearchResultPick -> {
                 viewModelScope.launch {
                     if (_trackInfoSheetState.value.isCoverArtEditable) {
                         _changesSheetState.update {
@@ -834,7 +850,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnOverwriteMetadataClick -> {
+            is OnOverwriteMetadataClick -> {
                 _manualInfoEditSheetState.update {
                     it.copy(
                         pickedCoverArtBytes = null
@@ -847,7 +863,7 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnRestoreCoverArtClick -> {
+            OnRestoreCoverArtClick -> {
                 _manualInfoEditSheetState.update {
                     it.copy(
                         pickedCoverArtBytes = null
@@ -855,7 +871,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnConfirmMetadataEditClick -> {
+            is OnConfirmMetadataEditClick -> {
                 _changesSheetState.update {
                     it.copy(
                         metadata = event.metadata,
@@ -864,13 +880,13 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnPlaylistSelection -> {
+            is OnPlaylistSelection -> {
                 _selectedPlaylist.update {
                     event.playlist
                 }
             }
 
-            is PlayerScreenEvent.OnTrackSortChange -> {
+            is OnTrackSortChange -> {
                 event.sort?.let { sort ->
                     settings.trackSort = sort
                     _trackSort.update {
@@ -902,7 +918,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnPlaylistSortChange -> {
+            is OnPlaylistSortChange -> {
                 event.sort?.let { sort ->
                     settings.playlistSort = sort
                     _playlistSort.update {
@@ -918,7 +934,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnCreatePlaylistClick -> {
+            is OnCreatePlaylistClick -> {
                 viewModelScope.launch {
                     if (playlists.value.map { it.name }.contains(event.name)) return@launch
                     playlistRepository.insertPlaylist(
@@ -930,7 +946,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnRenamePlaylistClick -> {
+            is OnRenamePlaylistClick -> {
                 viewModelScope.launch {
                     if (playlists.value.map { it.name }.contains(event.name)) return@launch
                     playlistRepository.renamePlaylist(
@@ -946,7 +962,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnDeletePlaylistClick -> {
+            is OnDeletePlaylistClick -> {
                 viewModelScope.launch {
                     playlistRepository.deletePlaylist(
                         playlist = event.playlist
@@ -956,7 +972,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnAddToPlaylist -> {
+            is OnAddToPlaylist -> {
                 viewModelScope.launch {
                     if (event.playlist.trackList.contains(event.track)) {
                         SnackbarController.sendEvent(
@@ -975,7 +991,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnRemoveFromPlaylist -> {
+            is OnRemoveFromPlaylist -> {
                 viewModelScope.launch {
                     val newTrackList = event.playlist.trackList.toMutableList().apply {
                         remove(event.track)
@@ -994,7 +1010,7 @@ class PlayerViewModel(
                 }
             }
 
-            is PlayerScreenEvent.OnPlaylistReorder -> {
+            is OnPlaylistReorder -> {
                 if (event.playlist.trackList != event.trackList) {
                     viewModelScope.launch {
                         playlistRepository.updatePlaylistTrackList(
@@ -1011,7 +1027,7 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnSettingsClick -> {
+            OnSettingsClick -> {
                 _settingsSheetState.update {
                     it.copy(
                         isShown = true
@@ -1019,7 +1035,7 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnCloseSettingsClick -> {
+            OnCloseSettingsClick -> {
                 _settingsSheetState.update {
                     it.copy(
                         isShown = false
@@ -1027,11 +1043,206 @@ class PlayerViewModel(
                 }
             }
 
-            PlayerScreenEvent.OnScanFoldersClick -> {
+            OnScanFoldersClick -> {
                 _settingsSheetState.update {
                     it.copy(
                         foldersWithAudio = trackRepository.getFoldersWithAudio()
                     )
+                }
+            }
+
+            is OnLyricsControlClick -> {
+                viewModelScope.launch(Dispatchers.IO) {
+                    val track = _trackInfoSheetState.value.track ?: return@launch
+
+                    val lyricsFromRepository = lyricsRepository.getLyricsByUri(track.uri.toString())
+                    var lyricsFromTag: Lyrics? = readLyricsFromTag(track)
+
+                    _lyricsControlSheetState.update {
+                        it.copy(
+                            lyricsFromTag = lyricsFromTag,
+                            lyricsFromRepository = lyricsFromRepository
+                        )
+                    }
+                }
+            }
+
+            OnDeleteLyricsClick -> {
+                viewModelScope.launch {
+                    _lyricsControlSheetState.value.lyricsFromRepository?.let {
+                        lyricsRepository.deleteLyrics(it)
+                    }
+                }
+
+                _lyricsControlSheetState.update {
+                    it.copy(
+                        lyricsFromRepository = null
+                    )
+                }
+
+                _playbackState.update {
+                    it.copy(
+                        lyrics = null
+                    )
+                }
+            }
+
+            OnCopyLyricsFromTagClick -> {
+                _lyricsControlSheetState.value.lyricsFromTag?.let { lyrics ->
+                    viewModelScope.launch {
+                        lyricsRepository.insertLyrics(lyrics)
+                    }
+
+                    _lyricsControlSheetState.update {
+                        it.copy(
+                            lyricsFromRepository = lyrics
+                        )
+                    }
+
+                    _playbackState.update {
+                        it.copy(
+                            lyrics = null
+                        )
+                    }
+                }
+            }
+
+            OnWriteLyricsToTagClick -> {
+                val track = _trackInfoSheetState.value.track ?: return
+
+                _lyricsControlSheetState.value.lyricsFromRepository?.let { lyrics ->
+                    val plain = lyrics.plain?.joinToString("\n")
+                        ?: return
+
+                    viewModelScope.launch {
+                        _lyricsControlSheetState.update {
+                            it.copy(
+                                isWritingToTag = true
+                            )
+                        }
+                        _pendingMetadata.send(
+                            track to Metadata(lyrics = plain)
+                        )
+
+                        delay(5000)
+
+                        val fromTag = readLyricsFromTag(track)
+                        _lyricsControlSheetState.update {
+                            it.copy(
+                                lyricsFromTag = fromTag,
+                                isWritingToTag = false
+                            )
+                        }
+                    }
+                }
+            }
+
+            OnFetchLyricsFromRemoteClick -> {
+                val track = _trackInfoSheetState.value.track ?: return
+                viewModelScope.launch {
+                    _lyricsControlSheetState.update {
+                        it.copy(
+                            isFetchingFromRemote = true
+                        )
+                    }
+                    val lyrics = fetchLyrics(track)
+
+                    _lyricsControlSheetState.update {
+                        it.copy(
+                            lyricsFromRepository = lyrics ?: it.lyricsFromRepository,
+                            isFetchingFromRemote = false
+                        )
+                    }
+
+                    _playbackState.update {
+                        it.copy(
+                            lyrics = null
+                        )
+                    }
+                }
+            }
+
+            OnPublishLyricsOnRemoteClick -> {
+                val track = _trackInfoSheetState.value.track ?: return
+
+                if (
+                    track.title == null ||
+                    track.artist == null ||
+                    track.album == null ||
+                    track.artist == "<unknown>" ||
+                    track.title.contains(".mp3")
+                ) {
+                    viewModelScope.launch {
+                        SnackbarController.sendEvent(
+                            SnackbarEvent(
+                                message = R.string.unable_to_publish
+                            )
+                        )
+                    }
+                    return
+                }
+
+                _lyricsControlSheetState.value.lyricsFromRepository?.let { lyrics ->
+                    viewModelScope.launch(Dispatchers.IO) {
+                        _lyricsControlSheetState.update {
+                            it.copy(
+                                isPublishingOnRemote = true
+                            )
+                        }
+
+                        val result = lyricsProvider.postLyrics(track, lyrics)
+                        when (result) {
+                            is Result.Success -> {
+                                SnackbarController.sendEvent(
+                                    SnackbarEvent(
+                                        message = R.string.published_successfully
+                                    )
+                                )
+                            }
+
+                            is Result.Error -> {
+                                when (result.error) {
+                                    DataError.Network.BadRequest -> {
+                                        SnackbarController.sendEvent(
+                                            SnackbarEvent(
+                                                message = R.string.unable_to_publish
+                                            )
+                                        )
+                                    }
+
+                                    DataError.Network.ParseError -> {
+                                        SnackbarController.sendEvent(
+                                            SnackbarEvent(
+                                                message = R.string.failed_to_parse_response
+                                            )
+                                        )
+                                    }
+
+                                    DataError.Network.NoInternet -> {
+                                        SnackbarController.sendEvent(
+                                            SnackbarEvent(
+                                                message = R.string.no_internet
+                                            )
+                                        )
+                                    }
+
+                                    else -> {
+                                        SnackbarController.sendEvent(
+                                            SnackbarEvent(
+                                                message = R.string.unknown_error_occurred
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        _lyricsControlSheetState.update {
+                            it.copy(
+                                isPublishingOnRemote = false
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -1056,6 +1267,36 @@ class PlayerViewModel(
             settings.updateExtraScanFolders(settings.extraScanFolders.value + path)
         } else {
             settings.updateExcludedScanFolders(settings.extraScanFolders.value + path)
+        }
+    }
+
+    fun onLyricsPicked(lyrics: String) {
+        _trackInfoSheetState.value.track?.let { track ->
+            val lyrics = try {
+                val syncedLyrics = lyrics.toSyncedLyrics()
+
+                Lyrics(
+                    uri = track.uri.toString(),
+                    synced = syncedLyrics,
+                    plain = syncedLyrics.map { it.second },
+                    areFromRemote = false
+                )
+            } catch (_: IllegalArgumentException) {
+                Lyrics(
+                    uri = track.uri.toString(),
+                    plain = lyrics.split('\n'),
+                    areFromRemote = false
+                )
+            }
+            viewModelScope.launch {
+                lyricsRepository.insertLyrics(lyrics)
+            }
+
+            _lyricsControlSheetState.update {
+                it.copy(
+                    lyricsFromRepository = lyrics
+                )
+            }
         }
     }
 
@@ -1093,99 +1334,134 @@ class PlayerViewModel(
         }
     }
 
+    private fun readLyricsFromTag(track: Track): Lyrics? {
+        var lyrics: Lyrics? = null
+
+        val readResult = lyricsReader.readFromTag(track)
+        when (readResult) {
+            is Result.Success -> {
+                lyrics = readResult.data
+            }
+
+            is Result.Error -> {
+                viewModelScope.launch {
+                    when (readResult.error) {
+                        DataError.Local.NoReadPermission -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.no_read_permission
+                                )
+                            )
+                        }
+
+                        DataError.Local.FailedToRead -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.failed_to_read
+                                )
+                            )
+                        }
+
+                        else -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.unknown_error_occurred
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        return lyrics
+    }
+
+    private suspend fun fetchLyrics(track: Track): Lyrics? {
+        return withContext(Dispatchers.IO) {
+            if (track.title == null || track.artist == null) {
+                SnackbarController.sendEvent(
+                    SnackbarEvent(
+                        message = R.string.cant_look_for_lyrics_title_or_artist_is_missing
+                    )
+                )
+                return@withContext null
+            }
+
+            var lyrics: Lyrics? = null
+            val result = lyricsProvider.getLyrics(track)
+
+            when (result) {
+                is Result.Success -> {
+                    lyrics = result.data
+                    lyricsRepository.insertLyrics(lyrics)
+                }
+
+                is Result.Error -> {
+                    when (result.error) {
+                        DataError.Network.BadRequest -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.cant_look_for_lyrics_title_or_artist_is_missing
+                                )
+                            )
+                        }
+
+                        DataError.Network.NotFound -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.lyrics_not_found
+                                )
+                            )
+                        }
+
+                        DataError.Network.ParseError -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.failed_to_parse_response
+                                )
+                            )
+                        }
+
+                        DataError.Network.NoInternet -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.no_internet
+                                )
+                            )
+                        }
+
+                        else -> {
+                            SnackbarController.sendEvent(
+                                SnackbarEvent(
+                                    message = R.string.unknown_error_occurred
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+
+            lyrics
+        }
+    }
+
     private fun loadLyrics() {
         _playbackState.value.currentTrack?.let { currentTrack ->
             if (currentTrack.uri.toString() == _playbackState.value.lyrics?.uri) return
 
-            _playbackState.update {
-                it.copy(
-                    lyrics = null,
-                    isLoadingLyrics = true
-                )
-            }
-
-            var lyrics: Lyrics? = lyricsRepository.getLyricsByUri(currentTrack.uri.toString())
-
-            if (lyrics == null) {
-                if (currentTrack.title == null || currentTrack.artist == null) {
-                    viewModelScope.launch {
-                        SnackbarController.sendEvent(
-                            SnackbarEvent(
-                                message = R.string.cant_look_for_lyrics_title_or_artist_is_missing
-                            )
-                        )
-                    }
-                    return
+            viewModelScope.launch {
+                _playbackState.update {
+                    it.copy(
+                        lyrics = null,
+                        isLoadingLyrics = true
+                    )
                 }
 
-                viewModelScope.launch {
-                    val result = lyricsProvider.getLyrics(currentTrack)
+                var lyrics: Lyrics? = lyricsRepository.getLyricsByUri(currentTrack.uri.toString())
+                    ?: fetchLyrics(currentTrack) ?: readLyricsFromTag(currentTrack)
+                        ?.also { lyricsRepository.insertLyrics(it) }
 
-                    when (result) {
-                        is Result.Success -> {
-                            lyrics = result.data
-
-                            lyricsRepository.insertLyrics(lyrics)
-
-                            _playbackState.update {
-                                it.copy(
-                                    lyrics = lyrics,
-                                    isLoadingLyrics = false
-                                )
-                            }
-                        }
-
-                        is Result.Error -> {
-                            _playbackState.update {
-                                it.copy(
-                                    isLoadingLyrics = false
-                                )
-                            }
-                            when (result.error) {
-                                DataError.Network.BadRequest -> {
-                                    SnackbarController.sendEvent(
-                                        SnackbarEvent(
-                                            message = R.string.cant_look_for_lyrics_title_or_artist_is_missing
-                                        )
-                                    )
-                                }
-
-                                DataError.Network.NotFound -> {
-                                    SnackbarController.sendEvent(
-                                        SnackbarEvent(
-                                            message = R.string.lyrics_not_found
-                                        )
-                                    )
-                                }
-
-                                DataError.Network.ParseError -> {
-                                    SnackbarController.sendEvent(
-                                        SnackbarEvent(
-                                            message = R.string.failed_to_parse_response
-                                        )
-                                    )
-                                }
-
-                                DataError.Network.NoInternet -> {
-                                    SnackbarController.sendEvent(
-                                        SnackbarEvent(
-                                            message = R.string.no_internet
-                                        )
-                                    )
-                                }
-
-                                else -> {
-                                    SnackbarController.sendEvent(
-                                        SnackbarEvent(
-                                            message = R.string.unknown_error_occurred
-                                        )
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
                 _playbackState.update {
                     it.copy(
                         lyrics = lyrics,

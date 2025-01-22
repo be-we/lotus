@@ -21,6 +21,22 @@ class RealmLyricsRepository(
             copyToRealm(instance = lyrics.toLyricsJson(), updatePolicy = UpdatePolicy.ALL)
         }
     }
+
+    override suspend fun updateLyrics(lyrics: Lyrics) {
+        realm.write {
+            val queryResult = query<LyricsJson>(query = "uri = $0", lyrics.uri).find().firstOrNull()
+            queryResult?.let {
+                findLatest(it)?.json = lyrics.toLyricsJson().json
+            }
+        }
+    }
+
+    override suspend fun deleteLyrics(lyrics: Lyrics) {
+        realm.write {
+            val lyrics = query<LyricsJson>(query = "uri = $0", lyrics.uri)
+            delete(lyrics)
+        }
+    }
 }
 
 class LyricsJson(): RealmObject {

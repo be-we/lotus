@@ -92,6 +92,10 @@ class MetadataWriterImpl(
                     tag.deleteArtworkField()
                     tag.setField(cover)
                 }
+
+                lyrics?.let {
+                    tag.setField(FieldKey.LYRICS, it)
+                }
             }
 
             try {

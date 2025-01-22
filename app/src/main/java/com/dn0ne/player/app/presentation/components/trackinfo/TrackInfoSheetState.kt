@@ -9,5 +9,6 @@ data class TrackInfoSheetState(
     val isCoverArtEditable: Boolean = true,
     val infoSearchSheetState: InfoSearchSheetState = InfoSearchSheetState(),
     val changesSheetState: ChangesSheetState = ChangesSheetState(),
-    val manualInfoEditSheetState: ManualInfoEditSheetState = ManualInfoEditSheetState()
+    val manualInfoEditSheetState: ManualInfoEditSheetState = ManualInfoEditSheetState(),
+    val lyricsControlSheetState: LyricsControlSheetState = LyricsControlSheetState()
 )

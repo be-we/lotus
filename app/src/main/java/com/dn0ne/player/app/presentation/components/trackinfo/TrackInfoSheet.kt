@@ -69,6 +69,13 @@ fun TrackInfoSheet(
     onRestoreCoverArtClick: () -> Unit,
     onConfirmMetadataEditClick: (Metadata) -> Unit,
     onRisksOfMetadataEditingAccept: () -> Unit,
+    onLyricsControlClick: () -> Unit,
+    onDeleteLyricsClick: () -> Unit,
+    onFetchLyricsFromRemoteClick: () -> Unit,
+    onPickLyricsClick: () -> Unit,
+    onCopyLyricsFromTagClick: () -> Unit,
+    onWriteLyricsToTagClick: () -> Unit,
+    onPublishLyricsOnRemoteClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     AnimatedVisibility(
@@ -165,6 +172,10 @@ fun TrackInfoSheet(
                                     },
                                     onManualEditingClick = {
                                         navController.navigate(TrackInfoRoutes.ManualEditing)
+                                    },
+                                    onLyricsControlClick = {
+                                        onLyricsControlClick()
+                                        navController.navigate(TrackInfoRoutes.LyricsControl)
                                     },
                                     onDismissRequest = {
                                         showEditDropdownMenu = false
@@ -350,6 +361,21 @@ fun TrackInfoSheet(
                             navController.navigateUp()
                         },
                         modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                composable<TrackInfoRoutes.LyricsControl> {
+                    LyricsControlSheet(
+                        state = state.lyricsControlSheetState,
+                        onDeleteLyricsClick = onDeleteLyricsClick,
+                        onFetchLyricsFromRemoteClick = onFetchLyricsFromRemoteClick,
+                        onPickLyricsClick = onPickLyricsClick,
+                        onCopyLyricsFromTagClick = onCopyLyricsFromTagClick,
+                        onWriteLyricsToTagClick = onWriteLyricsToTagClick,
+                        onPublishLyricsOnRemoteClick = onPublishLyricsOnRemoteClick,
+                        onBackClick = {
+                            navController.navigateUp()
+                        }
                     )
                 }
             }

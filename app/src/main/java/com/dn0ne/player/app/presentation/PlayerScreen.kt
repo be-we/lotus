@@ -113,6 +113,7 @@ fun PlayerScreen(
     viewModel: PlayerViewModel,
     onCoverArtPick: () -> Unit,
     onFolderPick: (scan: Boolean) -> Unit,
+    onLyricsPick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val useDynamicColor by viewModel.settings.useDynamicColor.collectAsState()
@@ -807,6 +808,25 @@ fun PlayerScreen(
                     },
                     onRisksOfMetadataEditingAccept = {
                         viewModel.onEvent(PlayerScreenEvent.OnAcceptingRisksOfMetadataEditing)
+                    },
+                    onLyricsControlClick = {
+                        viewModel.onEvent(PlayerScreenEvent.OnLyricsControlClick)
+                    },
+                    onPickLyricsClick = onLyricsPick,
+                    onDeleteLyricsClick = {
+                        viewModel.onEvent(PlayerScreenEvent.OnDeleteLyricsClick)
+                    },
+                    onFetchLyricsFromRemoteClick = {
+                        viewModel.onEvent(PlayerScreenEvent.OnFetchLyricsFromRemoteClick)
+                    },
+                    onCopyLyricsFromTagClick = {
+                        viewModel.onEvent(PlayerScreenEvent.OnCopyLyricsFromTagClick)
+                    },
+                    onWriteLyricsToTagClick = {
+                        viewModel.onEvent(PlayerScreenEvent.OnWriteLyricsToTagClick)
+                    },
+                    onPublishLyricsOnRemoteClick = {
+                        viewModel.onEvent(PlayerScreenEvent.OnPublishLyricsOnRemoteClick)
                     },
                     modifier = Modifier
                         .fillMaxSize()

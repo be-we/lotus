@@ -2,6 +2,7 @@ package com.dn0ne.player.app.presentation.components.trackinfo
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Lyrics
 import androidx.compose.material.icons.rounded.TravelExplore
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -20,6 +21,7 @@ fun EditDropdownMenu(
     isExpanded: Boolean,
     onLookForMetadataClick: () -> Unit,
     onManualEditingClick: () -> Unit,
+    onLyricsControlClick: () -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -64,6 +66,24 @@ fun EditDropdownMenu(
             onClick = {
                 onDismissRequest()
                 onManualEditingClick()
+            }
+        )
+
+        DropdownMenuItem(
+            text = {
+                Text(
+                    text = context.resources.getString(R.string.lyrics_control),
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Rounded.Lyrics,
+                    contentDescription = null
+                )
+            },
+            onClick = {
+                onDismissRequest()
+                onLyricsControlClick()
             }
         )
     }

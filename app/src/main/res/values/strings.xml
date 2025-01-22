@@ -162,6 +162,24 @@
     <string name="restore_art">Restore</string>
     <string name="restore_tag">Restore tag value</string>
 
+    <!-- Lyrics control screen -->
+    <string name="lyrics_control">Lyrics control</string>
+    <string name="lyrics_in_tag">Lyrics in tag</string>
+    <string name="lyrics_in_tag_explain">Lyrics stored in audio file tag</string>
+    <string name="lyrics_in_local_database">Lyrics in local database</string>
+    <string name="lyrics_in_local_database_explain">Lyrics copied from a tag, taken from LRCLIB or added from a file. This is what you see on lyrics screen</string>
+    <string name="lyrics_actions">Lyrics actions</string>
+    <string name="lyrics_tools_explained">Actions to manage or modify lyrics in local database</string>
+    <string name="clear_db_entry">Clear DB entry</string>
+    <string name="copy_from_tag">Copy from tag</string>
+    <string name="import_from_file">Import from file</string>
+    <string name="write_to_tag">Write to tag</string>
+    <string name="fetch_from_lrclib">Fetch from LRCLIB</string>
+    <string name="publish_on_lrclib">Publish on LRCLIB</string>
+    <string name="unable_to_publish">Unable to publish: title, artist or album not specified.</string>
+    <string name="published_successfully">Published successfully.</string>
+    <string name="solving_challenge">Solving challenge...</string>
+
     <!-- Lyrics sheet -->
     <string name="lyrics">Lyrics</string>
     <string name="close_lyrics_sheet">Close lyrics sheet</string>
@@ -171,7 +189,7 @@
 
     <!-- Lyrics screen errors -->
     <string name="cant_look_for_lyrics_title_or_artist_is_missing">Can\'t look for lyrics. Title or artist is not specified for this track.</string>
-    <string name="lyrics_not_found">Unfortunately, lyrics for this track can\'t be found.</string>
+    <string name="lyrics_not_found">Unfortunately, lyrics for this track can\'t be found on LRCLIB.</string>
     <string name="cant_find_lyrics">Can\'t find lyrics.</string>
     <string name="lyrics_provided_by">Lyrics provided by LRCLIB</string>
 

@@ -7,4 +7,5 @@ import com.dn0ne.player.app.domain.track.Track
 
 interface LyricsProvider {
     suspend fun getLyrics(track: Track): Result<Lyrics, DataError.Network>
+    suspend fun postLyrics(track: Track, lyrics: Lyrics): Result<Unit, DataError.Network>
 }
