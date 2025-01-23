@@ -132,7 +132,7 @@ fun LyricsSheet(
         val coroutineScope = rememberCoroutineScope()
 
         LaunchedEffect(lyrics) {
-            listState.animateScrollToItem(0)
+            listState.scrollToItem(0)
         }
 
         if (showSyncedLyrics == true) {
@@ -140,7 +140,7 @@ fun LyricsSheet(
                 val index = lyrics?.synced?.indexOfFirst { playbackState.position < it.first } ?: -1
                 if (index >= 0) {
                     listState.animateScrollToItem(
-                        index = index + 1,
+                        index = index,
                         scrollOffset = -listState.layoutInfo.viewportSize.height / 3
                     )
                 }
@@ -271,7 +271,7 @@ fun LyricsSheet(
 
                                                 coroutineScope.launch {
                                                     listState.animateScrollToItem(
-                                                        index = index + 1,
+                                                        index = index,
                                                         scrollOffset = offsetToCenterText
                                                     )
                                                 }
