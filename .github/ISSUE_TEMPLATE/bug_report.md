@@ -7,6 +7,8 @@ assignees: ''
 
 ---
 
+<!-- NOTE: The text inside <!- -> is a comment to tell you what to write. It's not shown after submission. You can delete it -->
+
 **Describe the bug**
 <!-- A clear and concise description of what the bug is. -->
 

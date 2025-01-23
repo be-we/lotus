@@ -7,6 +7,8 @@ assignees: ''
 
 ---
 
+<!-- NOTE: The text inside <!- -> is a comment to tell you what to write. It's not shown after submission. You can delete it -->
+
 **Is your feature request related to a problem? Please describe.**
 <!-- A clear and concise description of what the problem is. Ex. I'm always frustrated when [...] -->
 
