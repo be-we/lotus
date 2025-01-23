@@ -1,9 +1,7 @@
-package com.dn0ne.player.app.presentation.components
+package com.dn0ne.player.app.presentation.components.selection
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
@@ -19,40 +18,26 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.dn0ne.player.R
 import com.dn0ne.player.app.domain.track.Track
+import com.dn0ne.player.app.presentation.components.CoverArt
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TrackListItem(
+fun SelectionListItem(
     track: Track,
-    isCurrent: Boolean,
+    isSelected: Boolean,
     onClick: () -> Unit,
-    onLongClick: () -> Unit,
-    onPlayNextClick: () -> Unit,
-    onAddToQueueClick: () -> Unit,
-    onAddToPlaylistClick: () -> Unit,
-    onViewTrackInfoClick: () -> Unit,
-    onRemoveFromPlaylistClick: (() -> Unit)? = null,
-    dragHandle: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .clip(ShapeDefaults.Medium)
-            .combinedClickable(
-                onLongClick = onLongClick
-            ) {
+            .clickable {
                 onClick()
             }
-            .background(
-                color = if (isCurrent) MaterialTheme.colorScheme.surfaceContainerLow else Color.Transparent
-            )
-            .padding(vertical = 8.dp)
-            .padding(start = 8.dp, end = if (dragHandle != null) 8.dp else 0.dp),
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -87,18 +72,9 @@ fun TrackListItem(
             }
         }
 
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TrackMenuButton(
-                onPlayNextClick = onPlayNextClick,
-                onAddToQueueClick = onAddToQueueClick,
-                onAddToPlaylistClick = onAddToPlaylistClick,
-                onViewTrackInfoClick = onViewTrackInfoClick,
-                onRemoveFromPlaylistClick = onRemoveFromPlaylistClick
-            )
-
-            dragHandle?.invoke()
-        }
+        Checkbox(
+            checked = isSelected,
+            onCheckedChange = null
+        )
     }
 }

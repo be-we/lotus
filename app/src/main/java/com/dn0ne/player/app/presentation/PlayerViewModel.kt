@@ -3,6 +3,7 @@ package com.dn0ne.player.app.presentation
 import android.net.Uri
 import android.util.Log
 import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -581,45 +582,48 @@ class PlayerViewModel(
             }
 
             is OnAddToQueueClick -> {
-                if (_playbackState.value.currentTrack == event.track) return
+                event.tracks.fastForEach { track ->
+                    if (_playbackState.value.currentTrack != track) {
+                        _playbackState.value.playlist?.let { playlist ->
+                            val trackIndex = playlist.trackList.indexOf(track)
 
-                _playbackState.value.playlist?.let { playlist ->
-                    val trackIndex = playlist.trackList.indexOf(event.track)
-
-                    if (trackIndex >= 0) {
-                        onEvent(
-                            OnReorderingQueue(
-                                trackIndex,
-                                playlist.trackList.lastIndex
-                            )
-                        )
-                        return
-                    } else {
-                        player?.let { player ->
-                            player.addMediaItem(event.track.mediaItem)
-
-                            _playbackState.update {
-                                it.copy(
-                                    playlist = playlist.copy(
-                                        trackList = playlist.trackList.toMutableList().apply {
-                                            add(event.track)
-                                        }
+                            if (trackIndex >= 0) {
+                                onEvent(
+                                    OnReorderingQueue(
+                                        trackIndex,
+                                        playlist.trackList.lastIndex
                                     )
                                 )
-                            }
-                        }
+                                return
+                            } else {
+                                player?.let { player ->
+                                    player.addMediaItem(track.mediaItem)
 
-                    }
-                } ?: run {
-                    onEvent(
-                        OnTrackClick(
-                            track = event.track,
-                            playlist = Playlist(
-                                name = null,
-                                trackList = listOf(event.track)
+                                    _playbackState.update {
+                                        it.copy(
+                                            playlist = playlist.copy(
+                                                trackList = playlist.trackList.toMutableList()
+                                                    .apply {
+                                                        add(track)
+                                                    }
+                                            )
+                                        )
+                                    }
+                                }
+
+                            }
+                        } ?: run {
+                            onEvent(
+                                OnTrackClick(
+                                    track = track,
+                                    playlist = Playlist(
+                                        name = null,
+                                        trackList = listOf(track)
+                                    )
+                                )
                             )
-                        )
-                    )
+                        }
+                    }
                 }
 
                 viewModelScope.launch(Dispatchers.IO) {
@@ -974,16 +978,15 @@ class PlayerViewModel(
 
             is OnAddToPlaylist -> {
                 viewModelScope.launch {
-                    if (event.playlist.trackList.contains(event.track)) {
+                    if (event.playlist.trackList.any { it in event.tracks }) {
                         SnackbarController.sendEvent(
                             SnackbarEvent(
                                 message = R.string.track_is_already_on_playlist
                             )
                         )
-                        return@launch
                     }
 
-                    val newTrackList = event.playlist.trackList + event.track
+                    val newTrackList = (event.playlist.trackList.toMutableSet() + event.tracks).toList()
                     playlistRepository.updatePlaylistTrackList(
                         playlist = event.playlist,
                         trackList = newTrackList
@@ -994,7 +997,7 @@ class PlayerViewModel(
             is OnRemoveFromPlaylist -> {
                 viewModelScope.launch {
                     val newTrackList = event.playlist.trackList.toMutableList().apply {
-                        remove(event.track)
+                        removeAll(event.tracks)
                     }
 
                     playlistRepository.updatePlaylistTrackList(
@@ -1051,7 +1054,7 @@ class PlayerViewModel(
                 }
             }
 
-            is OnLyricsControlClick -> {
+            OnLyricsControlClick -> {
                 viewModelScope.launch(Dispatchers.IO) {
                     val track = _trackInfoSheetState.value.track ?: return@launch
 

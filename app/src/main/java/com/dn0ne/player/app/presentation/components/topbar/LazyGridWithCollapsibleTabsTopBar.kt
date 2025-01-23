@@ -77,7 +77,6 @@ import com.dn0ne.player.app.presentation.components.animatable.rememberAnimatabl
 import com.dn0ne.player.app.presentation.components.isSystemInLandscapeOrientation
 import kotlinx.coroutines.launch
 import my.nanihadesuka.compose.LazyVerticalGridScrollbar
-import my.nanihadesuka.compose.ScrollbarSelectionMode
 import my.nanihadesuka.compose.ScrollbarSettings
 
 @OptIn(
@@ -220,7 +219,6 @@ fun LazyGridWithCollapsibleTabsTopBar(
                         enabled = enableScrollbar,
                         thumbUnselectedColor = MaterialTheme.colorScheme.surfaceContainer,
                         thumbSelectedColor = MaterialTheme.colorScheme.primaryContainer,
-                        selectionMode = ScrollbarSelectionMode.Full
                     )
                 ) {
                     LazyVerticalGrid(

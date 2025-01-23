@@ -19,6 +19,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
+import androidx.compose.material.icons.rounded.AddToQueue
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Delete
@@ -26,6 +28,7 @@ import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,8 +36,10 @@ import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -61,6 +66,8 @@ import com.dn0ne.player.app.domain.track.filterTracks
 import com.dn0ne.player.app.presentation.components.NothingYet
 import com.dn0ne.player.app.presentation.components.topbar.LazyColumnWithCollapsibleTopBar
 import com.dn0ne.player.app.presentation.components.TrackListItem
+import com.dn0ne.player.app.presentation.components.selection.selectionList
+import com.dn0ne.player.app.presentation.components.topbar.TopBarContent
 import com.dn0ne.player.app.presentation.components.trackinfo.SearchField
 import kotlinx.coroutines.FlowPreview
 import sh.calvin.reorderable.ReorderableItem
@@ -76,9 +83,9 @@ fun MutablePlaylist(
     onDeletePlaylistClick: () -> Unit,
     onTrackClick: (Track, Playlist) -> Unit,
     onPlayNextClick: (Track) -> Unit,
-    onAddToQueueClick: (Track) -> Unit,
-    onAddToPlaylistClick: (Track) -> Unit,
-    onRemoveFromPlaylistClick: (Track) -> Unit,
+    onAddToQueueClick: (List<Track>) -> Unit,
+    onAddToPlaylistClick: (List<Track>) -> Unit,
+    onRemoveFromPlaylistClick: (List<Track>) -> Unit,
     onViewTrackInfoClick: (Track) -> Unit,
     onTrackListReorder: (List<Track>) -> Unit,
     onBackClick: () -> Unit,
@@ -100,6 +107,24 @@ fun MutablePlaylist(
     }
     var showSearchField by rememberSaveable {
         mutableStateOf(false)
+    }
+
+    var isInSelectionMode by remember {
+        mutableStateOf(false)
+    }
+    val selectedTracks = remember {
+        mutableStateListOf<Track>()
+    }
+
+    val topBarContent by remember {
+        derivedStateOf {
+            when {
+                showSearchField && isInSelectionMode -> TopBarContent.Search
+                showSearchField -> TopBarContent.Search
+                isInSelectionMode -> TopBarContent.Selection
+                else -> TopBarContent.Default
+            }
+        }
     }
 
     var trackList by remember(playlist) {
@@ -146,7 +171,7 @@ fun MutablePlaylist(
             )
 
             AnimatedContent(
-                targetState = showSearchField,
+                targetState = topBarContent,
                 label = "top-bar-search-bar-animation",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -154,7 +179,7 @@ fun MutablePlaylist(
                     .align(Alignment.BottomCenter)
             ) { state ->
                 when (state) {
-                    false -> {
+                    TopBarContent.Default -> {
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -216,7 +241,7 @@ fun MutablePlaylist(
                         }
                     }
 
-                    true -> {
+                    TopBarContent.Search -> {
                         BackHandler {
                             showSearchField = false
                             searchFieldValue = ""
@@ -265,6 +290,107 @@ fun MutablePlaylist(
                             }
                         }
                     }
+
+                    TopBarContent.Selection -> {
+                        BackHandler {
+                            isInSelectionMode = false
+                            selectedTracks.clear()
+                        }
+
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(
+                                    onClick = {
+                                        isInSelectionMode = false
+                                        selectedTracks.clear()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Close,
+                                        contentDescription = context.resources.getString(R.string.back)
+                                    )
+                                }
+
+                                Text(
+                                    text = selectedTracks.size.toString(),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
+
+                            Row {
+                                if (selectedTracks.size < playlist.trackList.size) {
+                                    IconButton(
+                                        onClick = {
+                                            selectedTracks.clear()
+                                            selectedTracks.addAll(playlist.trackList)
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.SelectAll,
+                                            contentDescription = context.resources.getString(R.string.select_all)
+                                        )
+                                    }
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        onAddToQueueClick(selectedTracks.toList())
+                                        isInSelectionMode = false
+                                        selectedTracks.clear()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.AddToQueue,
+                                        contentDescription = context.resources.getString(R.string.add_to_queue)
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        onAddToPlaylistClick(selectedTracks.toList())
+                                        isInSelectionMode = false
+                                        selectedTracks.clear()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Rounded.PlaylistAdd,
+                                        contentDescription = context.resources.getString(R.string.add_to_playlist)
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        onRemoveFromPlaylistClick(selectedTracks.toList())
+                                        isInSelectionMode = false
+                                        selectedTracks.clear()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Delete,
+                                        contentDescription = context.resources.getString(R.string.remove_from_playlist)
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        showSearchField = true
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = if (replaceSearchWithFilter) {
+                                            Icons.Rounded.FilterList
+                                        } else Icons.Rounded.Search,
+                                        contentDescription = context.resources.getString(
+                                            R.string.track_search
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -276,90 +402,110 @@ fun MutablePlaylist(
             .fillMaxSize()
             .safeDrawingPadding()
     ) {
-        if (trackList.isEmpty()) {
-            item {
-                NothingYet()
+        if (!isInSelectionMode) {
+            if (trackList.isEmpty()) {
+                item {
+                    NothingYet()
+                }
             }
-        }
 
-        items(
-            items = trackList.filterTracks(searchFieldValue),
-            key = { "${it.uri}" }
-        ) { track ->
-            ReorderableItem(
-                state = reorderableListState,
-                key = "${track.uri}",
-                animateItemModifier = Modifier.animateItem(fadeInSpec = null),
-                modifier = Modifier.padding(horizontal = 16.dp)
-            ) { isDragging ->
-                val scale by animateFloatAsState(
-                    targetValue = if (isDragging) 1.05f else 1f,
-                    label = "dragged-track-scale-animation"
-                )
-                val backgroundColor by animateColorAsState(
-                    targetValue = if (isDragging) {
-                        MaterialTheme.colorScheme.surfaceContainer
-                    } else Color.Transparent,
-                    label = "dragged-track-back-animation"
-                )
-                TrackListItem(
-                    track = track,
-                    isCurrent = currentTrack == track,
-                    onClick = {
-                        onTrackClick(
-                            track,
-                            if (replaceSearchWithFilter) {
-                                playlist.copy(
-                                    trackList = playlist.trackList.filterTracks(searchFieldValue)
+            items(
+                items = trackList.filterTracks(searchFieldValue),
+                key = { "${it.uri}" }
+            ) { track ->
+                ReorderableItem(
+                    state = reorderableListState,
+                    key = "${track.uri}",
+                    animateItemModifier = Modifier.animateItem(fadeInSpec = null),
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) { isDragging ->
+                    val scale by animateFloatAsState(
+                        targetValue = if (isDragging) 1.05f else 1f,
+                        label = "dragged-track-scale-animation"
+                    )
+                    val backgroundColor by animateColorAsState(
+                        targetValue = if (isDragging) {
+                            MaterialTheme.colorScheme.surfaceContainer
+                        } else Color.Transparent,
+                        label = "dragged-track-back-animation"
+                    )
+                    TrackListItem(
+                        track = track,
+                        isCurrent = currentTrack == track,
+                        onClick = {
+                            onTrackClick(
+                                track,
+                                if (replaceSearchWithFilter) {
+                                    playlist.copy(
+                                        trackList = playlist.trackList.filterTracks(searchFieldValue)
+                                    )
+                                } else playlist
+                            )
+                        },
+                        onPlayNextClick = { onPlayNextClick(track) },
+                        onAddToQueueClick = { onAddToQueueClick(listOf(track)) },
+                        onAddToPlaylistClick = { onAddToPlaylistClick(listOf(track)) },
+                        onRemoveFromPlaylistClick = { onRemoveFromPlaylistClick(listOf(track)) },
+                        onViewTrackInfoClick = { onViewTrackInfoClick(track) },
+                        onLongClick = {
+                            isInSelectionMode = true
+                            selectedTracks.add(track)
+                        },
+                        dragHandle = {
+                            IconButton(
+                                onClick = {},
+                                modifier = Modifier.draggableHandle(
+                                    onDragStarted = {
+                                        ViewCompat.performHapticFeedback(
+                                            view,
+                                            HapticFeedbackConstantsCompat.GESTURE_START
+                                        )
+                                    },
+                                    onDragStopped = {
+                                        ViewCompat.performHapticFeedback(
+                                            view,
+                                            HapticFeedbackConstantsCompat.GESTURE_END
+                                        )
+                                    }
                                 )
-                            } else playlist
-                        )
-                    },
-                    onPlayNextClick = { onPlayNextClick(track) },
-                    onAddToQueueClick = { onAddToQueueClick(track) },
-                    onAddToPlaylistClick = { onAddToPlaylistClick(track) },
-                    onRemoveFromPlaylistClick = { onRemoveFromPlaylistClick(track) },
-                    onViewTrackInfoClick = { onViewTrackInfoClick(track) },
-                    dragHandle = {
-                        IconButton(
-                            onClick = {},
-                            modifier = Modifier.draggableHandle(
-                                onDragStarted = {
-                                    ViewCompat.performHapticFeedback(
-                                        view,
-                                        HapticFeedbackConstantsCompat.GESTURE_START
-                                    )
-                                },
-                                onDragStopped = {
-                                    ViewCompat.performHapticFeedback(
-                                        view,
-                                        HapticFeedbackConstantsCompat.GESTURE_END
-                                    )
-                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.DragHandle,
+                                    contentDescription = context.resources.getString(R.string.reorder_track) + " ${track.title}",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(60.dp)
+                                )
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .graphicsLayer {
+                                scaleY = scale
+                                scaleX = scale
+                            }
+                            .clip(ShapeDefaults.Medium)
+                            .background(
+                                color = backgroundColor
                             )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Rounded.DragHandle,
-                                contentDescription = context.resources.getString(R.string.reorder_track) + " ${track.title}",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.size(60.dp)
-                            )
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .graphicsLayer {
-                            scaleY = scale
-                            scaleX = scale
-                        }
-                        .clip(ShapeDefaults.Medium)
-                        .background(
-                            color = backgroundColor
-                        )
-                )
-            }
+                    )
+                }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        } else {
+            selectionList(
+                trackList = trackList,
+                selectedTracks = selectedTracks,
+                onTrackClick = {
+                    if (it in selectedTracks) {
+                        selectedTracks.remove(it)
+                    } else selectedTracks.add(it)
+
+                    if (selectedTracks.isEmpty()) {
+                        isInSelectionMode = false
+                    }
+                }
+            )
         }
     }
 }

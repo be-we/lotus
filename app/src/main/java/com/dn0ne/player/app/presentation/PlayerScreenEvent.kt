@@ -24,7 +24,7 @@ sealed interface PlayerScreenEvent {
     data object OnLyricsClick: PlayerScreenEvent
 
     data class OnPlayNextClick(val track: Track): PlayerScreenEvent
-    data class OnAddToQueueClick(val track: Track): PlayerScreenEvent
+    data class OnAddToQueueClick(val tracks: List<Track>): PlayerScreenEvent
     data class OnViewTrackInfoClick(val track: Track): PlayerScreenEvent
     data object OnCloseTrackInfoSheetClick: PlayerScreenEvent
     data object OnAcceptingRisksOfMetadataEditing: PlayerScreenEvent
@@ -49,8 +49,8 @@ sealed interface PlayerScreenEvent {
     data class OnCreatePlaylistClick(val name: String): PlayerScreenEvent
     data class OnRenamePlaylistClick(val name: String, val playlist: Playlist): PlayerScreenEvent
     data class OnDeletePlaylistClick(val playlist: Playlist): PlayerScreenEvent
-    data class OnAddToPlaylist(val track: Track, val playlist: Playlist): PlayerScreenEvent
-    data class OnRemoveFromPlaylist(val track: Track, val playlist: Playlist): PlayerScreenEvent
+    data class OnAddToPlaylist(val tracks: List<Track>, val playlist: Playlist): PlayerScreenEvent
+    data class OnRemoveFromPlaylist(val tracks: List<Track>, val playlist: Playlist): PlayerScreenEvent
     data class OnPlaylistReorder(val trackList: List<Track>, val playlist: Playlist): PlayerScreenEvent
 
     data object OnSettingsClick: PlayerScreenEvent

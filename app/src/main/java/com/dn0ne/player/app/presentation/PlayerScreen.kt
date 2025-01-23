@@ -31,13 +31,16 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.automirrored.rounded.ViewList
+import androidx.compose.material.icons.rounded.AddToQueue
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.MyLocation
 import androidx.compose.material.icons.rounded.Search
+import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
@@ -48,6 +51,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RippleConfiguration
+import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -56,6 +60,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -92,10 +97,12 @@ import com.dn0ne.player.app.presentation.components.playlist.Playlist
 import com.dn0ne.player.app.presentation.components.playlist.RenamePlaylistBottomSheet
 import com.dn0ne.player.app.presentation.components.playlist.playlistCards
 import com.dn0ne.player.app.presentation.components.playlist.playlistRows
+import com.dn0ne.player.app.presentation.components.selection.selectionList
 import com.dn0ne.player.app.presentation.components.settings.SettingsSheet
 import com.dn0ne.player.app.presentation.components.settings.Theme
 import com.dn0ne.player.app.presentation.components.topbar.LazyGridWithCollapsibleTabsTopBar
 import com.dn0ne.player.app.presentation.components.topbar.Tab
+import com.dn0ne.player.app.presentation.components.topbar.TopBarContent
 import com.dn0ne.player.app.presentation.components.trackList
 import com.dn0ne.player.app.presentation.components.trackinfo.SearchField
 import com.dn0ne.player.app.presentation.components.trackinfo.TrackInfoSheet
@@ -222,8 +229,8 @@ fun PlayerScreen(
                 var showCreatePlaylistOnly by rememberSaveable {
                     mutableStateOf(false)
                 }
-                var trackToAddToPlaylist by remember {
-                    mutableStateOf<Track?>(null)
+                var tracksToAddToPlaylist by remember {
+                    mutableStateOf<List<Track>?>(null)
                 }
 
                 val navController = rememberNavController()
@@ -342,7 +349,7 @@ fun PlayerScreen(
                             onAddToPlaylistClick = {
                                 showAddToOrCreatePlaylistSheet = true
                                 showCreatePlaylistOnly = false
-                                trackToAddToPlaylist = it
+                                tracksToAddToPlaylist = it
                             },
                             onViewTrackInfoClick = {
                                 viewModel.onEvent(PlayerScreenEvent.OnViewTrackInfoClick(it))
@@ -497,7 +504,7 @@ fun PlayerScreen(
                                 onAddToPlaylistClick = {
                                     showAddToOrCreatePlaylistSheet = true
                                     showCreatePlaylistOnly = false
-                                    trackToAddToPlaylist = it
+                                    tracksToAddToPlaylist = it
                                 },
                                 onViewTrackInfoClick = {
                                     viewModel.onEvent(PlayerScreenEvent.OnViewTrackInfoClick(it))
@@ -602,7 +609,7 @@ fun PlayerScreen(
                                 onAddToPlaylistClick = {
                                     showAddToOrCreatePlaylistSheet = true
                                     showCreatePlaylistOnly = false
-                                    trackToAddToPlaylist = it
+                                    tracksToAddToPlaylist = it
                                 },
                                 onRemoveFromPlaylistClick = {
                                     viewModel.onEvent(
@@ -735,14 +742,14 @@ fun PlayerScreen(
                                 onAddToQueueClick = {
                                     viewModel.onEvent(
                                         PlayerScreenEvent.OnAddToQueueClick(
-                                            currentTrack!!
+                                            listOf(currentTrack!!)
                                         )
                                     )
                                 },
                                 onAddToPlaylistClick = {
                                     showAddToOrCreatePlaylistSheet = true
                                     showCreatePlaylistOnly = false
-                                    trackToAddToPlaylist = it
+                                    tracksToAddToPlaylist = listOf(it)
                                 },
                                 onViewTrackInfoClick = {
                                     viewModel.onEvent(
@@ -844,10 +851,10 @@ fun PlayerScreen(
                             viewModel.onEvent(PlayerScreenEvent.OnCreatePlaylistClick(it))
                         },
                         onPlaylistSelection = { playlist ->
-                            trackToAddToPlaylist?.let { track ->
+                            tracksToAddToPlaylist?.let { tracks ->
                                 viewModel.onEvent(
                                     PlayerScreenEvent.OnAddToPlaylist(
-                                        track = track,
+                                        tracks = tracks,
                                         playlist = playlist
                                     )
                                 )
@@ -884,8 +891,8 @@ fun MainPlayerScreen(
     currentTrack: Track?,
     onTrackClick: (Track, Playlist) -> Unit,
     onPlayNextClick: (Track) -> Unit,
-    onAddToQueueClick: (Track) -> Unit,
-    onAddToPlaylistClick: (Track) -> Unit,
+    onAddToQueueClick: (List<Track>) -> Unit,
+    onAddToPlaylistClick: (List<Track>) -> Unit,
     onViewTrackInfoClick: (Track) -> Unit,
     playlists: List<Playlist>,
     albumPlaylists: List<Playlist>,
@@ -921,6 +928,24 @@ fun MainPlayerScreen(
         mutableStateOf(false)
     }
 
+    var isInSelectionMode: Boolean by remember {
+        mutableStateOf(false)
+    }
+    val selectedTracks = remember {
+        mutableStateListOf<Track>()
+    }
+
+    val topBarContent by remember {
+        derivedStateOf {
+            when {
+                showSearchField && isInSelectionMode -> TopBarContent.Search
+                showSearchField -> TopBarContent.Search
+                isInSelectionMode -> TopBarContent.Selection
+                else -> TopBarContent.Default
+            }
+        }
+    }
+
     LazyGridWithCollapsibleTabsTopBar(
         gridState = gridState,
         topBarTabs = topBarTabs,
@@ -928,6 +953,10 @@ fun MainPlayerScreen(
         onTabChange = {
             showSearchField = false
             searchFieldValue = ""
+
+            isInSelectionMode = false
+            selectedTracks.clear()
+
             onTabChange(it)
         },
         tabTitleTextStyle = MaterialTheme.typography.titleLarge.copy(
@@ -940,7 +969,7 @@ fun MainPlayerScreen(
         ),
         topBarButtons = { tab ->
             AnimatedContent(
-                targetState = showSearchField,
+                targetState = topBarContent,
                 label = "top-bar-search-bar-animation",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -948,7 +977,7 @@ fun MainPlayerScreen(
                     .align(Alignment.BottomCenter)
             ) { state ->
                 when (state) {
-                    false -> {
+                    TopBarContent.Default -> {
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -1025,7 +1054,7 @@ fun MainPlayerScreen(
                         }
                     }
 
-                    true -> {
+                    TopBarContent.Search -> {
                         BackHandler {
                             showSearchField = false
                             searchFieldValue = ""
@@ -1074,6 +1103,94 @@ fun MainPlayerScreen(
                             }
                         }
                     }
+
+                    TopBarContent.Selection -> {
+                        BackHandler {
+                            isInSelectionMode = false
+                            selectedTracks.clear()
+                        }
+
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.background(color = MaterialTheme.colorScheme.background)
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(
+                                    onClick = {
+                                        isInSelectionMode = false
+                                        selectedTracks.clear()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Close,
+                                        contentDescription = context.resources.getString(R.string.back)
+                                    )
+                                }
+
+                                Text(
+                                    text = selectedTracks.size.toString(),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            }
+
+                            Row {
+                                if (selectedTracks.size < trackList.size) {
+                                    IconButton(
+                                        onClick = {
+                                            selectedTracks.clear()
+                                            selectedTracks.addAll(trackList)
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.SelectAll,
+                                            contentDescription = context.resources.getString(R.string.select_all)
+                                        )
+                                    }
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        onAddToQueueClick(selectedTracks.toList())
+                                        isInSelectionMode = false
+                                        selectedTracks.clear()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.AddToQueue,
+                                        contentDescription = context.resources.getString(R.string.add_to_queue)
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        onAddToPlaylistClick(selectedTracks.toList())
+                                        isInSelectionMode = false
+                                        selectedTracks.clear()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Rounded.PlaylistAdd,
+                                        contentDescription = context.resources.getString(R.string.add_to_playlist)
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = {
+                                        showSearchField = true
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = if (replaceSearchWithFilter && tab == Tab.Tracks) {
+                                            Icons.Rounded.FilterList
+                                        } else Icons.Rounded.Search,
+                                        contentDescription = context.resources.getString(
+                                            R.string.track_search
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
@@ -1097,25 +1214,49 @@ fun MainPlayerScreen(
     ) { tab ->
         when (tab) {
             Tab.Tracks -> {
-                trackList(
-                    trackList = trackList.filterTracks(searchFieldValue),
-                    currentTrack = currentTrack,
-                    onTrackClick = {
-                        onTrackClick(
-                            it,
-                            Playlist(
-                                name = null,
-                                trackList = if (replaceSearchWithFilter) {
-                                    trackList.filterTracks(searchFieldValue)
-                                } else trackList
+                if (!isInSelectionMode) {
+                    trackList(
+                        trackList = trackList.filterTracks(searchFieldValue),
+                        currentTrack = currentTrack,
+                        onTrackClick = {
+                            onTrackClick(
+                                it,
+                                Playlist(
+                                    name = null,
+                                    trackList = if (replaceSearchWithFilter) {
+                                        trackList.filterTracks(searchFieldValue)
+                                    } else trackList
+                                )
                             )
-                        )
-                    },
-                    onPlayNextClick = onPlayNextClick,
-                    onAddToQueueClick = onAddToQueueClick,
-                    onAddToPlaylistClick = onAddToPlaylistClick,
-                    onViewTrackInfoClick = onViewTrackInfoClick
-                )
+                        },
+                        onPlayNextClick = onPlayNextClick,
+                        onAddToQueueClick = {
+                            onAddToQueueClick(listOf(it))
+                        },
+                        onAddToPlaylistClick = {
+                            onAddToPlaylistClick(listOf(it))
+                        },
+                        onViewTrackInfoClick = onViewTrackInfoClick,
+                        onLongClick = {
+                            isInSelectionMode = true
+                            selectedTracks.add(it)
+                        }
+                    )
+                } else {
+                    selectionList(
+                        trackList = trackList.filterTracks(searchFieldValue),
+                        selectedTracks = selectedTracks,
+                        onTrackClick = {
+                            if (it in selectedTracks) {
+                                selectedTracks.remove(it)
+                            } else selectedTracks.add(it)
+
+                            if (selectedTracks.isEmpty()) {
+                                isInSelectionMode = false
+                            }
+                        }
+                    )
+                }
             }
 
             Tab.Playlists -> {

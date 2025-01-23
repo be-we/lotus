@@ -20,6 +20,7 @@ fun LazyListScope.trackList(
     onAddToQueueClick: (Track) -> Unit,
     onAddToPlaylistClick: (Track) -> Unit,
     onViewTrackInfoClick: (Track) -> Unit,
+    onLongClick: (Track) -> Unit = {}
 ) {
     if (trackList.isEmpty()) {
         item {
@@ -35,6 +36,7 @@ fun LazyListScope.trackList(
             track = track,
             isCurrent = currentTrack == track,
             onClick = { onTrackClick(track) },
+            onLongClick = { onLongClick(track) },
             onPlayNextClick = { onPlayNextClick(track) },
             onAddToQueueClick = { onAddToQueueClick(track) },
             onAddToPlaylistClick = { onAddToPlaylistClick(track) },
@@ -57,6 +59,7 @@ fun LazyGridScope.trackList(
     onAddToQueueClick: (Track) -> Unit,
     onAddToPlaylistClick: (Track) -> Unit,
     onViewTrackInfoClick: (Track) -> Unit,
+    onLongClick: (Track) -> Unit,
 ) {
     if (trackList.isEmpty()) {
         item {
@@ -72,6 +75,7 @@ fun LazyGridScope.trackList(
             track = track,
             isCurrent = currentTrack == track,
             onClick = { onTrackClick(track) },
+            onLongClick = { onLongClick(track) },
             onPlayNextClick = { onPlayNextClick(track) },
             onAddToQueueClick = { onAddToQueueClick(track) },
             onAddToPlaylistClick = { onAddToPlaylistClick(track) },
