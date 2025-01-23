@@ -32,6 +32,8 @@
 ## Download
 Latest stable version is available on [GitHub releases](https://github.com/dn0ne/lotus/releases/latest)
 
+Stable releases are also available on [F-Droid](https://f-droid.org/packages/com.dn0ne.lotus)
+
 ## Build
 1. **Get the Source Code**  
    - Clone the repository or download the source code:
