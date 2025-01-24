@@ -274,6 +274,9 @@
     <string name="filter_instead_of_search_explain">Replace playlist search with filter</string>
     <string name="playlists_supporting_text">Search field</string>
     <string name="filter">Filter</string>
+    <string name="import_playlist">Import playlist</string>
+    <string name="import_playlist_explain">Add playlist from M3U file</string>
+    <string name="imported_successfully">Imported successfully.</string>
 
     <!-- Lyrics settings -->
     <string name="dark_theme_for_lyrics">Dark theme for lyrics</string>

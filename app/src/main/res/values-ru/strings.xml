@@ -262,6 +262,9 @@
     <string name="filter_instead_of_search_explain">Заменить поиск в плейлисте на фильтр</string>
     <string name="playlists_supporting_text">Поле поиска</string>
     <string name="filter">Фильтр</string>
+    <string name="import_playlist">Импортировать плейлист</string>
+    <string name="import_playlist_explain">Добавить плейлист из M3U файла</string>
+    <string name="imported_successfully">Импортировано успешно.</string>
 
     <!-- Lyrics settings -->
     <string name="dark_theme_for_lyrics">Тёмное оформление для текста</string>

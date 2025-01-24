@@ -2,6 +2,7 @@ package com.dn0ne.player.app.presentation
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
@@ -986,7 +987,8 @@ class PlayerViewModel(
                         )
                     }
 
-                    val newTrackList = (event.playlist.trackList.toMutableSet() + event.tracks).toList()
+                    val newTrackList =
+                        (event.playlist.trackList.toMutableSet() + event.tracks).toList()
                     playlistRepository.updatePlaylistTrackList(
                         playlist = event.playlist,
                         trackList = newTrackList
@@ -1472,6 +1474,29 @@ class PlayerViewModel(
                     )
                 }
             }
+        }
+    }
+
+    fun parseM3U(playlistName: String, fileContent: String) {
+        viewModelScope.launch {
+            val paths = fileContent.lines().fastFilter { it.startsWith("/") }
+            val tracks = paths.map { path ->
+                _trackList.value.fastFirstOrNull { path == it.data }
+            }.filterNotNull()
+            val name = playlistName.filter { it.isDigit() || it.isLetter() || it.isWhitespace() }
+
+            playlistRepository.insertPlaylist(
+                Playlist(
+                    name = name,
+                    trackList = tracks
+                )
+            )
+
+            SnackbarController.sendEvent(
+                SnackbarEvent(
+                    message = R.string.imported_successfully
+                )
+            )
         }
     }
 

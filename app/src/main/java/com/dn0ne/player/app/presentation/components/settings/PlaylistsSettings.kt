@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.FilterList
+import androidx.compose.material.icons.rounded.Folder
+import androidx.compose.material.icons.rounded.Queue
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +35,7 @@ import com.dn0ne.player.core.data.Settings
 @Composable
 fun PlaylistsSettings(
     settings: Settings,
+    onPlaylistPick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -72,7 +76,7 @@ fun PlaylistsSettings(
         },
         contentPadding = PaddingValues(horizontal = 28.dp),
         contentHorizontalAlignment = Alignment.CenterHorizontally,
-        contentVerticalArrangement = Arrangement.spacedBy(16.dp),
+        contentVerticalArrangement = Arrangement.spacedBy(20.dp),
         modifier = modifier
             .fillMaxSize()
             .safeDrawingPadding()
@@ -86,6 +90,18 @@ fun PlaylistsSettings(
             onCheckedChange = {
                 settings.updateReplaceSearchWithFilter(it)
             },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+        SettingIconButton(
+            title = context.resources.getString(R.string.import_playlist),
+            supportingText = context.resources.getString(R.string.import_playlist_explain),
+            icon = Icons.Rounded.Queue,
+            buttonIcon = Icons.Rounded.Folder,
+            buttonContentDescription = context.resources.getString(R.string.import_playlist),
+            onButtonClick = onPlaylistPick,
             modifier = Modifier.fillMaxWidth()
         )
     }

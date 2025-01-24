@@ -57,6 +57,7 @@ import kotlinx.serialization.Serializable
 fun SettingsSheet(
     state: SettingsSheetState,
     onFolderPick: (scan: Boolean) -> Unit,
+    onPlaylistPick: () -> Unit,
     onScanFoldersClick: () -> Unit,
     onCloseClick: () -> Unit,
     dominantColorState: DominantColorState<ImageBitmap>,
@@ -255,6 +256,7 @@ fun SettingsSheet(
                 composable<SettingsRoutes.Playlists> {
                     PlaylistsSettings(
                         settings = state.settings,
+                        onPlaylistPick = onPlaylistPick,
                         onBackClick = {
                             navController.navigateUp()
                         },

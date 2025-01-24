@@ -154,13 +154,29 @@ class MainActivity : ComponentActivity() {
                         lyrics = input.readBytes().toString(Charsets.UTF_8)
                     }
 
-                    println(lyrics)
-
                     lyrics?.let {
                         lifecycleScope.launch {
                             pickedLyricsFileContentChannel.send(
                                 it
                             )
+                        }
+                    }
+                }
+            }
+
+        val pickedPlaylistChannel = Channel<Pair<String, String>>()
+        val playlistPicker =
+            registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+                uri?.let {
+                    val name = Uri.decode(it.toString()).substringAfterLast('/').substringBeforeLast('.')
+                    var content: String? = null
+                    contentResolver.openInputStream(it)?.use { input ->
+                        content = input.readBytes().toString(Charsets.UTF_8)
+                    }
+
+                    content?.let {
+                        lifecycleScope.launch {
+                            pickedPlaylistChannel.send(name to content)
                         }
                     }
                 }
@@ -276,6 +292,9 @@ class MainActivity : ComponentActivity() {
                                     onLyricsPick = {
                                         pickLyricsFile.launch(arrayOf("text/plain", "application/lrc"))
                                     },
+                                    onPlaylistPick = {
+                                        playlistPicker.launch(arrayOf("audio/x-mpegurl"))
+                                    },
                                     modifier = Modifier.fillMaxSize()
                                 )
                             }
@@ -344,6 +363,10 @@ class MainActivity : ComponentActivity() {
 
                             ObserveAsEvents(pickedLyricsFileContentChannel.receiveAsFlow()) { lyrics ->
                                 viewModel.onLyricsPicked(lyrics)
+                            }
+
+                            ObserveAsEvents(pickedPlaylistChannel.receiveAsFlow()) { (name, content) ->
+                                viewModel.parseM3U(name, content)
                             }
 
                             if (viewModel.settings.scanOnAppLaunch.value) {

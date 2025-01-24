@@ -121,6 +121,7 @@ fun PlayerScreen(
     onCoverArtPick: () -> Unit,
     onFolderPick: (scan: Boolean) -> Unit,
     onLyricsPick: () -> Unit,
+    onPlaylistPick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val useDynamicColor by viewModel.settings.useDynamicColor.collectAsState()
@@ -867,6 +868,7 @@ fun PlayerScreen(
                 SettingsSheet(
                     state = settingsSheetState,
                     onFolderPick = onFolderPick,
+                    onPlaylistPick = onPlaylistPick,
                     onScanFoldersClick = {
                         viewModel.onEvent(PlayerScreenEvent.OnScanFoldersClick)
                     },
