@@ -265,21 +265,30 @@ class PlayerViewModel(
         viewModelScope.launch {
             while (player == null) delay(500L)
 
-            if (player?.currentMediaItem != null) {
-                val playlist = savedPlayerState.playlist
-                playlist?.let { playlist ->
-                    _playbackState.update {
-                        it.copy(
-                            playlist = playlist,
-                            currentTrack = playlist.trackList.fastFirstOrNull { player!!.currentMediaItem == it.mediaItem },
-                            isPlaying = player!!.isPlaying,
-                            position = player!!.currentPosition
-                        )
-                    }
+            val playlist = savedPlayerState.playlist
+            playlist?.let { playlist ->
+                val trackMediaItem = player?.currentMediaItem ?: savedPlayerState.track?.mediaItem
+                val index = playlist.trackList.indexOfFirst { trackMediaItem == it.mediaItem }
+                val track = playlist.trackList.getOrNull(index)
 
-                    if (player!!.isPlaying) {
-                        positionUpdateJob = startPositionUpdate()
+                if (player?.mediaItemCount == 0) {
+                    player?.addMediaItems(playlist.trackList.fastMap { it.mediaItem })
+                    if (index >= 0) {
+                        player?.seekTo(index, 0L)
                     }
+                }
+
+                _playbackState.update {
+                    it.copy(
+                        playlist = playlist,
+                        currentTrack = track,
+                        isPlaying = player!!.isPlaying,
+                        position = player!!.currentPosition
+                    )
+                }
+
+                if (player!!.isPlaying) {
+                    positionUpdateJob = startPositionUpdate()
                 }
             }
 
@@ -314,7 +323,7 @@ class PlayerViewModel(
                             it.copy(
                                 currentTrack = it.playlist?.trackList?.fastFirstOrNull {
                                     it.mediaItem == mediaItem
-                                },
+                                }.also { savedPlayerState.track = it },
                                 position = 0L
                             )
                         }
@@ -386,6 +395,7 @@ class PlayerViewModel(
 
                     viewModelScope.launch(Dispatchers.IO) {
                         savedPlayerState.playlist = event.playlist
+                        savedPlayerState.track = event.track
                     }
                 }
             }
@@ -446,6 +456,11 @@ class PlayerViewModel(
                     PlaybackState(
                         playbackMode = it.playbackMode
                     )
+                }
+
+                viewModelScope.launch(Dispatchers.IO) {
+                    savedPlayerState.playlist = null
+                    savedPlayerState.track = null
                 }
             }
 

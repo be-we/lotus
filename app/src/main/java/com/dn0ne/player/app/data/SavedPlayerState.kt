@@ -3,6 +3,7 @@ package com.dn0ne.player.app.data
 import android.content.Context
 import com.dn0ne.player.app.domain.playback.PlaybackMode
 import com.dn0ne.player.app.domain.track.Playlist
+import com.dn0ne.player.app.domain.track.Track
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -11,18 +12,13 @@ class SavedPlayerState(context: Context) {
 
     private val playlistKey = "playlist"
     private val playbackModeKey = "playback-mode"
+    private val trackKey = "track"
 
     var playlist: Playlist?
-        get() {
-            val playlistJson = sharedPreferences.getString(playlistKey, null)
-            if (playlistJson == null) return null
-
-            return Json.decodeFromString(playlistJson)
-        }
+        get() = sharedPreferences.getString(playlistKey, null)?.let { Json.decodeFromString(it) }
         set(value) {
-            val playlistJson = Json.encodeToString(value)
             with(sharedPreferences.edit()) {
-                putString(playlistKey, playlistJson)
+                putString(playlistKey, Json.encodeToString(value))
                 apply()
             }
         }
@@ -32,6 +28,15 @@ class SavedPlayerState(context: Context) {
         set(value) {
             with(sharedPreferences.edit()) {
                 putInt(playbackModeKey, value.ordinal)
+                apply()
+            }
+        }
+
+    var track: Track?
+        get() = sharedPreferences.getString(trackKey, null)?.let { Json.decodeFromString(it) }
+        set(value) {
+            with(sharedPreferences.edit()) {
+                putString(trackKey, Json.encodeToString(value))
                 apply()
             }
         }
