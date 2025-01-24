@@ -1,9 +1,8 @@
-package com.dn0ne.player.app.presentation.components.playlist
+package com.dn0ne.player.app.presentation.components.selection
 
 import android.net.Uri
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -11,9 +10,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Text
@@ -28,48 +27,35 @@ import com.dn0ne.player.app.domain.sort.SortOrder
 import com.dn0ne.player.app.domain.sort.sortedBy
 import com.dn0ne.player.app.domain.track.Playlist
 import com.dn0ne.player.app.presentation.components.CoverArt
-import com.dn0ne.player.app.presentation.components.NothingYet
+import com.dn0ne.player.app.presentation.components.playlist.FourArtsPreview
+import com.dn0ne.player.app.presentation.components.playlist.TrackCountBubble
 import com.kmpalette.rememberDominantColorState
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
-fun LazyGridScope.playlistRows(
+fun LazyGridScope.selectionRows(
     playlists: List<Playlist>,
+    selectedPlaylists: List<Playlist>,
     fallbackPlaylistTitle: String,
     sort: PlaylistSort,
     sortOrder: SortOrder,
     onRowClick: (Playlist) -> Unit,
-    onLongClick: (Playlist) -> Unit,
     showSinglePreview: Boolean = false,
 ) {
-    if (playlists.isEmpty()) {
-        item(
-            span = {
-                GridItemSpan(maxLineSpan)
-            }
-        ) {
-            NothingYet()
-        }
-    }
-
     items(
         items = playlists.sortedBy(sort, sortOrder),
         key = { "${it.name}-${it.trackList}" }
     ) { playlist ->
-        PlaylistRow(
+        SelectionRow(
             title = playlist.name
                 ?: fallbackPlaylistTitle,
             trackCount = playlist.trackList.size,
             coverArtPreviewUris = playlist.trackList
                 .take(if (showSinglePreview) 1 else 4)
                 .map { it.coverArtUri },
+            isSelected = playlist in selectedPlaylists,
             modifier = Modifier
                 .clip(ShapeDefaults.Medium)
-                .combinedClickable(
-                    onLongClick = {
-                        onLongClick(playlist)
-                    }
-                ) {
+                .clickable {
                     onRowClick(playlist)
                 }
                 .padding(8.dp)
@@ -79,10 +65,11 @@ fun LazyGridScope.playlistRows(
 }
 
 @Composable
-fun PlaylistRow(
+fun SelectionRow(
     title: String,
     trackCount: Int,
     coverArtPreviewUris: List<Uri>,
+    isSelected: Boolean,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -134,10 +121,20 @@ fun PlaylistRow(
             )
         }
 
-        TrackCountBubble(
-            trackCount = trackCount,
-            contentColor = dominantColorState.onColor,
-            containerColor = dominantColorState.color
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            TrackCountBubble(
+                trackCount = trackCount,
+                contentColor = dominantColorState.onColor,
+                containerColor = dominantColorState.color
+            )
+
+            Checkbox(
+                checked = isSelected,
+                onCheckedChange = null
+            )
+        }
     }
 }

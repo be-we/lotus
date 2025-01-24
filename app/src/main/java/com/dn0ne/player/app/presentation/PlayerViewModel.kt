@@ -597,15 +597,7 @@ class PlayerViewModel(
                         _playbackState.value.playlist?.let { playlist ->
                             val trackIndex = playlist.trackList.indexOf(track)
 
-                            if (trackIndex >= 0) {
-                                onEvent(
-                                    OnReorderingQueue(
-                                        trackIndex,
-                                        playlist.trackList.lastIndex
-                                    )
-                                )
-                                return
-                            } else {
+                            if (trackIndex < 0) {
                                 player?.let { player ->
                                     player.addMediaItem(track.mediaItem)
 
@@ -620,7 +612,6 @@ class PlayerViewModel(
                                         )
                                     }
                                 }
-
                             }
                         } ?: run {
                             onEvent(
