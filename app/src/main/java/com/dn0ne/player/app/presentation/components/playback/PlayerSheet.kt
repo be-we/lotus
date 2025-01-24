@@ -108,6 +108,7 @@ fun PlayerSheet(
     onSeekToNextClick: () -> Unit,
     onSeekToPreviousClick: () -> Unit,
     onSeekTo: (Long) -> Unit,
+    onReset: () -> Unit,
     onPlaybackModeClick: () -> Unit,
     onCoverArtLoaded: (ImageBitmap?) -> Unit,
     onPlayNextClick: () -> Unit,
@@ -141,7 +142,7 @@ fun PlayerSheet(
             } else {
                 updateBounds(
                     lowerBound = -thresholdY,
-                    upperBound = 0f
+                    upperBound = thresholdY
                 )
             }
         }
@@ -186,6 +187,14 @@ fun PlayerSheet(
                     )
 
                     coroutineScope.launch {
+                        if (!isExpanded) {
+                            val shouldStopPlayback = decayY > thresholdY * .5f
+                            if (shouldStopPlayback) {
+                                onReset()
+                                return@launch
+                            }
+                        }
+
                         val shouldChangeExpandedState = decayY.absoluteValue > (thresholdY * 0.5f)
                         if (shouldChangeExpandedState) {
                             onPlayerExpandedChange(!isExpanded)
@@ -199,7 +208,7 @@ fun PlayerSheet(
                                 } else {
                                     updateBounds(
                                         lowerBound = -thresholdY,
-                                        upperBound = 0f
+                                        upperBound = thresholdY
                                     )
                                 }
                             }

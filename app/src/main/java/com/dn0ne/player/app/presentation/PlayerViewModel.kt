@@ -440,6 +440,15 @@ class PlayerViewModel(
                 }
             }
 
+            OnResetPlayback -> {
+                player?.clearMediaItems()
+                _playbackState.update {
+                    PlaybackState(
+                        playbackMode = it.playbackMode
+                    )
+                }
+            }
+
             OnPlaybackModeClick -> {
                 val newPlaybackMode = _playbackState.value.playbackMode.let {
                     PlaybackMode.entries.nextAfterOrNull(it.ordinal)

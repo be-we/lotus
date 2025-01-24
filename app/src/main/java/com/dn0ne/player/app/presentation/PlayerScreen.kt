@@ -731,6 +731,9 @@ fun PlayerScreen(
                                 onSeekTo = {
                                     viewModel.onEvent(PlayerScreenEvent.OnSeekTo(it))
                                 },
+                                onReset = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnResetPlayback)
+                                },
                                 onPlaybackModeClick = {
                                     viewModel.onEvent(PlayerScreenEvent.OnPlaybackModeClick)
                                 },
