@@ -105,7 +105,10 @@ class MusicScanner(
                                 val clipboardManager =
                                     context.getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager
                                 val clip =
-                                    ClipData.newPlainText(null, e.stackTrace.joinToString("\n"))
+                                    ClipData.newPlainText(
+                                        null,
+                                        e.message + "\n" + e.stackTrace.joinToString("\n")
+                                    )
                                 clipboardManager?.setPrimaryClip(clip)
                             }
                         )

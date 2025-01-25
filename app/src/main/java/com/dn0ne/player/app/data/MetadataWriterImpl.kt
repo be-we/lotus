@@ -1,7 +1,10 @@
 package com.dn0ne.player.app.data
 
 import android.app.RecoverableSecurityException
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
+import android.content.Context.CLIPBOARD_SERVICE
 import android.content.IntentSender
 import android.media.MediaScannerConnection
 import android.os.Build
@@ -125,18 +128,58 @@ class MetadataWriterImpl(
             return Result.Error(DataError.Local.NoWritePermission)
         } catch (e: CannotWriteException) {
             Log.d(logTag, e.message, e)
+            val clipboardManager =
+                context.getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager
+            val clip =
+                ClipData.newPlainText(
+                    null,
+                    e.message + "\n" + e.stackTrace.joinToString("\n")
+                )
+            clipboardManager?.setPrimaryClip(clip)
             return Result.Error(DataError.Local.NoWritePermission)
         } catch (e: CannotReadException) {
             Log.d(logTag, e.message, e)
+            val clipboardManager =
+                context.getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager
+            val clip =
+                ClipData.newPlainText(
+                    null,
+                    e.message + "\n" + e.stackTrace.joinToString("\n")
+                )
+            clipboardManager?.setPrimaryClip(clip)
             return Result.Error(DataError.Local.NoReadPermission)
         } catch (e: NoWritePermissionsException) {
             Log.d(logTag, e.message, e)
+            val clipboardManager =
+                context.getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager
+            val clip =
+                ClipData.newPlainText(
+                    null,
+                    e.message + "\n" + e.stackTrace.joinToString("\n")
+                )
+            clipboardManager?.setPrimaryClip(clip)
             return Result.Error(DataError.Local.NoWritePermission)
         } catch (e: Exception) {
             Log.d(logTag, e.message, e)
+            val clipboardManager =
+                context.getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager
+            val clip =
+                ClipData.newPlainText(
+                    null,
+                    e.message + "\n" + e.stackTrace.joinToString("\n")
+                )
+            clipboardManager?.setPrimaryClip(clip)
             return Result.Error(DataError.Local.Unknown)
         } catch (e: java.lang.Exception) {
             Log.d(logTag, e.message, e)
+            val clipboardManager =
+                context.getSystemService(CLIPBOARD_SERVICE) as? ClipboardManager
+            val clip =
+                ClipData.newPlainText(
+                    null,
+                    e.message + "\n" + e.stackTrace.joinToString("\n")
+                )
+            clipboardManager?.setPrimaryClip(clip)
             return Result.Error(DataError.Local.Unknown)
         }
     }
