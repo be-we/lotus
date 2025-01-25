@@ -251,17 +251,34 @@ fun WavingSeekBar(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            val handlePositionHours =
+                (currentDuration * handleOffsetFraction).toLong() / 1000 / 60 / 60
             val handlePositionMinutes =
                 (currentDuration * handleOffsetFraction).toLong() / 1000 / 60
             val handlePositionSeconds =
                 (currentDuration * handleOffsetFraction).toLong() / 1000 % 60
-            val handlePositionText = "$handlePositionMinutes".padStart(2, '0') +
-                    ":" + "$handlePositionSeconds".padStart(2, '0')
+            val handlePositionText = buildString {
+                if (handlePositionHours > 0) {
+                    append("$handlePositionHours".padStart(2, '0'))
+                    append(":")
+                }
+                append("$handlePositionMinutes".padStart(2, '0'))
+                append(":")
+                append("$handlePositionSeconds".padStart(2, '0'))
+            }
 
+            val durationHours = currentDuration / 1000 / 60 / 60
             val durationMinutes = currentDuration / 1000 / 60
             val durationSeconds = currentDuration / 1000 % 60
-            val durationText = "$durationMinutes".padStart(2, '0') +
-                    ":" + "$durationSeconds".padStart(2, '0')
+            val durationText = buildString {
+                if (durationHours > 0) {
+                    append("$durationHours".padStart(2, '0'))
+                    append(":")
+                }
+                append("$durationMinutes".padStart(2, '0'))
+                append(":")
+                append("$durationSeconds".padStart(2, '0'))
+            }
 
             Text(
                 text = handlePositionText,
