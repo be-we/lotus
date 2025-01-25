@@ -87,6 +87,8 @@ fun MutablePlaylist(
     onAddToPlaylistClick: (List<Track>) -> Unit,
     onRemoveFromPlaylistClick: (List<Track>) -> Unit,
     onViewTrackInfoClick: (Track) -> Unit,
+    onGoToAlbumClick: (Track) -> Unit,
+    onGoToArtistClick: (Track) -> Unit,
     onTrackListReorder: (List<Track>) -> Unit,
     onBackClick: () -> Unit,
     replaceSearchWithFilter: Boolean
@@ -447,6 +449,8 @@ fun MutablePlaylist(
                         onAddToPlaylistClick = { onAddToPlaylistClick(listOf(track)) },
                         onRemoveFromPlaylistClick = { onRemoveFromPlaylistClick(listOf(track)) },
                         onViewTrackInfoClick = { onViewTrackInfoClick(track) },
+                        onGoToAlbumClick = { onGoToAlbumClick(track) },
+                        onGoToArtistClick = { onGoToArtistClick(track) },
                         onLongClick = {
                             isInSelectionMode = true
                             selectedTracks.add(track)

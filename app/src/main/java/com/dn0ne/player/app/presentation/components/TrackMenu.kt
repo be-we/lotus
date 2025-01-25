@@ -1,11 +1,20 @@
 package com.dn0ne.player.app.presentation.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.PlaylistAdd
 import androidx.compose.material.icons.rounded.AddToQueue
-import androidx.compose.material.icons.rounded.AudioFile
+import androidx.compose.material.icons.rounded.Album
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.PlaylistRemove
 import androidx.compose.material.icons.rounded.QueuePlayNext
 import androidx.compose.material3.DropdownMenu
@@ -20,7 +29,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import com.dn0ne.player.R
 
 @Composable
@@ -31,12 +43,15 @@ fun TrackMenu(
     onAddToQueueClick: () -> Unit,
     onAddToPlaylistClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
+    onGoToAlbumClick: () -> Unit,
+    onGoToArtistClick: () -> Unit,
     onRemoveFromPlaylistClick: (() -> Unit)? = null
 ) {
     DropdownMenu(
         expanded = isExpanded,
         onDismissRequest = onDismissRequest,
         shape = ShapeDefaults.Medium,
+        modifier = Modifier.width(IntrinsicSize.Min)
     ) {
         val context = LocalContext.current
         DropdownMenuItem(
@@ -105,7 +120,63 @@ fun TrackMenu(
             )
         }
 
-        DropdownMenuItem(
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = {
+                        onGoToAlbumClick()
+                        onDismissRequest()
+                    },
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Album,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        contentDescription = context.resources.getString(R.string.go_to_album)
+                    )
+                }
+
+                IconButton(
+                    onClick = {
+                        onGoToArtistClick()
+                        onDismissRequest()
+                    },
+                    modifier = Modifier
+                        .size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Person,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        contentDescription = context.resources.getString(R.string.go_to_artist)
+                    )
+                }
+            }
+
+            IconButton(
+                onClick = {
+                    onViewTrackInfoClick()
+                    onDismissRequest()
+                },
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .size(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Info,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    contentDescription = context.resources.getString(R.string.track_info)
+                )
+            }
+        }
+        /*DropdownMenuItem(
             text = {
                 Text(text = context.resources.getString(R.string.track_info))
             },
@@ -119,7 +190,7 @@ fun TrackMenu(
                     contentDescription = null
                 )
             }
-        )
+        )*/
     }
 }
 
@@ -129,6 +200,8 @@ fun TrackMenuButton(
     onAddToQueueClick: () -> Unit,
     onAddToPlaylistClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
+    onGoToAlbumClick: () -> Unit,
+    onGoToArtistClick: () -> Unit,
     onRemoveFromPlaylistClick: (() -> Unit)? = null,
 ) {
     Box {
@@ -156,6 +229,8 @@ fun TrackMenuButton(
             onAddToQueueClick = onAddToQueueClick,
             onAddToPlaylistClick = onAddToPlaylistClick,
             onViewTrackInfoClick = onViewTrackInfoClick,
+            onGoToAlbumClick = onGoToAlbumClick,
+            onGoToArtistClick = onGoToArtistClick,
             onRemoveFromPlaylistClick = onRemoveFromPlaylistClick
         )
     }

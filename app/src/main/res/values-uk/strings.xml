@@ -41,6 +41,8 @@
     <string name="play_next">Відтворити наступним</string>
     <string name="add_to_queue">Додати у чергу</string>
     <string name="remove_from_playlist">Видалити з плейлиста</string>
+    <string name="go_to_album">Перейти до альбому</string>
+    <string name="go_to_artist">Перейти до виконавця</string>
 
     <!-- Tabs' names -->
     <string name="tracks">Треки</string>

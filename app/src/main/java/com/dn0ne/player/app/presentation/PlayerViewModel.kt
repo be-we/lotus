@@ -663,6 +663,22 @@ class PlayerViewModel(
                 }
             }
 
+            is OnGoToAlbumClick -> {
+                _selectedPlaylist.update {
+                    albumPlaylists.value.fastFirstOrNull {
+                        it.name == event.track.album
+                    }
+                }
+            }
+
+            is OnGoToArtistClick -> {
+                _selectedPlaylist.update {
+                    artistPlaylists.value.fastFirstOrNull {
+                        it.name == event.track.artist
+                    }
+                }
+            }
+
             OnCloseTrackInfoSheetClick -> {
                 _trackInfoSheetState.update {
                     it.copy(

@@ -116,6 +116,8 @@ fun PlayerSheet(
     onAddToQueueClick: () -> Unit,
     onAddToPlaylistClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
+    onGoToAlbumClick: () -> Unit,
+    onGoToArtistClick: () -> Unit,
     onLyricsClick: () -> Unit,
     onRemoveFromQueueClick: (Int) -> Unit,
     onReorderingQueue: (Int, Int) -> Unit,
@@ -269,6 +271,8 @@ fun PlayerSheet(
                     onAddToQueueClick = onAddToQueueClick,
                     onAddToPlaylistClick = onAddToPlaylistClick,
                     onViewTrackInfoClick = onViewTrackInfoClick,
+                    onGoToAlbumClick = onGoToAlbumClick,
+                    onGoToArtistClick = onGoToArtistClick,
                     onLyricsSheetExpandedChange = onLyricsSheetExpandedChange,
                     onLyricsClick = onLyricsClick,
                     lyricsTextStyle = MaterialTheme.typography.headlineMedium
@@ -479,6 +483,8 @@ fun ExpandedPlayer(
     onAddToQueueClick: () -> Unit,
     onAddToPlaylistClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
+    onGoToAlbumClick: () -> Unit,
+    onGoToArtistClick: () -> Unit,
     onLyricsSheetExpandedChange: (Boolean) -> Unit,
     onLyricsClick: () -> Unit,
     lyricsTextStyle: TextStyle,
@@ -606,7 +612,9 @@ fun ExpandedPlayer(
                             onPlayNextClick = onPlayNextClick,
                             onAddToQueueClick = onAddToQueueClick,
                             onAddToPlaylistClick = onAddToPlaylistClick,
-                            onViewTrackInfoClick = onViewTrackInfoClick
+                            onViewTrackInfoClick = onViewTrackInfoClick,
+                            onGoToAlbumClick = onGoToAlbumClick,
+                            onGoToArtistClick = onGoToArtistClick
                         )
                     }
                 }
@@ -802,7 +810,9 @@ fun ExpandedPlayer(
                                     onPlayNextClick = onPlayNextClick,
                                     onAddToQueueClick = onAddToQueueClick,
                                     onAddToPlaylistClick = onAddToPlaylistClick,
-                                    onViewTrackInfoClick = onViewTrackInfoClick
+                                    onViewTrackInfoClick = onViewTrackInfoClick,
+                                    onGoToAlbumClick = onGoToAlbumClick,
+                                    onGoToArtistClick = onGoToArtistClick
                                 )
                             }
                         }

@@ -66,6 +66,8 @@ fun Playlist(
     onAddToQueueClick: (List<Track>) -> Unit,
     onAddToPlaylistClick: (List<Track>) -> Unit,
     onViewTrackInfoClick: (Track) -> Unit,
+    onGoToAlbumClick: (Track) -> Unit,
+    onGoToArtistClick: (Track) -> Unit,
     trackSort: TrackSort,
     trackSortOrder: SortOrder,
     onTrackSortChange: (TrackSort?, SortOrder?) -> Unit,
@@ -350,6 +352,8 @@ fun Playlist(
                 onAddToQueueClick = { onAddToQueueClick(listOf(it)) },
                 onAddToPlaylistClick = { onAddToPlaylistClick(listOf(it)) },
                 onViewTrackInfoClick = onViewTrackInfoClick,
+                onGoToAlbumClick = onGoToAlbumClick,
+                onGoToArtistClick = onGoToArtistClick,
                 onLongClick = {
                     isInSelectionMode = true
                     selectedTracks.add(it)

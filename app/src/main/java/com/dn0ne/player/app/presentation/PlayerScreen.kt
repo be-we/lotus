@@ -357,6 +357,16 @@ fun PlayerScreen(
                             onViewTrackInfoClick = {
                                 viewModel.onEvent(PlayerScreenEvent.OnViewTrackInfoClick(it))
                             },
+                            onGoToAlbumClick = {
+                                viewModel.onEvent(PlayerScreenEvent.OnGoToAlbumClick(it))
+                                navController.popBackStack(PlayerRoutes.Main, false)
+                                navController.navigate(PlayerRoutes.Playlist)
+                            },
+                            onGoToArtistClick = {
+                                viewModel.onEvent(PlayerScreenEvent.OnGoToArtistClick(it))
+                                navController.popBackStack(PlayerRoutes.Main, false)
+                                navController.navigate(PlayerRoutes.Playlist)
+                            },
                             playlists = playlists,
                             albumPlaylists = albumPlaylists,
                             artistPlaylists = artistPlaylists,
@@ -512,6 +522,16 @@ fun PlayerScreen(
                                 onViewTrackInfoClick = {
                                     viewModel.onEvent(PlayerScreenEvent.OnViewTrackInfoClick(it))
                                 },
+                                onGoToAlbumClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnGoToAlbumClick(it))
+                                    navController.popBackStack(PlayerRoutes.Main, false)
+                                    navController.navigate(PlayerRoutes.Playlist)
+                                },
+                                onGoToArtistClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnGoToArtistClick(it))
+                                    navController.popBackStack(PlayerRoutes.Main, false)
+                                    navController.navigate(PlayerRoutes.Playlist)
+                                },
                                 trackSort = trackSort,
                                 trackSortOrder = trackSortOrder,
                                 onTrackSortChange = { sort, order ->
@@ -624,6 +644,16 @@ fun PlayerScreen(
                                 },
                                 onViewTrackInfoClick = {
                                     viewModel.onEvent(PlayerScreenEvent.OnViewTrackInfoClick(it))
+                                },
+                                onGoToAlbumClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnGoToAlbumClick(it))
+                                    navController.popBackStack(PlayerRoutes.Main, false)
+                                    navController.navigate(PlayerRoutes.Playlist)
+                                },
+                                onGoToArtistClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnGoToArtistClick(it))
+                                    navController.popBackStack(PlayerRoutes.Main, false)
+                                    navController.navigate(PlayerRoutes.Playlist)
                                 },
                                 onTrackListReorder = {
                                     viewModel.onEvent(
@@ -743,12 +773,12 @@ fun PlayerScreen(
                                     coverArtBitmap = it
                                 },
                                 onPlayNextClick = {
-                                    viewModel.onEvent(PlayerScreenEvent.OnPlayNextClick(currentTrack!!))
+                                    viewModel.onEvent(PlayerScreenEvent.OnPlayNextClick(it))
                                 },
                                 onAddToQueueClick = {
                                     viewModel.onEvent(
                                         PlayerScreenEvent.OnAddToQueueClick(
-                                            listOf(currentTrack!!)
+                                            listOf(it)
                                         )
                                     )
                                 },
@@ -759,16 +789,24 @@ fun PlayerScreen(
                                 },
                                 onViewTrackInfoClick = {
                                     viewModel.onEvent(
-                                        PlayerScreenEvent.OnViewTrackInfoClick(
-                                            currentTrack!!
-                                        )
+                                        PlayerScreenEvent.OnViewTrackInfoClick(it)
                                     )
+                                },
+                                onGoToAlbumClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnGoToAlbumClick(it))
+                                    viewModel.onEvent(PlayerScreenEvent.OnPlayerExpandedChange(false))
+                                    navController.popBackStack(PlayerRoutes.Main, false)
+                                    navController.navigate(PlayerRoutes.Playlist)
+                                },
+                                onGoToArtistClick = {
+                                    viewModel.onEvent(PlayerScreenEvent.OnGoToArtistClick(it))
+                                    viewModel.onEvent(PlayerScreenEvent.OnPlayerExpandedChange(false))
+                                    navController.popBackStack(PlayerRoutes.Main, false)
+                                    navController.navigate(PlayerRoutes.Playlist)
                                 },
                                 onLyricsSheetExpandedChange = {
                                     viewModel.onEvent(
-                                        PlayerScreenEvent.OnLyricsSheetExpandedChange(
-                                            it
-                                        )
+                                        PlayerScreenEvent.OnLyricsSheetExpandedChange(it)
                                     )
                                 },
                                 onLyricsClick = {
@@ -901,6 +939,8 @@ fun MainPlayerScreen(
     onAddToQueueClick: (List<Track>) -> Unit,
     onAddToPlaylistClick: (List<Track>) -> Unit,
     onViewTrackInfoClick: (Track) -> Unit,
+    onGoToAlbumClick: (Track) -> Unit,
+    onGoToArtistClick: (Track) -> Unit,
     playlists: List<Playlist>,
     albumPlaylists: List<Playlist>,
     artistPlaylists: List<Playlist>,
@@ -1261,6 +1301,8 @@ fun MainPlayerScreen(
                             onAddToPlaylistClick(listOf(it))
                         },
                         onViewTrackInfoClick = onViewTrackInfoClick,
+                        onGoToAlbumClick = onGoToAlbumClick,
+                        onGoToArtistClick = onGoToArtistClick,
                         onLongClick = {
                             isInSelectionMode = true
                             selectedTracks.add(it)
@@ -1456,7 +1498,7 @@ fun MainPlayerScreen(
                         )
                     }
                 } else {
-                    if(!isInSelectionMode) {
+                    if (!isInSelectionMode) {
                         playlistRows(
                             playlists = artistPlaylists.filterPlaylists(searchFieldValue),
                             sort = playlistSort,

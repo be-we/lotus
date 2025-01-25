@@ -36,6 +36,8 @@ fun TrackListItem(
     onAddToQueueClick: () -> Unit,
     onAddToPlaylistClick: () -> Unit,
     onViewTrackInfoClick: () -> Unit,
+    onGoToAlbumClick: () -> Unit,
+    onGoToArtistClick: () -> Unit,
     onRemoveFromPlaylistClick: (() -> Unit)? = null,
     dragHandle: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier
@@ -95,6 +97,8 @@ fun TrackListItem(
                 onAddToQueueClick = onAddToQueueClick,
                 onAddToPlaylistClick = onAddToPlaylistClick,
                 onViewTrackInfoClick = onViewTrackInfoClick,
+                onGoToAlbumClick = onGoToAlbumClick,
+                onGoToArtistClick = onGoToArtistClick,
                 onRemoveFromPlaylistClick = onRemoveFromPlaylistClick
             )
 

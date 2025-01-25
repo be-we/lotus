@@ -27,6 +27,8 @@ sealed interface PlayerScreenEvent {
     data class OnPlayNextClick(val track: Track): PlayerScreenEvent
     data class OnAddToQueueClick(val tracks: List<Track>): PlayerScreenEvent
     data class OnViewTrackInfoClick(val track: Track): PlayerScreenEvent
+    data class OnGoToAlbumClick(val track: Track): PlayerScreenEvent
+    data class OnGoToArtistClick(val track: Track): PlayerScreenEvent
     data object OnCloseTrackInfoSheetClick: PlayerScreenEvent
     data object OnAcceptingRisksOfMetadataEditing: PlayerScreenEvent
     data class OnSearchInfo(val query: String): PlayerScreenEvent
