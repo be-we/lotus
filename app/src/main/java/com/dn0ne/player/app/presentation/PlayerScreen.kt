@@ -132,9 +132,9 @@ fun PlayerScreen(
     var coverArtBitmap by remember {
         mutableStateOf<ImageBitmap?>(null)
     }
-    val colorToApply by remember(useAlbumArtColor, useDynamicColor) {
+    val colorToApply by remember(coverArtBitmap, useAlbumArtColor, useDynamicColor) {
         derivedStateOf {
-            if (useAlbumArtColor) {
+            if (useAlbumArtColor && coverArtBitmap != null) {
                 dominantColorState.result
                     ?.paletteOrNull
                     ?.swatches
@@ -214,6 +214,7 @@ fun PlayerScreen(
 
                 LaunchedEffect(currentTrack) {
                     if (currentTrack == null) {
+                        coverArtBitmap = null
                         dominantColorState.reset()
                     }
                 }
