@@ -53,18 +53,26 @@ class TrackRepositoryImpl(
         val excludedScanFolders = settings.excludedScanFolders.value
         val ignoreShortTracks = settings.ignoreShortTracks
 
-        val selection =
-            (if (ignoreShortTracks) {
-                "${MediaStore.Audio.Media.DURATION} >= ?"
-            } else "1") + " AND " + (if (isScanModeInclusive) {
-                (listOf(
-                    scanMusicFolder,
-                ).filter { it } + extraScanFolders).joinToString(" OR ") {
-                    "${MediaStore.Audio.Media.DATA} LIKE ?"
-                }
+        val selection = buildString {
+            if (ignoreShortTracks) {
+                append("${MediaStore.Audio.Media.DURATION} >= ? AND ")
+            }
+
+            append("(")
+            var scanFilter = ""
+            scanFilter = if (isScanModeInclusive) {
+                (listOf(scanMusicFolder).filter { it } + extraScanFolders)
+                    .joinToString(" OR ") {
+                        "${MediaStore.Audio.Media.DATA} LIKE ?"
+                    }
             } else {
-                excludedScanFolders.joinToString(" AND ") { "${MediaStore.Audio.Media.DATA} NOT LIKE ?" }
-            }).let { "(${it.ifBlank { if (isScanModeInclusive) 0 else 1 }})" }
+                excludedScanFolders.joinToString(" AND ") {
+                    "${MediaStore.Audio.Media.DATA} NOT LIKE ?"
+                }
+            }
+            append(scanFilter.ifBlank { if (isScanModeInclusive) 0 else 1 })
+            append(")")
+        }
 
         val selectionArgs = mutableListOf<String>().apply {
             if (ignoreShortTracks) {
@@ -189,8 +197,8 @@ class TrackRepositoryImpl(
         val query = context.contentResolver.query(
             collection,
             projection,
-            selection,
-            selectionArgs,
+            selection.takeIf { settings.ignoreShortTracks },
+            selectionArgs. takeIf { settings.ignoreShortTracks },
             null
         )
 
