@@ -68,6 +68,11 @@
     <string name="close_player_sheet">Свернуть плеер</string>
     <string name="playback_mode_toggle">Переключить режим воспроизведения</string>
     <string name="show_lyrics">Показать текст трека</string>
+    <string name="set_sleep_timer">Установить таймер сна</string>
+    <string name="sleep_timer">Таймер сна</string>
+    <string name="short_minutes">мин</string>
+    <string name="stop_timer">Стоп</string>
+    <string name="start_timer">Старт</string>
 
     <!-- Play queue -->
     <string name="remove_from_queue">Убрать из очереди</string>

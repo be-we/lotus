@@ -57,6 +57,7 @@ import androidx.compose.material.icons.rounded.RepeatOne
 import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
+import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -501,6 +502,9 @@ fun ExpandedPlayer(
     var showQueue by remember {
         mutableStateOf(false)
     }
+    var showSleepTimerSheet by remember {
+        mutableStateOf(false)
+    }
 
     Box {
         Box(
@@ -539,6 +543,18 @@ fun ExpandedPlayer(
 
 
                     Row {
+                        IconButton(
+                            onClick = {
+                                showSleepTimerSheet = true
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Timer,
+                                contentDescription = context.resources.getString(R.string.set_sleep_timer),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
                         AnimatedVisibility(
                             visible = playbackState.playbackMode != PlaybackMode.Shuffle,
                             enter = expandHorizontally(),
@@ -723,6 +739,18 @@ fun ExpandedPlayer(
 
 
                             Row {
+                                IconButton(
+                                    onClick = {
+                                        showSleepTimerSheet = true
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Timer,
+                                        contentDescription = context.resources.getString(R.string.set_sleep_timer),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
                                 AnimatedVisibility(
                                     visible = playbackState.playbackMode != PlaybackMode.Shuffle,
                                     enter = expandHorizontally(),
@@ -887,6 +915,14 @@ fun ExpandedPlayer(
                 onTrackClick = onTrackClick,
                 onBackClick = {
                     showQueue = false
+                }
+            )
+        }
+
+        if (showSleepTimerSheet) {
+            SleepTimerBottomSheet(
+                onDismissRequest = {
+                    showSleepTimerSheet = false
                 }
             )
         }

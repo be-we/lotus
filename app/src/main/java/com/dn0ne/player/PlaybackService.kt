@@ -6,8 +6,10 @@ import android.content.Intent
 import android.media.AudioFormat
 import android.media.AudioTrack
 import android.media.audiofx.Equalizer
+import android.os.CountDownTimer
 import android.util.Log
 import androidx.annotation.OptIn
+import androidx.compose.ui.util.fastForEach
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.Player
@@ -235,6 +237,10 @@ class PlaybackService : MediaSessionService() {
             }
         })
 
+        SleepTimer.addOnFinishCallback {
+            player.stop()
+        }
+
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
@@ -264,6 +270,7 @@ class PlaybackService : MediaSessionService() {
 
     override fun onDestroy() {
         equalizerController.releaseEqualizer()
+        SleepTimer.stop()
         mediaSession?.run {
             player.release()
             release()
@@ -275,4 +282,45 @@ class PlaybackService : MediaSessionService() {
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? =
         mediaSession
 
+}
+
+object SleepTimer {
+    var timer: CountDownTimer? = null
+    private val finishCallbacks = mutableListOf<() -> Unit>()
+
+    private val _minutesLeft = MutableStateFlow(1)
+    val minutesLeft = _minutesLeft.asStateFlow()
+    fun updateMinutesLeft(value: Int) {
+        _minutesLeft.update { value }
+    }
+
+    private val _isRunning = MutableStateFlow(false)
+    val isRunning = _isRunning.asStateFlow()
+
+    fun start() {
+        stop()
+        timer = object : CountDownTimer(_minutesLeft.value.toLong() * 60000L, 60000L) {
+            override fun onTick(millisUntilFinished: Long) {
+                _minutesLeft.update { millisUntilFinished.toInt() / 60000 + 1 }
+            }
+
+            override fun onFinish() {
+                finishCallbacks.fastForEach { it.invoke() }
+                _isRunning.update { false }
+            }
+
+        }.start()
+
+        _isRunning.update { true }
+    }
+
+    fun stop() {
+        timer?.cancel()
+
+        _isRunning.update { false }
+    }
+
+    fun addOnFinishCallback(callback: () -> Unit) {
+        finishCallbacks += callback
+    }
 }

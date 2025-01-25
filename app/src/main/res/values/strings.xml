@@ -80,6 +80,11 @@
     <string name="close_player_sheet">Close player sheet</string>
     <string name="playback_mode_toggle">Toggle playback mode</string>
     <string name="show_lyrics">Show lyrics</string>
+    <string name="set_sleep_timer">Set sleep timer</string>
+    <string name="sleep_timer">Sleep timer</string>
+    <string name="short_minutes">min</string>
+    <string name="stop_timer">Stop</string>
+    <string name="start_timer">Start</string>
 
     <!-- Play queue -->
     <string name="remove_from_queue">Remove from queue</string>
