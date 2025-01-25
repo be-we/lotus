@@ -267,7 +267,7 @@
     <!-- Playlists settings -->
     <string name="filter_instead_of_search">Фильтр вместо поиска</string>
     <string name="filter_instead_of_search_explain">Заменить поиск в плейлисте на фильтр</string>
-    <string name="playlists_supporting_text">Поле поиска</string>
+    <string name="playlists_supporting_text">Поле поиска, импорт</string>
     <string name="filter">Фильтр</string>
     <string name="import_playlist">Импортировать плейлист</string>
     <string name="import_playlist_explain">Добавить плейлист из M3U файла</string>
