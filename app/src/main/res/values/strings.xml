@@ -320,6 +320,8 @@
     <string name="nothing_to_refresh">Nothing to refresh</string>
     <string name="refreshed_successfully">Successfully refreshed</string>
     <string name="failed_to_refresh">Failed to refresh</string>
+    <string name="ignore_short_tracks">Ignore short tracks</string>
+    <string name="ignore_short_tracks_explain">Do not show tracks shorter than 30 seconds</string>
 
     <!-- About screen -->
     <string name="repo">Repository</string>
@@ -332,4 +334,5 @@
 
     <string name="copy_error">Copy error</string>
     <string name="select_all">Select all</string>
+
 </resources>

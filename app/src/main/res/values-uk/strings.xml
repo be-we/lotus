@@ -308,6 +308,8 @@
     <string name="nothing_to_refresh">Оновлювати нічого</string>
     <string name="refreshed_successfully">Успішно оновлено</string>
     <string name="failed_to_refresh">Не вадлося оновити</string>
+    <string name="ignore_short_tracks">Ігнорувати короткі треки</string>
+    <string name="ignore_short_tracks_explain">Не показувати треки коротше 30 секунд</string>
 
     <!-- About screen -->
     <string name="repo">Репозиторій</string>

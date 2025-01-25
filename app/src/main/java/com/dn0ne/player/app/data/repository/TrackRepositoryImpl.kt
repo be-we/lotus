@@ -51,9 +51,12 @@ class TrackRepositoryImpl(
         val scanMusicFolder = settings.scanMusicFolder.value
         val extraScanFolders = settings.extraScanFolders.value
         val excludedScanFolders = settings.excludedScanFolders.value
+        val ignoreShortTracks = settings.ignoreShortTracks
 
         val selection =
-            "${MediaStore.Audio.Media.DURATION} >= ? AND " + (if (isScanModeInclusive) {
+            (if (ignoreShortTracks) {
+                "${MediaStore.Audio.Media.DURATION} >= ?"
+            } else "1") + " AND " + (if (isScanModeInclusive) {
                 (listOf(
                     scanMusicFolder,
                 ).filter { it } + extraScanFolders).joinToString(" OR ") {
@@ -63,9 +66,11 @@ class TrackRepositoryImpl(
                 excludedScanFolders.joinToString(" AND ") { "${MediaStore.Audio.Media.DATA} NOT LIKE ?" }
             }).let { "(${it.ifBlank { if (isScanModeInclusive) 0 else 1 }})" }
 
-        val selectionArgs = mutableListOf(
-            TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS).toString()
-        ).apply {
+        val selectionArgs = mutableListOf<String>().apply {
+            if (ignoreShortTracks) {
+                add(TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS).toString())
+            }
+
             if (isScanModeInclusive) {
                 if (scanMusicFolder) {
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)?.path?.let {

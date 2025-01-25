@@ -43,6 +43,7 @@ class Settings(context: Context) {
     private val playlistSortOrderKey = "playlist-sort-order-key"
 
     private val isScanModeInclusiveKey = "is-scan-mode-inclusive"
+    private val ignoreShortTracksKey = "exclude-short-tracks"
     private val scanMusicFolderKey = "scan-music-in-music"
     private val extraScanFoldersKey = "extra-scan-folders"
     private val excludedScanFoldersKey = "excluded-scan-folders"
@@ -283,6 +284,15 @@ class Settings(context: Context) {
             apply()
         }
     }
+
+    var ignoreShortTracks: Boolean
+        get() = sharedPreferences.getBoolean(ignoreShortTracksKey, true)
+        set(value) {
+            with(sharedPreferences.edit()) {
+                putBoolean(ignoreShortTracksKey, value)
+                apply()
+            }
+        }
 
     private val _scanMusicFolder = MutableStateFlow(
         sharedPreferences.getBoolean(scanMusicFolderKey, true)
